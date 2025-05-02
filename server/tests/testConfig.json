@@ -1,0 +1,31 @@
+{
+  "users": {
+    "user1": {
+      "username": "test_user1",
+      "password": "Test123!",
+      "ip": "192.168.1.100",
+      "name": "Test",
+      "surname": "Korisnik",
+      "gender": "male",
+      "date_of_birth": "1990-01-01",
+      "theme": "light",
+      "language": "hr"
+    },
+    "user2": {
+      "username": "test_user2",
+      "password": "Test123!",
+      "ip": "192.168.1.101",
+      "name": "Ana",
+      "surname": "Tester",
+      "gender": "female",
+      "date_of_birth": "1995-05-05",
+      "theme": "dark",
+      "language": "en"
+    }
+  },
+  "admin": {
+    "username": "admin_user",
+    "password": "Admin123!",
+    "ip": "127.0.0.1"
+  }
+}

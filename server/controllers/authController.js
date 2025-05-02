@@ -1,37 +1,133 @@
-const User = require("../models/User");
-const bcrypt = require("bcryptjs");
+const path = require("path");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const Database = require("better-sqlite3");
+const errors = require("../constants/errors.json");
+const success = require("../constants/success.json");
 
-exports.register = async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
+const authDbPath = path.resolve(__dirname, "../database/data/auth.db");
+const clientDbPath = path.resolve(__dirname, "../database/data/client_info.db");
+const loginLogDbPath = path.resolve(__dirname, "../database/data/login.db");
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ message: "Email već postoji" });
+const ipAttempts = new Map();
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await User.create({ username, email, password: hashedPassword });
+const handleLoginUser = async (req, res) => {
+    const { username, password } = req.body;
+    const ip = req.ip;
 
-        res.status(201).json({ message: "Registracija uspješna" });
-    } catch (err) {
-        res.status(500).json({ message: "Greška na serveru" });
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    await delay(1000);
+
+    if (!username || !password) {
+        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
     }
+
+    const currentAttempts = ipAttempts.get(ip) || 0;
+    if (currentAttempts >= 3) {
+        return res.status(429).json({ success: false, error_code: errors.TOO_MANY_ATTEMPTS });
+    }
+
+    const authDb = new Database(authDbPath);
+    const credentials = authDb
+        .prepare("SELECT * FROM credentials WHERE username = ?")
+        .get(username);
+
+    if (!credentials) {
+        ipAttempts.set(ip, currentAttempts + 1);
+        authDb.close();
+        return res.status(401).json({ success: false, error_code: errors.INVALID_CREDENTIALS });
+    }
+
+    if (credentials.attempts >= 9) {
+        authDb.close();
+        ipAttempts.set(ip, currentAttempts + 1);
+        return;
+    }
+
+    const isValid = bcrypt.compareSync(password, credentials.password_hash);
+
+    if (!isValid) {
+        authDb
+            .prepare("UPDATE credentials SET attempts = attempts + 1 WHERE username = ?")
+            .run(username);
+        ipAttempts.set(ip, currentAttempts + 1);
+        authDb.close();
+        return res.status(401).json({ success: false, error_code: errors.INVALID_CREDENTIALS });
+    }
+
+    authDb.prepare("UPDATE credentials SET attempts = 0 WHERE username = ?").run(username);
+    authDb.close();
+    ipAttempts.delete(ip);
+
+    const clientDb = new Database(clientDbPath);
+    const userInfo = clientDb.prepare("SELECT id FROM clients WHERE username = ?").get(username);
+    clientDb.close();
+
+    if (!userInfo) {
+        return res.status(404).json({ success: false, error_code: errors.USER_NOT_FOUND });
+    }
+
+    const userId = userInfo.id;
+
+    const loginLogDb = new Database(loginLogDbPath);
+    loginLogDb
+        .prepare(
+            `
+    INSERT INTO sessions (user_id, username, ip_address, login_time, status)
+    VALUES (?, ?, ?, datetime('now'), 'active');
+  `
+        )
+        .run(userId, username, ip);
+    loginLogDb.close();
+
+    const token = jwt.sign({ id: userId, username, ip }, process.env.JWT_SECRET, {
+        expiresIn: "2h"
+    });
+
+    res.status(200).json({
+        success: true,
+        message_code: success.LOGIN_SUCCESS,
+        token,
+        userId
+    });
 };
 
-exports.login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        const user = await User.findOne({ email });
-        if (!user) return res.status(404).json({ message: "Korisnik ne postoji" });
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: "Pogrešna lozinka" });
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-        res.json({ token, user: { id: user._id, username: user.username, email: user.email } });
-    } catch (err) {
-        res.status(500).json({ message: "Greška na serveru" });
+const handleLogoutUser = (req, res) => {
+    const { userId } = req.body;
+    const ip = req.ip;
+  
+    if (!userId) {
+      return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
     }
+  
+    const loginDb = new Database(loginLogDbPath);
+  
+    const activeSession = loginDb.prepare(`
+      SELECT id FROM sessions
+      WHERE user_id = ? AND ip_address = ? AND status = 'active'
+      ORDER BY login_time DESC
+      LIMIT 1
+    `).get(userId, ip);
+  
+    if (!activeSession) {
+      loginDb.close();
+      return res.status(404).json({ success: false, error_code: errors.SESSION_NOT_FOUND });
+    }
+  
+    loginDb.prepare(`
+      UPDATE sessions
+      SET logout_time = datetime('now'), status = 'closed'
+      WHERE id = ?
+    `).run(activeSession.id);
+  
+    loginDb.close();
+  
+    return res.status(200).json({ success: true, message_code: success.LOGOUT_SUCCESS });
+  };
+  
+
+
+module.exports = {
+    handleLoginUser,
+    handleLogoutUser
 };
