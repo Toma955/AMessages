@@ -7,14 +7,24 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./server
+
+    env:
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install dependencies
         run: npm install
 
-      - name: Run all tests
-        run: npm test
+      - name: Run tests
+        run: npx jest --verbose --detectOpenHandles --forceExit
