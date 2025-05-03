@@ -1,15 +1,16 @@
 const request = require("supertest");
 const express = require("express");
+const path = require("path");
 const userRoutes = require("../routes/UserRoutes");
-const config = require("./testConfig.json"); // ✅
+
+const config = require(path.resolve(__dirname, "testConfig.json"));
+const user = config.users.user1;
 
 const app = express();
 app.use(express.json());
 app.use("/api", userRoutes);
 
 describe("Kreiranje korisnika", () => {
-    const user = config.users.user1;
-
     test("Uspješno kreira korisnika i pokreće backend procese", async () => {
         const res = await request(app).post("/api/users").send({
             username: user.username,
@@ -21,8 +22,6 @@ describe("Kreiranje korisnika", () => {
             theme: user.theme,
             language: user.language
         });
-
-        console.log("RESPONSE BODY:", res.body);
 
         expect(res.statusCode).toBe(201);
         expect(res.body.success).toBe(true);
