@@ -1,1 +1,8 @@
-
+{"level":30,"time":1746819104298,"pid":5372,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1746819104300,"pid":5372,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1746819104301,"pid":5372,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1746819104303,"pid":5372,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1746819104304,"pid":5372,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1746819104304,"pid":5372,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1746819104305,"pid":5372,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1746819104306,"pid":5372,"hostname":"TomPC","msg":"[2025-05-09 19:31:44] Startup checks passed. All critical files are present."}
