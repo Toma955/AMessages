@@ -12,20 +12,29 @@ app.use("/api", userRoutes);
 
 describe("Kreiranje korisnika", () => {
     test("Uspješno kreira korisnika i pokreće backend procese", async () => {
-        const res = await request(app).post("/api/users").send({
-            username: user.username,
-            password: user.password,
-            name: user.name,
-            surname: user.surname,
-            gender: user.gender,
-            date_of_birth: user.date_of_birth,
-            theme: user.theme,
-            language: user.language
-        });
+        try {
+            const res = await request(app).post("/api/users").send({
+                username: user.username,
+                password: user.password,
+                name: user.name,
+                surname: user.surname,
+                gender: user.gender,
+                date_of_birth: user.date_of_birth,
+                theme: user.theme,
+                language: user.language
+            });
 
-        expect(res.statusCode).toBe(201);
-        expect(res.body.success).toBe(true);
-        expect(res.body.message_code).toBe("USER_CREATED");
-        expect(res.body).toHaveProperty("userId");
+            console.log("Response status:", res.statusCode);
+            console.log(" Response body:", res.body);
+
+            expect(res.statusCode).toBe(201);
+            expect(res.body.success).toBe(true);
+            expect(res.body.message_code).toBe("USER_CREATED");
+            expect(res.body).toHaveProperty("userId");
+
+        } catch (err) {
+            console.error(" Test failed with error:", err);
+            throw err; // re-throw so jest still fails the test
+        }
     });
 });
