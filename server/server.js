@@ -31,6 +31,7 @@ app.use((req, res, next) => {
 });
 
 require("./routes")(app);
+app.use("/api", require("./routes/SearchRoutes"));
 
 app.get("/test", (req, res) => {
     res.send("Server is up");
