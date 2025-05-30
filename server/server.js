@@ -31,7 +31,11 @@ app.use((req, res, next) => {
 });
 
 require("./routes")(app);
-app.use("/api", require("./routes/SearchRoutes"));
+app.use("/api/auth", require("./routes/AuthRoutes"));
+app.use("/api/group", require("./routes/GroupRoutes"));
+app.use("/api/messages", require("./routes/MessageRoutes"));
+app.use("/api/search", require("./routes/SearchRoutes"));
+app.use("/api", require("./routes/UserRoutes")); 
 
 app.get("/test", (req, res) => {
     res.send("Server is up");
