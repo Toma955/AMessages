@@ -1,16 +1,16 @@
 const request = require("supertest");
 const express = require("express");
 const path = require("path");
-const userRoutes = require("../routes/UserRoutes");
+const userRoutes = require("../../routes/UserRoutes");
 
 const config = require(path.resolve(__dirname, "testConfig.json"));
-const user = config.users.user2;
+const user = config.users.user1;
 
 const app = express();
 app.use(express.json());
 app.use("/api", userRoutes);
 
-describe(`Kreiranje korisnika - ${user.username}`, () => {
+describe("Kreiranje korisnika", () => {
     test("Uspješno kreira korisnika i pokreće backend procese", async () => {
         try {
             const res = await request(app).post("/api/users").send({
@@ -25,16 +25,15 @@ describe(`Kreiranje korisnika - ${user.username}`, () => {
             });
 
             console.log("Response status:", res.statusCode);
-            console.log("Response body:", res.body);
+            console.log(" Response body:", res.body);
 
             expect(res.statusCode).toBe(201);
             expect(res.body.success).toBe(true);
             expect(res.body.message_code).toBe("USER_CREATED");
             expect(res.body).toHaveProperty("userId");
-
         } catch (err) {
-            console.error("Test failed with error:", err);
-            throw err;
+            console.error(" Test failed with error:", err);
+            throw err; // re-throw so jest still fails the test
         }
     });
 });

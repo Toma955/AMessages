@@ -9,12 +9,14 @@ const authDbPath = path.resolve(__dirname, "../../database/data/auth.db");
 const clientDbPath = path.resolve(__dirname, "../../database/data/client_info.db");
 const loginLogDbPath = path.resolve(__dirname, "../../database/data/login.db");
 
+// Praćenje pokušaja prijave po IP adresi
 const ipAttempts = new Map();
 
 const handleLoginUser = async (req, res) => {
     const { username, password } = req.body;
     const ip = req.ip;
 
+    // Umjetno kašnjenje radi zaštite od brute-force i timming napada
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await delay(1000);
 
@@ -36,21 +38,24 @@ const handleLoginUser = async (req, res) => {
         return res.status(401).json({ success: false, error_code: errors.INVALID_CREDENTIALS });
     }
 
+    // Provjera zaključanog računa nakon previše pokušaja
     if (credentials.attempts >= 9) {
-        authDb.close();
         ipAttempts.set(ip, currentAttempts + 1);
-        return;
+        authDb.close();
+        return res.status(403).json({ success: false, error_code: errors.TOO_MANY_ATTEMPTS });
     }
 
     const isValid = bcrypt.compareSync(password, credentials.password_hash);
 
     if (!isValid) {
+        // Inkrement broja neuspješnih pokušaja
         authDb.prepare("UPDATE credentials SET attempts = attempts + 1 WHERE username = ?").run(username);
         ipAttempts.set(ip, currentAttempts + 1);
         authDb.close();
         return res.status(401).json({ success: false, error_code: errors.INVALID_CREDENTIALS });
     }
 
+    // Resetiranje pokušaja nakon uspješne prijave
     authDb.prepare("UPDATE credentials SET attempts = 0 WHERE username = ?").run(username);
     authDb.close();
     ipAttempts.delete(ip);
@@ -65,6 +70,7 @@ const handleLoginUser = async (req, res) => {
 
     const userId = userInfo.id;
 
+    // Zapisivanje nove sesije u bazu podataka
     const loginLogDb = new Database(loginLogDbPath);
     loginLogDb.prepare(`
         INSERT INTO sessions (user_id, username, ip_address, login_time, status)
@@ -72,11 +78,12 @@ const handleLoginUser = async (req, res) => {
     `).run(userId, username, ip);
     loginLogDb.close();
 
+    // Generiranje JWT tokena s podacima o korisniku
     const token = jwt.sign({ id: userId, username, ip }, process.env.JWT_SECRET, {
         expiresIn: "2h"
     });
 
-    res.status(200).json({
+    return res.status(200).json({
         success: true,
         message_code: success.LOGIN_SUCCESS,
         token,

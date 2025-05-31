@@ -2,16 +2,20 @@ const fs = require("fs");
 const path = require("path");
 const Database = require("better-sqlite3");
 
+// Definira putanju do direktorija baze podataka
 const dataDir = path.resolve(__dirname, "../database/data");
 const dbPath = path.join(dataDir, "client_info.db");
 
+// Kreira direktorij ako ne postoji
 if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
     console.log(" Created /database/data directory");
 }
 
+// Otvara konekciju prema bazi podataka
 const db = new Database(dbPath);
 
+// Kreira tablicu 'clients' ako već ne postoji
 db.prepare(
     `
   CREATE TABLE IF NOT EXISTS clients (

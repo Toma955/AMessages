@@ -16,7 +16,7 @@ app.use(express.json());
 app.use("/api", userRoutes);
 app.use("/api", authRoutes);
 
-describe(" Integracijski tok korisnika, kreiranje, logiranje, logoutovanje i brisanje korisnina ", () => {
+describe(" Integracijski tok korisnika, kreiranje, logiranje, logoutovanje i brisanje usera ", () => {
     let token1 = "";
     let token2 = "";
     let userId1 = null;
@@ -122,7 +122,7 @@ describe(" Integracijski tok korisnika, kreiranje, logiranje, logoutovanje i bri
         }
     });
 
-    test("🗑️ Delete user2", async () => {
+    test(" Delete user2", async () => {
         try {
             const res = await request(app).delete(`/api/users/${userId2}`);
             expect(res.statusCode).toBe(200);

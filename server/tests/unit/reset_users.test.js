@@ -4,8 +4,8 @@ const path = require("path");
 const fs = require("fs");
 const Database = require("better-sqlite3");
 
-const userRoutes = require("../routes/UserRoutes");
-const config = require("./testConfig.json");
+const userRoutes = require("../../routes/UserRoutes");
+const config = require("../testConfig.json");
 
 const app = express();
 app.use(express.json());

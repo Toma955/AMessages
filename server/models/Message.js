@@ -1,7 +1,5 @@
-
-
+// Inicijalizira model poruka (trenutno samo placeholder funkcija)
 function initMessageModel() {
-  
   return true;
 }
 

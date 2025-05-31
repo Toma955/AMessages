@@ -1,8 +1,8 @@
 require("dotenv").config();
 const request = require("supertest");
 const express = require("express");
-const authRoutes = require("../routes/AuthRoutes");
-const config = require("./testUtils");
+const authRoutes = require("../../routes/AuthRoutes");
+const config = require("../testUtils");
 
 const app = express();
 app.use(express.json());
