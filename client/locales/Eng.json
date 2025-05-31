@@ -1,9 +1,13 @@
 {
-    "title": "AMessages",
-    "login": "Login",
-    "signup": "Signup",
-    "main": "Main",
-    "settings": "Settings",
-    "test_server": "Test server",
-    "switch_lang": "Switch to Croatian"
+  "loginTitle": "Login",
+  "emailPlaceholder": "Email address",
+  "passwordPlaceholder": "Password",
+  "loginButton": "Log in",
+  "googleHover": "Continue with Google",
+  "languageHover": "Switch language",
+  "showHover": "Show password",
+  "hideHover": "Hide password",
+  "newUserHover": "Create new account",
+  "resetHover": "Reset password",
+  "backToGoogleHover": "Back to Google sign-in"
 }

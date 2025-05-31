@@ -1,9 +1,14 @@
 {
-    "title": "AMessages",
-    "login": "Prijava",
-    "signup": "Registracija",
-    "main": "Glavna",
-    "settings": "Postavke",
-    "test_server": "Testiraj server",
-    "switch_lang": "Prebaci na Engleski"
+  "loginTitle": "Prijava",
+  "emailPlaceholder": "Email adresa",
+  "passwordPlaceholder": "Lozinka",
+  "loginButton": "Prijavi se",
+  "googleHover": "Nastavi s Googleom",
+  "languageHover": "Promijeni jezik",
+  "showHover": "Prikaži lozinku",
+  "hideHover": "Sakrij lozinku",
+  "newUserHover": "Kreiraj novi račun",
+  "resetHover": "Resetiraj lozinku",
+  "backToGoogleHover": "Povratak na Google prijavu"
+
 }
