@@ -1,17 +1,17 @@
 import "@/app/styles/global.css";
-import CanvasBackground from "@/components/CanvasBackground";
+import ClientLayout from "@/components/ClientLayout";
 
 export const metadata = {
-    title: "AMessages",
-    description: "Next-gen messaging platform",
+    title: "AMessages"
 };
 
 export default function RootLayout({ children }) {
     return (
         <html lang="hr">
             <body>
-                <CanvasBackground />
-                {children}
+                <ClientLayout>
+                    {children}
+                </ClientLayout>
             </body>
         </html>
     );

@@ -11,16 +11,62 @@ body {
         "Open Sans", "Helvetica Neue", sans-serif;
 }
 
-/* ===== Canvas Pozadina */
+/* ===== Canvas Background ===== */
 .canvas-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: -10;
+    z-index: 0;
     pointer-events: none;
     touch-action: none;
-    background-color: black;
+}
+
+/* ===== Loading Counter ===== */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.loading-text {
+    color: #ff884d;
+    font-size: 5rem;
+    font-weight: bold;
+}
+
+.fullscreen-centered {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: orange;
+  font-size: 5rem;
+  font-weight: bold;
+  pointer-events: none;
+}
+.loading-counter {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;      
+  color: orange;   
+  font-size: 5rem;
+  font-weight: bold;
+  pointer-events: none;
 }
 

@@ -1,5 +1,4 @@
-import "@/app/styles/global.css";
-import CanvasBackground from "@/components/CanvasBackground";
+import "@/app/styles/login.css";
 
 export const metadata = {
     title: "Login - AMessages",
@@ -7,13 +6,5 @@ export const metadata = {
 };
 
 export default function LoginLayout({ children }) {
-    return (
-        <>
-            <div className="fixed inset-0 -z-10">
-                <CanvasBackground />
-            </div>
-            {children}
-        </>
-    );
+    return children;
 }
-//

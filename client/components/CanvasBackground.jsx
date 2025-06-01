@@ -12,14 +12,20 @@ export default function CanvasBackground() {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+
         const ctx = canvas.getContext("2d");
-         console.log("CanvasBackground mounted");
+        if (!ctx) return;
+
+        console.log("CanvasBackground mounted and context obtained");
 
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            const { innerWidth, innerHeight } = window;
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            console.log(`Canvas resized to ${innerWidth}x${innerHeight}`);
         }
 
+        // Initial resize
         resizeCanvas();
 
         const totalBlobs = Math.floor((canvas.width * canvas.height) / 20000);
@@ -57,7 +63,9 @@ export default function CanvasBackground() {
                 for (let dy = -80; dy <= 80; dy += step) {
                     const px = baseX + dx;
                     const py = baseY + dy;
-                    const inside = circles.some(c => Math.hypot(c.x - px, c.y - py) < c.r - padding);
+                    const inside = circles.some(
+                        (c) => Math.hypot(c.x - px, c.y - py) < c.r - padding
+                    );
                     if (inside) continue;
 
                     let surrounding = 0;
@@ -98,7 +106,7 @@ export default function CanvasBackground() {
         function updateBlob(blob) {
             let centerX = 0;
             let centerY = 0;
-            blob.circles.forEach(c => {
+            blob.circles.forEach((c) => {
                 centerX += c.x;
                 centerY += c.y;
             });
@@ -109,13 +117,13 @@ export default function CanvasBackground() {
             if (centerX < margin || centerX > canvas.width - margin) blob.dx = -blob.dx;
             if (centerY < margin || centerY > canvas.height - margin) blob.dy = -blob.dy;
 
-            blob.circles.forEach(c => {
+            blob.circles.forEach((c) => {
                 c.x += blob.dx;
                 c.y += blob.dy;
             });
         }
 
-        COLOR_GROUPS.forEach(color => {
+        COLOR_GROUPS.forEach((color) => {
             for (let i = 0; i < totalBlobs / COLOR_GROUPS.length; i++) {
                 blobs.push(createBlob(color));
             }
@@ -126,27 +134,39 @@ export default function CanvasBackground() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = BACKGROUND_COLOR;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            blobs.forEach(blob => {
+            blobs.forEach((blob) => {
                 drawBlob(blob);
                 updateBlob(blob);
             });
             animationFrameId = requestAnimationFrame(animate);
         }
 
+        // Start animation
         animate();
+
+        // Handle window resize
         window.addEventListener("resize", resizeCanvas);
 
         return () => {
             window.removeEventListener("resize", resizeCanvas);
-            cancelAnimationFrame(animationFrameId);
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
         };
     }, []);
 
     return (
-        <canvas
-            ref={canvasRef}
-            className="fixed top-0 left-0 w-full h-full z-0"
-            style={{ touchAction: "none" }}
+        <canvas 
+            ref={canvasRef} 
+            className="canvas-background"
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                zIndex: 0
+            }}
         />
     );
 }
