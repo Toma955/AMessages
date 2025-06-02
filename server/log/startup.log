@@ -54,3 +54,59 @@
 {"level":30,"time":1748681205225,"pid":54508,"hostname":"TomPC","msg":"Database system.db exists."}
 {"level":30,"time":1748681205227,"pid":54508,"hostname":"TomPC","msg":"Database usernames.db exists."}
 {"level":30,"time":1748681205227,"pid":54508,"hostname":"TomPC","msg":"[2025-05-31 08:46:45] Startup checks passed. All critical files are present."}
+{"level":30,"time":1748810603724,"pid":46356,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1748810603725,"pid":46356,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1748810603725,"pid":46356,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1748810603728,"pid":46356,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1748810603728,"pid":46356,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1748810603729,"pid":46356,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1748810603729,"pid":46356,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1748810603730,"pid":46356,"hostname":"TomPC","msg":"[2025-06-01 20:43:23] Startup checks passed. All critical files are present."}
+{"level":30,"time":1748810655738,"pid":43508,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1748810655739,"pid":43508,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1748810655740,"pid":43508,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1748810655745,"pid":43508,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1748810655748,"pid":43508,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1748810655749,"pid":43508,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1748810655750,"pid":43508,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1748810655751,"pid":43508,"hostname":"TomPC","msg":"[2025-06-01 20:44:15] Startup checks passed. All critical files are present."}
+{"level":30,"time":1748811802329,"pid":47136,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1748811802333,"pid":47136,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1748811802334,"pid":47136,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1748811802337,"pid":47136,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1748811802339,"pid":47136,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1748811802340,"pid":47136,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1748811802341,"pid":47136,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1748811802342,"pid":47136,"hostname":"TomPC","msg":"[2025-06-01 21:03:22] Startup checks passed. All critical files are present."}
+{"level":30,"time":1748811811317,"pid":47832,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1748811811319,"pid":47832,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1748811811320,"pid":47832,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1748811811321,"pid":47832,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1748811811322,"pid":47832,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1748811811322,"pid":47832,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1748811811323,"pid":47832,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1748811811324,"pid":47832,"hostname":"TomPC","msg":"[2025-06-01 21:03:31] Startup checks passed. All critical files are present."}
+{"level":30,"time":1748811921781,"pid":43816,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1748811921782,"pid":43816,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1748811921783,"pid":43816,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1748811921786,"pid":43816,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1748811921786,"pid":43816,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1748811921787,"pid":43816,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1748811921787,"pid":43816,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1748811921789,"pid":43816,"hostname":"TomPC","msg":"[2025-06-01 21:05:21] Startup checks passed. All critical files are present."}
+{"level":30,"time":1748812229683,"pid":45040,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1748812229685,"pid":45040,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1748812229686,"pid":45040,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1748812229689,"pid":45040,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1748812229690,"pid":45040,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1748812229694,"pid":45040,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1748812229695,"pid":45040,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1748812229696,"pid":45040,"hostname":"TomPC","msg":"[2025-06-01 21:10:29] Startup checks passed. All critical files are present."}
+{"level":30,"time":1748849497861,"pid":10252,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1748849497862,"pid":10252,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1748849497862,"pid":10252,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1748849497864,"pid":10252,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1748849497864,"pid":10252,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1748849497865,"pid":10252,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1748849497865,"pid":10252,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1748849497867,"pid":10252,"hostname":"TomPC","msg":"[2025-06-02 07:31:37] Startup checks passed. All critical files are present."}

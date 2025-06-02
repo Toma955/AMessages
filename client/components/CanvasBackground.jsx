@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { themes } from "@/app/config/themes";
 
-// 🎨 VARIJABLE ZA TEMU
-const BACKGROUND_COLOR = "#000000"; // pozadina
-const COLOR_GROUPS = ["#ff4d4d", "#ff884d", "#cc33ff"]; // boje blobova
-
-export default function CanvasBackground() {
+export default function CanvasBackground({ currentTheme = 'orange' }) {
     const canvasRef = useRef(null);
 
     useEffect(() => {
@@ -123,8 +120,15 @@ export default function CanvasBackground() {
             });
         }
 
-        COLOR_GROUPS.forEach((color) => {
-            for (let i = 0; i < totalBlobs / COLOR_GROUPS.length; i++) {
+        // Clear existing blobs
+        blobs.length = 0;
+
+        // Get current theme colors
+        const themeColors = themes[currentTheme].colors;
+        
+        // Create new blobs with theme colors
+        themeColors.forEach((color) => {
+            for (let i = 0; i < totalBlobs / themeColors.length; i++) {
                 blobs.push(createBlob(color));
             }
         });
@@ -132,7 +136,7 @@ export default function CanvasBackground() {
         let animationFrameId;
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = BACKGROUND_COLOR;
+            ctx.fillStyle = themes[currentTheme].background;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             blobs.forEach((blob) => {
                 drawBlob(blob);
@@ -153,7 +157,7 @@ export default function CanvasBackground() {
                 cancelAnimationFrame(animationFrameId);
             }
         };
-    }, []);
+    }, [currentTheme]); // Dodali smo currentTheme kao dependency
 
     return (
         <canvas 
@@ -165,7 +169,9 @@ export default function CanvasBackground() {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                zIndex: 0
+                zIndex: -1,
+                pointerEvents: 'none',
+                touchAction: 'none'
             }}
         />
     );

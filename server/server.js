@@ -40,7 +40,12 @@ app.use((req, res, next) => {
 });
 */
 
-app.use(cors());
+// Enable CORS for frontend
+app.use(cors({
+    origin: true, // Allow all origins in development
+    credentials: true
+}));
+
 app.use(helmet());
 app.use(express.json());
 
@@ -81,7 +86,7 @@ app.use((err, req, res, next) => {
 
 require("./backup");
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 async function startServer() {
     try {
