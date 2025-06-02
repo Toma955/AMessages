@@ -5,6 +5,7 @@ import CanvasBackground from "@/components/CanvasBackground";
 import RecordPlayer from "@/components/RecordPlayer";
 import "@/app/styles/main.css";
 import LogoutModal from '@/components/LogoutModal';
+import { useRouter } from "next/navigation";
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -50,6 +51,7 @@ export default function MainLayout({ children }) {
     const [isRecordPlayerVisible, setIsRecordPlayerVisible] = useState(false);
     const detailsPanelRef = useRef(null);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const router = useRouter();
 
     const updateHighlightPosition = (buttonElement) => {
         if (!buttonElement) return;
@@ -148,9 +150,15 @@ export default function MainLayout({ children }) {
     };
 
     const handleLogout = () => {
-        // Ovdje dodajte logiku za logout
-        console.log('Logging out...');
-        // Primjer: router.push('/login');
+        // Clear authentication data
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        
+        // Clear the cookie
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        
+        // Redirect to login page
+        router.push('/login');
     };
 
     const handleIconClick = (name, event) => {

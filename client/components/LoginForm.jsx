@@ -34,7 +34,7 @@ export default function LoginForm() {
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [hoverText, setHoverText] = useState("");
     const [passwordInput, setPasswordInput] = useState("");
-    const [emailInput, setEmailInput] = useState("");
+    const [usernameInput, setUsernameInput] = useState("");
     const [showRegister, setShowRegister] = useState(false);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -48,7 +48,7 @@ export default function LoginForm() {
     
     const handleLogin = async () => {
         try {
-            if (!emailInput || !passwordInput) {
+            if (!usernameInput || !passwordInput) {
                 setError('Please fill in all fields');
                 return;
             }
@@ -57,7 +57,7 @@ export default function LoginForm() {
             setIsLoading(true);
 
             const data = await api.post('/api/auth/login', {
-                username: emailInput,
+                username: usernameInput,
                 password: passwordInput
             });
 
@@ -93,9 +93,9 @@ export default function LoginForm() {
 
                     <input 
                         type="text" 
-                        placeholder={t.emailPlaceholder}
-                        value={emailInput}
-                        onChange={(e) => setEmailInput(e.target.value)}
+                        placeholder={t.usernamePlaceholder}
+                        value={usernameInput}
+                        onChange={(e) => setUsernameInput(e.target.value)}
                         className="login-input"
                     />
 

@@ -4,10 +4,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import hrv from "../locales/Hrv.json";
 import eng from "../locales/Eng.json";
+import api from "../services/api";
 
 const NAME_REGEX = /^[a-zA-ZčćđšžČĆĐŠŽ\s]+$/;
 const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
 const COMMON_PASSWORDS = ['abc123', 'password123', '123456', 'qwerty'];
 
@@ -156,7 +156,6 @@ export default function RegisterForm({ onBack, language = "en" }) {
         firstName: "",
         lastName: "",
         username: "",
-        email: "",
         password: "",
         confirmPassword: "",
         dateOfBirth: "",
@@ -172,7 +171,6 @@ export default function RegisterForm({ onBack, language = "en" }) {
         firstName: false,
         lastName: false,
         username: false,
-        email: false,
         password: {
             length: false,
             uppercase: false,
@@ -216,14 +214,6 @@ export default function RegisterForm({ onBack, language = "en" }) {
                 if (!isValidUsername) return t.usernameInvalid;
                 if (isTaken) return t.usernameTaken;
                 return "";
-            
-            case "email":
-                const isValidEmail = EMAIL_REGEX.test(value);
-                setValidations(prev => ({
-                    ...prev,
-                    email: isValidEmail
-                }));
-                return isValidEmail ? "" : t.invalidEmail;
             
             case "password":
                 const validations = {
@@ -283,24 +273,58 @@ export default function RegisterForm({ onBack, language = "en" }) {
             validations.firstName &&
             validations.lastName &&
             validations.username &&
-            validations.email &&
             Object.values(validations.password).every(Boolean) &&
             validations.confirmPassword &&
             validations.dateOfBirth &&
             validations.gender &&
-            !Object.values(errors).some(Boolean) // Check if there are no errors
+            !Object.values(errors).some(Boolean)
         );
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!isFormValid()) {
             return;
         }
 
-        // TODO: Submit to backend
-        console.log("Registration data:", formData);
+        try {
+            const response = await api.post('/api/users', {
+                username: formData.username,
+                password: formData.password,
+                name: formData.firstName,
+                surname: formData.lastName,
+                gender: formData.gender === "M" ? "male" : "female",
+                date_of_birth: formData.dateOfBirth,
+                theme: "dark",
+                language: language
+            });
+
+            if (response.success) {
+                // Redirect back to login page after successful registration
+                onBack();
+            }
+        } catch (error) {
+            // Handle specific error cases
+            const errorCode = error.message.split(':')[0];
+            switch(errorCode) {
+                case 'USERNAME_EXISTS':
+                    setErrors(prev => ({
+                        ...prev,
+                        username: t.usernameTaken
+                    }));
+                    break;
+                case 'MISSING_REQUIRED_FIELD':
+                    // This shouldn't happen due to frontend validation
+                    break;
+                default:
+                    // Show general error in the form
+                    setErrors(prev => ({
+                        ...prev,
+                        general: t.registrationError || "Registration failed. Please try again."
+                    }));
+            }
+        }
     };
 
     const handleGenderSelect = (gender) => {
@@ -367,6 +391,10 @@ export default function RegisterForm({ onBack, language = "en" }) {
                     {hoverText && <div className="hover-message">{hoverText}</div>}
 
                     <form onSubmit={handleSubmit} className="register-form">
+                        {errors.general && (
+                            <div className="error-message text-center">{errors.general}</div>
+                        )}
+                        
                         <div className="name-row">
                             <div className="input-group">
                                 <input
@@ -403,18 +431,6 @@ export default function RegisterForm({ onBack, language = "en" }) {
                                 className={errors.username ? "error" : ""}
                             />
                             {errors.username && <span className="error-message">{errors.username}</span>}
-                        </div>
-
-                        <div className="input-group">
-                            <input
-                                type="email"
-                                name="email"
-                                placeholder={t.emailPlaceholder}
-                                value={formData.email}
-                                onChange={handleChange}
-                                className={errors.email ? "error" : ""}
-                            />
-                            {errors.email && <span className="error-message">{errors.email}</span>}
                         </div>
 
                         <div className="input-group">

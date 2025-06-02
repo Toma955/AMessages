@@ -1,6 +1,6 @@
 {
   "loginTitle": "Login",
-  "emailPlaceholder": "Email address",
+  "usernamePlaceholder": "Username",
   "passwordPlaceholder": "Password",
   "loginButton": "Log in",
   "googleHover": "Continue with Google",
@@ -21,13 +21,13 @@
   "female": "Female",
   "registerButton": "Create Account",
   "backToLogin": "Back to Login",
+  "registrationError": "Registration failed. Please try again.",
   
   "nameMinLength": "Name must be at least 2 characters",
   "nameSpecialChars": "Name cannot contain special characters or numbers",
   "usernameMinLength": "Username must be at least 3 characters",
   "usernameInvalid": "Username can only contain letters, numbers, and underscores",
   "usernameTaken": "This username is already taken",
-  "invalidEmail": "Please enter a valid email address",
   "passwordRequirements": "Password must meet all requirements",
   "passwordMismatch": "Passwords do not match",
   "minimumAge": "You must be at least 13 years old",
