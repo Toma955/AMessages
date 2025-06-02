@@ -6,6 +6,27 @@ import { useRouter } from "next/navigation";
 import hrv from "../locales/Hrv.json";
 import eng from "../locales/Eng.json";
 import RegisterForm from "./RegisterForm";
+import api from "../utils/api";
+
+const setCookie = (name, value, days = 7) => {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+};
+
+const getErrorMessage = (errorCode) => {
+    switch (errorCode) {
+        case 'INVALID_CREDENTIALS':
+            return 'Invalid username or password';
+        case 'TOO_MANY_ATTEMPTS':
+            return 'Too many login attempts. Please try again later';
+        case 'USER_NOT_FOUND':
+            return 'User not found';
+        case 'MISSING_REQUIRED_FIELD':
+            return 'Please fill in all required fields';
+        default:
+            return 'An error occurred while logging in';
+    }
+};
 
 export default function LoginForm() {
     const router = useRouter();
@@ -27,37 +48,32 @@ export default function LoginForm() {
     
     const handleLogin = async () => {
         try {
-            setError("");
-            setIsLoading(true);
-
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: emailInput,
-                    password: passwordInput
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.error_code || "Login failed");
+            if (!emailInput || !passwordInput) {
+                setError('Please fill in all fields');
                 return;
             }
 
-            // Store the token
+            setError("");
+            setIsLoading(true);
+
+            const data = await api.post('/api/auth/login', {
+                username: emailInput,
+                password: passwordInput
+            });
+
+            // Store the token in both localStorage and cookie
             localStorage.setItem('token', data.token);
             localStorage.setItem('userId', data.userId);
+            setCookie('token', data.token);
 
             // Redirect to main page
             router.push('/main');
             
         } catch (err) {
             console.error('Login error:', err);
-            setError("Network error occurred");
+            // Extract error code from the error message
+            const errorCode = err.message.includes(':') ? err.message.split(':')[0] : err.message;
+            setError(getErrorMessage(errorCode));
         } finally {
             setIsLoading(false);
         }

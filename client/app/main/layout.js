@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import CanvasBackground from "@/components/CanvasBackground";
 import RecordPlayer from "@/components/RecordPlayer";
 import "@/app/styles/main.css";
+import LogoutModal from '@/components/LogoutModal';
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -28,15 +29,27 @@ const themeIcons = [
     { name: "Black", alt: "Black Theme", isTheme: true, themeKey: 'black' }
 ];
 
+const mixerControls = [
+    { name: "Record_player_sound", alt: "Record Player Volume", type: "slider", value: 50 },
+    { name: "Grup_message_sound", alt: "Group Message Volume", type: "slider", value: 50 },
+    { name: "Piano_sound", alt: "Piano Volume", type: "slider", value: 50 },
+    { name: "Radio_sound", alt: "Radio Volume", type: "slider", value: 50 },
+    { name: "Notifications", alt: "Notifications", type: "toggle", value: true },
+    { name: "Sound", alt: "Sound", type: "toggle", value: true }
+];
+
 export default function MainLayout({ children }) {
     const [currentIcons, setCurrentIcons] = useState(defaultIcons);
     const [isThemeView, setIsThemeView] = useState(false);
+    const [isMixerView, setIsMixerView] = useState(false);
+    const [mixerSettings, setMixerSettings] = useState(mixerControls);
     const [selectedTheme, setSelectedTheme] = useState("orange");
     const [currentTheme, setCurrentTheme] = useState('orange');
     const [highlightStyle, setHighlightStyle] = useState({});
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [isRecordPlayerVisible, setIsRecordPlayerVisible] = useState(false);
     const detailsPanelRef = useRef(null);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     const updateHighlightPosition = (buttonElement) => {
         if (!buttonElement) return;
@@ -53,7 +66,40 @@ export default function MainLayout({ children }) {
         });
     };
 
-    const handleIconTransition = (toThemeView) => {
+    const handleMixerControlChange = (name, newValue) => {
+        if (name === "Sound" && !newValue) {
+            // When sound is turned off, set all sliders to 0
+            setMixerSettings(prev => prev.map(control => 
+                control.type === "slider" ? { ...control, value: 0 } :
+                control.name === "Sound" ? { ...control, value: false } :
+                control
+            ));
+        } else if (name === "Sound" && newValue) {
+            // When sound is turned on, restore default values
+            setMixerSettings(prev => prev.map(control => 
+                control.type === "slider" ? { ...control, value: 50 } :
+                control.name === "Sound" ? { ...control, value: true } :
+                control
+            ));
+        } else {
+            // For all other controls (sliders and notifications)
+            setMixerSettings(prev => {
+                const isSlider = prev.find(c => c.name === name)?.type === "slider";
+                const allSlidersZero = prev
+                    .filter(c => c.type === "slider")
+                    .every(c => (c.name === name ? newValue : c.value) === 0);
+
+                return prev.map(control => 
+                    control.name === name ? { ...control, value: newValue } :
+                    // Update sound icon based on slider values
+                    control.name === "Sound" ? { ...control, value: !allSlidersZero } :
+                    control
+                );
+            });
+        }
+    };
+
+    const handleIconTransition = (toThemeView, toMixerView = false) => {
         if (isTransitioning) return;
         setIsTransitioning(true);
         
@@ -66,7 +112,7 @@ export default function MainLayout({ children }) {
         // Handle Arrow rotation
         const arrowButton = detailsPanelRef.current.querySelector('.icon-button[data-name="Arrow"]');
         if (arrowButton) {
-            if (toThemeView) {
+            if (toThemeView || toMixerView) {
                 // Going to submenu - point left
                 arrowButton.classList.remove('menu-view');
                 arrowButton.classList.add('submenu-view');
@@ -81,6 +127,7 @@ export default function MainLayout({ children }) {
         setTimeout(() => {
             setCurrentIcons(toThemeView ? themeIcons : defaultIcons);
             setIsThemeView(toThemeView);
+            setIsMixerView(toMixerView);
             
             // Add sliding-in class to new icons after a brief delay
             requestAnimationFrame(() => {
@@ -100,20 +147,31 @@ export default function MainLayout({ children }) {
         }, 500);
     };
 
-    const handleClick = (name, event) => {
+    const handleLogout = () => {
+        // Ovdje dodajte logiku za logout
+        console.log('Logging out...');
+        // Primjer: router.push('/login');
+    };
+
+    const handleIconClick = (name, event) => {
         if (isTransitioning) return;
         
-        console.log('Clicked:', name);
-        
+        if (name === "Shutdown") {
+            setIsLogoutModalOpen(true);
+            return;
+        }
+
         if (name === "Arrow") {
             setHighlightStyle({ opacity: 0 });
             handleIconTransition(false);
         } else if (name === "Themes") {
             setHighlightStyle({ opacity: 0 });
-            handleIconTransition(true);
+            handleIconTransition(true, false);
+        } else if (name === "Mixer") {
+            setHighlightStyle({ opacity: 0 });
+            handleIconTransition(false, true);
         } else if (name === "Record") {
             setIsRecordPlayerVisible(!isRecordPlayerVisible);
-            // Dodajemo aktivnu klasu na Record ikonu
             event.currentTarget.classList.toggle('active-icon');
         } else if (isThemeView && name !== "Arrow") {
             setSelectedTheme(name);
@@ -181,30 +239,94 @@ export default function MainLayout({ children }) {
                             className="theme-highlight"
                             style={highlightStyle}
                         />
-                        {currentIcons.map((icon, index) => (
-                            <div key={icon.name} className="icon-wrapper">
+                        {!isMixerView ? (
+                            currentIcons.map((icon, index) => (
+                                <div key={icon.name} className="icon-wrapper">
+                                    <button 
+                                        data-name={icon.name}
+                                        className={`icon-button ${
+                                            icon.name === "Arrow" ? 
+                                            (isThemeView ? 'submenu-view' : 'menu-view') : ''
+                                        }`}
+                                        onClick={(e) => handleIconClick(icon.name, e)}
+                                        onDoubleClick={(e) => handleDoubleClick(icon.name, e)}
+                                        disabled={isTransitioning}
+                                    >
+                                        <img 
+                                            src={`/icons/${icon.name}.png`}
+                                            alt={icon.alt}
+                                            width={48}
+                                            height={48}
+                                        />
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="mixer-controls">
                                 <button 
-                                    data-name={icon.name}
-                                    className={`icon-button ${
-                                        icon.name === "Arrow" ? 
-                                        (isThemeView ? 'submenu-view' : 'menu-view') : ''
-                                    }`}
-                                    onClick={(e) => handleClick(icon.name, e)}
-                                    onDoubleClick={(e) => handleDoubleClick(icon.name, e)}
+                                    data-name="Arrow"
+                                    className="icon-button submenu-view"
+                                    onClick={(e) => handleIconClick("Arrow", e)}
                                     disabled={isTransitioning}
                                 >
                                     <img 
-                                        src={`/icons/${icon.name}.png`}
-                                        alt={icon.alt}
+                                        src="/icons/Arrow.png"
+                                        alt="Back"
                                         width={48}
                                         height={48}
                                     />
                                 </button>
+
+                                <div className="controls-container">
+                                    {/* Toggle buttons vertically */}
+                                    {mixerSettings.filter(control => control.type === "toggle").map((control) => (
+                                        <button
+                                            key={control.name}
+                                            className={`mixer-toggle ${control.value ? 'active' : ''}`}
+                                            onClick={(e) => handleMixerControlChange(control.name, !control.value)}
+                                        >
+                                            <img 
+                                                src={`/icons/${control.name}${control.value ? '_on' : '_off'}.png`}
+                                                alt={control.alt}
+                                                width={32}
+                                                height={32}
+                                            />
+                                        </button>
+                                    ))}
+
+                                    {/* Sliders vertically */}
+                                    {mixerSettings.filter(control => control.type === "slider").map((control) => (
+                                        <div key={control.name} className="mixer-control-container">
+                                            <div className="mixer-slider-container">
+                                                <img 
+                                                    src={`/icons/${control.name}.png`}
+                                                    alt={control.alt}
+                                                    width={32}
+                                                    height={32}
+                                                />
+                                                <input
+                                                    type="range"
+                                                    min="0"
+                                                    max="100"
+                                                    value={control.value}
+                                                    onChange={(e) => handleMixerControlChange(control.name, parseInt(e.target.value))}
+                                                    className="mixer-slider"
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        ))}
+                        )}
                     </div>
                 </div>
             </div>
+            <LogoutModal 
+                isOpen={isLogoutModalOpen}
+                onClose={() => setIsLogoutModalOpen(false)}
+                onConfirm={handleLogout}
+                language="hr"
+            />
         </div>
     );
 }

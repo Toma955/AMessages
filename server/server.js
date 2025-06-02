@@ -42,12 +42,15 @@ app.use((req, res, next) => {
 
 // Enable CORS for frontend
 app.use(cors({
-    origin: true, // Allow all origins in development
-    credentials: true
+    origin: 'http://localhost:3000', // Frontend URL
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(helmet());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
     const now = new Date().toLocaleString();
@@ -77,16 +80,19 @@ app.get("/test", (req, res) => {
     res.send("Server is up");
 });
 
-/*
+// Error handling middleware
 app.use((err, req, res, next) => {
-    handleNodeError(err, req, res);
-    next(err);
+    console.error(err.stack);
+    res.status(500).json({ 
+        success: false, 
+        error_code: 'INTERNAL_SERVER_ERROR',
+        message: 'Something went wrong!' 
+    });
 });
-*/
 
 require("./backup");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 async function startServer() {
     try {

@@ -813,3 +813,276 @@
     box-shadow: 0 0 15px rgba(233, 116, 81, 0.3);
 }
 
+/* Mixer Controls */
+.mixer-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 8px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.mixer-control-container {
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 140px;
+}
+
+/* Theme-specific container backgrounds */
+[data-theme="yellow"] .mixer-control-container {
+    background: rgba(255, 222, 33, 0.15);
+    border: 1px solid rgba(255, 222, 33, 0.3);
+}
+
+[data-theme="green"] .mixer-control-container {
+    background: rgba(0, 255, 64, 0.15);
+    border: 1px solid rgba(0, 255, 64, 0.3);
+}
+
+[data-theme="orange"] .mixer-control-container {
+    background: rgba(233, 116, 81, 0.15);
+    border: 1px solid rgba(233, 116, 81, 0.3);
+}
+
+[data-theme="white"] .mixer-control-container {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="red"] .mixer-control-container {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+[data-theme="blue"] .mixer-control-container {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+[data-theme="black"] .mixer-control-container {
+    background: rgba(31, 41, 55, 0.15);
+    border: 1px solid rgba(31, 41, 55, 0.3);
+}
+
+.mixer-slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 4px;
+    width: 100%;
+    height: 100%;
+}
+
+.mixer-slider {
+    -webkit-appearance: none;
+    width: 4px;
+    height: 80px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    transition: all 0.3s ease;
+    writing-mode: bt-lr;
+    -webkit-appearance: slider-vertical;
+}
+
+.mixer-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: currentColor;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.mixer-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: currentColor;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+/* Toggle buttons styling */
+.mixer-toggle {
+    background: none;
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+}
+
+.mixer-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.mixer-toggle img {
+    width: 32px;
+    height: 32px;
+    transition: all 0.3s ease;
+}
+
+.mixer-toggle:hover img {
+    transform: scale(1.1);
+}
+
+/* Theme-specific slider thumb colors */
+[data-theme="yellow"] .mixer-slider::-webkit-slider-thumb {
+    background: #FFDE21;
+    box-shadow: 0 0 10px rgba(255, 222, 33, 0.5);
+}
+
+[data-theme="green"] .mixer-slider::-webkit-slider-thumb {
+    background: #00FF40;
+    box-shadow: 0 0 10px rgba(0, 255, 64, 0.5);
+}
+
+[data-theme="orange"] .mixer-slider::-webkit-slider-thumb {
+    background: #E97451;
+    box-shadow: 0 0 10px rgba(233, 116, 81, 0.5);
+}
+
+[data-theme="white"] .mixer-slider::-webkit-slider-thumb {
+    background: #FFFFFF;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="red"] .mixer-slider::-webkit-slider-thumb {
+    background: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+[data-theme="blue"] .mixer-slider::-webkit-slider-thumb {
+    background: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+[data-theme="black"] .mixer-slider::-webkit-slider-thumb {
+    background: #1f2937;
+    box-shadow: 0 0 10px rgba(31, 41, 55, 0.5);
+}
+
+[data-theme="yellow"] .mixer-slider::-moz-range-thumb {
+    background: #FFDE21;
+    box-shadow: 0 0 10px rgba(255, 222, 33, 0.5);
+}
+
+[data-theme="green"] .mixer-slider::-moz-range-thumb {
+    background: #00FF40;
+    box-shadow: 0 0 10px rgba(0, 255, 64, 0.5);
+}
+
+[data-theme="orange"] .mixer-slider::-moz-range-thumb {
+    background: #E97451;
+    box-shadow: 0 0 10px rgba(233, 116, 81, 0.5);
+}
+
+[data-theme="white"] .mixer-slider::-moz-range-thumb {
+    background: #FFFFFF;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="red"] .mixer-slider::-moz-range-thumb {
+    background: #ef4444;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+[data-theme="blue"] .mixer-slider::-moz-range-thumb {
+    background: #3b82f6;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+[data-theme="black"] .mixer-slider::-moz-range-thumb {
+    background: #1f2937;
+    box-shadow: 0 0 10px rgba(31, 41, 55, 0.5);
+}
+
+/* Mixer toggle active states */
+.mixer-toggle.active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="yellow"] .mixer-toggle.active {
+    background: rgba(255, 222, 33, 0.15);
+}
+
+[data-theme="green"] .mixer-toggle.active {
+    background: rgba(0, 255, 64, 0.15);
+}
+
+[data-theme="orange"] .mixer-toggle.active {
+    background: rgba(233, 116, 81, 0.15);
+}
+
+[data-theme="white"] .mixer-toggle.active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="red"] .mixer-toggle.active {
+    background: rgba(239, 68, 68, 0.15);
+}
+
+[data-theme="blue"] .mixer-toggle.active {
+    background: rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="black"] .mixer-toggle.active {
+    background: rgba(31, 41, 55, 0.15);
+}
+
+/* Animation for mixer controls */
+.mixer-controls {
+    animation: slideInLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutLeft {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
