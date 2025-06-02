@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import CanvasBackground from "@/components/CanvasBackground";
+import RecordPlayer from "@/components/RecordPlayer";
 import "@/app/styles/main.css";
 
 const defaultIcons = [
@@ -34,6 +35,7 @@ export default function MainLayout({ children }) {
     const [currentTheme, setCurrentTheme] = useState('orange');
     const [highlightStyle, setHighlightStyle] = useState({});
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [isRecordPlayerVisible, setIsRecordPlayerVisible] = useState(false);
     const detailsPanelRef = useRef(null);
 
     const updateHighlightPosition = (buttonElement) => {
@@ -109,6 +111,10 @@ export default function MainLayout({ children }) {
         } else if (name === "Themes") {
             setHighlightStyle({ opacity: 0 });
             handleIconTransition(true);
+        } else if (name === "Record") {
+            setIsRecordPlayerVisible(!isRecordPlayerVisible);
+            // Dodajemo aktivnu klasu na Record ikonu
+            event.currentTarget.classList.toggle('active-icon');
         } else if (isThemeView && name !== "Arrow") {
             setSelectedTheme(name);
             updateHighlightPosition(event.currentTarget);
@@ -165,8 +171,9 @@ export default function MainLayout({ children }) {
     return (
         <div className="main-container" data-theme={currentTheme}>
             <CanvasBackground currentTheme={currentTheme} />
+            <RecordPlayer isVisible={isRecordPlayerVisible} currentTheme={currentTheme} />
             <div className="content-container">
-                <div className="contacts-panel panel-border" />
+                <div className={`contacts-panel panel-border ${isRecordPlayerVisible ? 'panel-shrink' : ''}`} />
                 <div className="chat-area panel-border" />
                 <div className="details-panel panel-border" ref={detailsPanelRef}>
                     <div className="icon-container">

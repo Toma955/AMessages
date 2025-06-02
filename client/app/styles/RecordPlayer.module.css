@@ -1,0 +1,174 @@
+.recordPlayerContainer {
+    position: fixed;
+    top: 32px;
+    left: -400px;
+    width: 240px;
+    height: 240px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+}
+
+.visible {
+    left: 32px;
+    animation: scaleIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.recordPlayerBox {
+    background: #E08543 url('/RecordBackground.jpg') center/cover;
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(224, 133, 67, 0.3);
+    border: 2px solid #E08543;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.recordDisc {
+    width: 120px;
+    height: 120px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    margin: 0 auto;
+    position: relative;
+    transition: all 0.5s ease;
+    transform-origin: center center;
+}
+
+.spinning {
+    animation: spin 2s linear infinite;
+}
+
+.recording {
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+}
+
+.discLabel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: #666;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.discCenter {
+    width: 8px;
+    height: 8px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+}
+
+.mainControls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.controlButton {
+    background: none;
+    border: none;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.controlButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.controlButton img {
+    width: 36px;
+    height: 36px;
+    transition: all 0.3s ease;
+}
+
+/* Posebni stilovi za hover */
+.controlButton:hover img {
+    transform: scale(1.1);
+}
+
+/* Posebni stilovi za Record button */
+.recordButton.recording img {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+/* Rotacija Previous ikone */
+.controlButton.previousButton img {
+    transform: rotate(180deg);
+}
+
+.controlButton.previousButton:hover img {
+    transform: rotate(180deg) scale(1.1);
+}
+
+.recordButton {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.recordButton.recording {
+    background: rgba(255, 0, 0, 0.2);
+}
+
+.recordButton.recording img {
+    animation: pulse 1s ease-in-out infinite;
+}
+
+.menuButton {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+}
+
+.playButton {
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+}
+
+.playButton:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes scaleIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+} 
