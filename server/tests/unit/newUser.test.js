@@ -3,7 +3,7 @@ const express = require("express");
 const path = require("path");
 const userRoutes = require("../../routes/UserRoutes");
 
-const config = require(path.resolve(__dirname, "testConfig.json"));
+const config = require(path.resolve(__dirname, "../testConfig.json"));
 const user = config.users.user1;
 
 const app = express();
