@@ -1,0 +1,135 @@
+.chat-list-item {
+    width: 200px;
+    height: 200px;
+    margin: 12px auto;
+    padding: 2px;
+    border-radius: 16px;
+    background: linear-gradient(45deg, var(--theme-primary), var(--theme-secondary));
+    transition: all 0.3s ease;
+}
+
+.chat-list-content {
+    background: var(--panel-bg);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.chat-list-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--avatar-background);
+    margin-bottom: 8px;
+}
+
+.chat-list-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.chat-list-username {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.chat-list-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.action-button {
+    background: none;
+    border: none;
+    padding: 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.delete-button:hover {
+    background: rgba(239, 68, 68, 0.2);
+}
+
+.chat-button:hover {
+    background: rgba(59, 130, 246, 0.2);
+}
+
+.info-button:hover {
+    background: rgba(34, 197, 94, 0.2);
+}
+
+.chat-list-messages {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-top: auto;
+}
+
+.message-count {
+    font-weight: 500;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* Theme-specific gradients */
+[data-theme="yellow"] .chat-list-item {
+    background: linear-gradient(45deg, #FFDE21, #FFE863);
+}
+
+[data-theme="green"] .chat-list-item {
+    background: linear-gradient(45deg, #00FF40, #1DB954);
+}
+
+[data-theme="orange"] .chat-list-item {
+    background: linear-gradient(45deg, #E97451, #ff9977);
+}
+
+[data-theme="white"] .chat-list-item {
+    background: linear-gradient(45deg, #FFFFFF, #F3F4F6);
+}
+
+[data-theme="red"] .chat-list-item {
+    background: linear-gradient(45deg, #ef4444, #f87171);
+}
+
+[data-theme="blue"] .chat-list-item {
+    background: linear-gradient(45deg, #3b82f6, #60a5fa);
+}
+
+[data-theme="black"] .chat-list-item {
+    background: linear-gradient(45deg, #1f2937, #374151);
+}
+
+/* Hover effect */
+.chat-list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+} 

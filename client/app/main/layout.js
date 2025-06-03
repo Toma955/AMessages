@@ -6,6 +6,11 @@ import RecordPlayer from "@/components/RecordPlayer";
 import "@/app/styles/main.css";
 import LogoutModal from '@/components/LogoutModal';
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
+import SearchWidget from '@/components/SearchWidget';
+import '../styles/searchWidget.css';
+import ChatListItem from '@/components/ChatListItem';
+import '@/app/styles/chatListItem.css';
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -49,8 +54,11 @@ export default function MainLayout({ children }) {
     const [highlightStyle, setHighlightStyle] = useState({});
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [isRecordPlayerVisible, setIsRecordPlayerVisible] = useState(false);
-    const detailsPanelRef = useRef(null);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
+    const [chats, setChats] = useState([]);
+    const [selectedChat, setSelectedChat] = useState(null);
+    const detailsPanelRef = useRef(null);
     const router = useRouter();
 
     const updateHighlightPosition = (buttonElement) => {
@@ -181,6 +189,9 @@ export default function MainLayout({ children }) {
         } else if (name === "Record") {
             setIsRecordPlayerVisible(!isRecordPlayerVisible);
             event.currentTarget.classList.toggle('active-icon');
+        } else if (name === "Magnifying_glass") {
+            setShowSearch(true);
+            event.currentTarget.classList.toggle('active-icon');
         } else if (isThemeView && name !== "Arrow") {
             setSelectedTheme(name);
             updateHighlightPosition(event.currentTarget);
@@ -217,6 +228,44 @@ export default function MainLayout({ children }) {
         }
     };
 
+    const handleSearchClick = () => {
+        setShowSearch(true);
+    };
+
+    const handleCloseSearch = () => {
+        setShowSearch(false);
+        const searchIcon = detailsPanelRef.current?.querySelector('[data-name="Magnifying_glass"]');
+        if (searchIcon) {
+            searchIcon.classList.remove('active-icon');
+        }
+    };
+
+    const handleAddChat = (user) => {
+        // Check if chat already exists
+        if (!chats.some(chat => chat.id === user.id)) {
+            setChats(prevChats => [...prevChats, {
+                id: user.id,
+                username: user.username,
+                avatar: `/avatars/${user.gender || 'default'}.png`
+            }]);
+        }
+    };
+
+    const handleChatClick = (chat) => {
+        setSelectedChat(chat);
+        // TODO: Implement chat view/messaging functionality
+        console.log('Open chat with:', chat);
+    };
+
+    const handleInfoClick = (chat) => {
+        // TODO: Implement user info modal/view
+        console.log('Show info for:', chat);
+    };
+
+    const handleDeleteChat = (chat) => {
+        setChats(prevChats => prevChats.filter(c => c.id !== chat.id));
+    };
+
     // Set initial states
     useEffect(() => {
         // Set initial arrow state
@@ -239,8 +288,34 @@ export default function MainLayout({ children }) {
             <CanvasBackground currentTheme={currentTheme} />
             <RecordPlayer isVisible={isRecordPlayerVisible} currentTheme={currentTheme} />
             <div className="content-container">
-                <div className={`contacts-panel panel-border ${isRecordPlayerVisible ? 'panel-shrink' : ''}`} />
-                <div className="chat-area panel-border" />
+                <div className={`contacts-panel panel-border ${isRecordPlayerVisible ? 'panel-shrink' : ''}`}>
+                    {chats.map(chat => (
+                        <ChatListItem
+                            key={chat.id}
+                            chat={chat}
+                            onDelete={handleDeleteChat}
+                            onChat={handleChatClick}
+                            onInfo={handleInfoClick}
+                        />
+                    ))}
+                </div>
+                <div className="chat-area panel-border">
+                    {selectedChat && (
+                        <div className="chat-container">
+                            <div className="chat-header">
+                                <div className="chat-user-info">
+                                    <Image
+                                        src={selectedChat.avatar}
+                                        alt={selectedChat.username}
+                                        width={32}
+                                        height={32}
+                                    />
+                                    <span>{selectedChat.username}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
                 <div className="details-panel panel-border" ref={detailsPanelRef}>
                     <div className="icon-container">
                         <div 
@@ -286,7 +361,6 @@ export default function MainLayout({ children }) {
                                 </button>
 
                                 <div className="controls-container">
-                                    {/* Toggle buttons vertically */}
                                     {mixerSettings.filter(control => control.type === "toggle").map((control) => (
                                         <button
                                             key={control.name}
@@ -302,7 +376,6 @@ export default function MainLayout({ children }) {
                                         </button>
                                     ))}
 
-                                    {/* Sliders vertically */}
                                     {mixerSettings.filter(control => control.type === "slider").map((control) => (
                                         <div key={control.name} className="mixer-control-container">
                                             <div className="mixer-slider-container">
@@ -335,6 +408,7 @@ export default function MainLayout({ children }) {
                 onConfirm={handleLogout}
                 language="hr"
             />
+            {showSearch && <SearchWidget onClose={handleCloseSearch} onAddChat={handleAddChat} />}
         </div>
     );
 }
