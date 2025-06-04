@@ -11,6 +11,8 @@ import SearchWidget from '@/components/SearchWidget';
 import '../styles/searchWidget.css';
 import ChatListItem from '@/components/ChatListItem';
 import '@/app/styles/chatListItem.css';
+import ChatWindow from '@/components/ChatWindow';
+import '@/app/styles/chatWindow.css';
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -60,6 +62,16 @@ export default function MainLayout({ children }) {
     const [selectedChat, setSelectedChat] = useState(null);
     const detailsPanelRef = useRef(null);
     const router = useRouter();
+    const [dragOverIndex, setDragOverIndex] = useState(null);
+    const [activeChats, setActiveChats] = useState([]);
+    const [chatWidths, setChatWidths] = useState({});
+    const [isResizing, setIsResizing] = useState(false);
+    const [isSwapping, setIsSwapping] = useState(false);
+    const resizeStartX = useRef(null);
+    const initialWidth = useRef(null);
+    const [isDraggingResize, setIsDraggingResize] = useState(false);
+    const dragStartX = useRef(null);
+    const initialWidths = useRef(null);
 
     const updateHighlightPosition = (buttonElement) => {
         if (!buttonElement) return;
@@ -251,10 +263,118 @@ export default function MainLayout({ children }) {
         }
     };
 
+    const handleChatDrop = (e) => {
+        e.preventDefault();
+        try {
+            const data = e.dataTransfer.getData('text/plain');
+            // Check if data is already JSON
+            let droppedChat;
+            try {
+                droppedChat = JSON.parse(data);
+            } catch {
+                // If not JSON, try to parse the URL or handle as plain text
+                console.error('Invalid drop data:', data);
+                return;
+            }
+            
+            // Check if chat is already active
+            if (activeChats.some(chat => chat.id === droppedChat.id)) {
+                return;
+            }
+
+            // Limit to 3 active chats
+            if (activeChats.length >= 3) {
+                return;
+            }
+
+            const newChat = { ...droppedChat };
+            setActiveChats(prev => {
+                const newChats = [...prev, newChat];
+                // Set default widths
+                if (newChats.length === 1) {
+                    setChatWidths({
+                        [newChat.id]: '100%'
+                    });
+                } else if (newChats.length === 2) {
+                    setChatWidths({
+                        [newChats[0].id]: '50%',
+                        [newChats[1].id]: '50%'
+                    });
+                } else if (newChats.length === 3) {
+                    setChatWidths({
+                        [newChats[0].id]: '33.33%',
+                        [newChats[1].id]: '33.33%',
+                        [newChats[2].id]: '33.33%'
+                    });
+                }
+                return newChats;
+            });
+        } catch (error) {
+            console.error('Error handling chat drop:', error);
+        }
+    };
+
+    const handleCloseChat = (chatId) => {
+        setActiveChats(prev => {
+            const newChats = prev.filter(chat => chat.id !== chatId);
+            // Reset to full width if only one chat remains
+            if (newChats.length === 1) {
+                setChatWidths({
+                    [newChats[0].id]: '100%'
+                });
+            }
+            return newChats;
+        });
+    };
+
+    const handleChatResize = (chatId, newWidth) => {
+        // Ensure the width is within bounds (30-70%)
+        const width = Math.max(30, Math.min(70, parseInt(newWidth)));
+        
+        setChatWidths(prev => {
+            const otherChat = activeChats.find(chat => chat.id !== chatId);
+            if (otherChat) {
+                return {
+                    [chatId]: `${width}%`,
+                    [otherChat.id]: `${100 - width}%`
+                };
+            }
+            return prev;
+        });
+    };
+
     const handleChatClick = (chat) => {
-        setSelectedChat(chat);
-        // TODO: Implement chat view/messaging functionality
-        console.log('Open chat with:', chat);
+        if (activeChats.some(activeChat => activeChat.id === chat.id)) {
+            return;
+        }
+
+        // Limit to 3 active chats
+        if (activeChats.length >= 3) {
+            return;
+        }
+
+        const newChat = { ...chat };
+        setActiveChats(prev => {
+            const newChats = [...prev, newChat];
+            // Set default widths
+            if (newChats.length === 1) {
+                setChatWidths({
+                    [newChat.id]: '100%'
+                });
+            } else if (newChats.length === 2) {
+                setChatWidths({
+                    [newChats[0].id]: '50%',
+                    [newChats[1].id]: '50%'
+                });
+            } else if (newChats.length === 3) {
+                setChatWidths({
+                    [newChats[0].id]: '33.33%',
+                    [newChats[1].id]: '33.33%',
+                    [newChats[2].id]: '33.33%'
+                });
+            }
+            return newChats;
+        });
     };
 
     const handleInfoClick = (chat) => {
@@ -265,6 +385,180 @@ export default function MainLayout({ children }) {
     const handleDeleteChat = (chat) => {
         setChats(prevChats => prevChats.filter(c => c.id !== chat.id));
     };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        const draggingElement = document.querySelector('.dragging');
+        if (draggingElement) {
+            draggingElement.classList.add('drag-over');
+        }
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        try {
+            const droppedChat = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const draggingElement = document.querySelector('.dragging');
+            if (draggingElement) {
+                draggingElement.classList.remove('drag-over');
+            }
+
+            // Find the drop target
+            const dropTarget = e.target.closest('.chat-list-item');
+            if (!dropTarget) return;
+
+            // Get the indices
+            const draggedIndex = chats.findIndex(chat => chat.id === droppedChat.id);
+            const dropIndex = Array.from(dropTarget.parentNode.children).indexOf(dropTarget);
+
+            if (draggedIndex === dropIndex) return;
+
+            // Reorder chats
+            setChats(prevChats => {
+                const newChats = [...prevChats];
+                const [removed] = newChats.splice(draggedIndex, 1);
+                newChats.splice(dropIndex, 0, removed);
+                return newChats;
+            });
+        } catch (error) {
+            console.error('Error handling drop:', error);
+        }
+    };
+
+    const handleSwapChats = () => {
+        if (activeChats.length !== 2) return;
+        
+        // Get the current widths before swapping
+        const [first, second] = activeChats;
+        const firstWidth = chatWidths[first.id];
+        const secondWidth = chatWidths[second.id];
+        
+        // Swap the chat positions
+        setActiveChats([second, first]);
+        
+        // Update the widths to maintain their respective sizes
+        setChatWidths({
+            [second.id]: firstWidth,
+            [first.id]: secondWidth
+        });
+    };
+
+    const handleSlideLeft = () => {
+        if (activeChats.length !== 2) return;
+        const [first] = activeChats;
+        const firstEl = document.querySelector(`[data-chat-id="${first.id}"]`);
+        
+        if (firstEl) {
+            firstEl.classList.add('sliding-left');
+            setTimeout(() => {
+                handleCloseChat(first.id);
+                firstEl.classList.remove('sliding-left');
+            }, 300);
+        }
+    };
+
+    const handleSlideRight = () => {
+        if (activeChats.length !== 2) return;
+        const [, second] = activeChats;
+        const secondEl = document.querySelector(`[data-chat-id="${second.id}"]`);
+        
+        if (secondEl) {
+            secondEl.classList.add('sliding-right');
+            setTimeout(() => {
+                handleCloseChat(second.id);
+                secondEl.classList.remove('sliding-right');
+            }, 300);
+        }
+    };
+
+    const handleResizeStart = (e) => {
+        if (activeChats.length !== 2) return;
+        
+        dragStartX.current = e.clientX;
+        setIsDraggingResize(true);
+        
+        // Add resizing class to container
+        const container = document.querySelector('.active-chats-container');
+        if (container) {
+            container.classList.add('resizing');
+            container.style.userSelect = 'none';
+        }
+        
+        // Prevent default drag behavior
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    useEffect(() => {
+        const handleMouseMove = (e) => {
+            if (!isDraggingResize || !dragStartX.current) return;
+            
+            const deltaX = e.clientX - dragStartX.current;
+            const containerWidth = document.querySelector('.active-chats-container').offsetWidth;
+            const deltaPercentage = (deltaX / containerWidth) * 100;
+            
+            // Get the current chats
+            const [first, second] = activeChats;
+            
+            // Calculate new widths ensuring they stay within bounds (30-70%)
+            const baseWidth = 50; // Start from 50%
+            const maxDelta = 20; // Maximum 20% in each direction
+            const adjustedDelta = Math.max(-maxDelta, Math.min(maxDelta, deltaPercentage / 2));
+            
+            const newFirstWidth = baseWidth + adjustedDelta;
+            const newSecondWidth = baseWidth - adjustedDelta;
+            
+            // Update widths immediately for smooth dragging
+            const firstChat = document.querySelector(`[data-chat-id="${first.id}"]`);
+            const secondChat = document.querySelector(`[data-chat-id="${second.id}"]`);
+            
+            if (firstChat && secondChat) {
+                firstChat.style.width = `${newFirstWidth}%`;
+                secondChat.style.width = `${newSecondWidth}%`;
+                
+                // Update state to match DOM
+                setChatWidths({
+                    [first.id]: `${newFirstWidth}%`,
+                    [second.id]: `${newSecondWidth}%`
+                });
+            }
+
+            // Update control square position
+            const controlsSquare = document.querySelector('.controls-square');
+            if (controlsSquare) {
+                controlsSquare.style.transform = `translate(calc(-50% + ${deltaX}px), -50%)`;
+            }
+        };
+
+        const handleMouseUp = () => {
+            if (!isDraggingResize) return;
+            
+            setIsDraggingResize(false);
+            dragStartX.current = null;
+
+            // Remove resizing classes
+            const container = document.querySelector('.active-chats-container');
+            const controlsSquare = document.querySelector('.controls-square');
+            if (container) {
+                container.classList.remove('resizing');
+                container.style.userSelect = '';
+            }
+            if (controlsSquare) {
+                controlsSquare.style.transform = 'translate(-50%, -50%)';
+            }
+        };
+
+        // Add event listeners only when dragging
+        if (isDraggingResize) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDraggingResize, activeChats]);
 
     // Set initial states
     useEffect(() => {
@@ -288,8 +582,12 @@ export default function MainLayout({ children }) {
             <CanvasBackground currentTheme={currentTheme} />
             <RecordPlayer isVisible={isRecordPlayerVisible} currentTheme={currentTheme} />
             <div className="content-container">
-                <div className={`contacts-panel panel-border ${isRecordPlayerVisible ? 'panel-shrink' : ''}`}>
-                    {chats.map(chat => (
+                <div 
+                    className={`contacts-panel panel-border ${isRecordPlayerVisible ? 'panel-shrink' : ''}`}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}
+                >
+                    {chats.map((chat, index) => (
                         <ChatListItem
                             key={chat.id}
                             chat={chat}
@@ -299,23 +597,96 @@ export default function MainLayout({ children }) {
                         />
                     ))}
                 </div>
-                <div className="chat-area panel-border">
-                    {selectedChat && (
-                        <div className="chat-container">
-                            <div className="chat-header">
-                                <div className="chat-user-info">
-                                    <Image
-                                        src={selectedChat.avatar}
-                                        alt={selectedChat.username}
-                                        width={32}
-                                        height={32}
-                                    />
-                                    <span>{selectedChat.username}</span>
+                
+                <div 
+                    className="chat-area panel-border"
+                    onDragOver={handleDragOver}
+                    onDrop={handleChatDrop}
+                >
+                    <div className="active-chats-container">
+                        {activeChats.map((chat, index) => (
+                            <ChatWindow
+                                key={chat.id}
+                                chat={chat}
+                                width={chatWidths[chat.id]}
+                                onClose={() => handleCloseChat(chat.id)}
+                                data-chat-id={chat.id}
+                            />
+                        ))}
+                        {activeChats.length >= 2 && (
+                            <div className="chat-vertical-controls">
+                                <div className="vertical-line"></div>
+                                <div className="controls-square">
+                                    <button
+                                        title="Show controls"
+                                    >
+                                        <Image
+                                            src="/icons/Arrow.png"
+                                            alt="Show controls"
+                                            width={24}
+                                            height={24}
+                                            style={{ transform: 'rotate(90deg)' }}
+                                        />
+                                    </button>
+                                    <button
+                                        onClick={handleSwapChats}
+                                        title="Swap chat positions"
+                                    >
+                                        <Image
+                                            src="/icons/Swap.png"
+                                            alt="Swap"
+                                            width={24}
+                                            height={24}
+                                        />
+                                    </button>
+                                    <button
+                                        onMouseDown={handleResizeStart}
+                                        className={isDraggingResize ? 'active' : ''}
+                                        title="Resize chats"
+                                    >
+                                        <Image
+                                            src="/icons/Resize.png"
+                                            alt="Resize"
+                                            width={24}
+                                            height={24}
+                                        />
+                                    </button>
+                                    <button
+                                        onClick={handleSlideLeft}
+                                        title="Slide left chat out"
+                                        className="slide-left-btn"
+                                    >
+                                        <Image
+                                            src="/icons/Slide.png"
+                                            alt="Slide left"
+                                            width={24}
+                                            height={24}
+                                        />
+                                    </button>
+                                    <button
+                                        onClick={handleSlideRight}
+                                        title="Slide right chat out"
+                                        className="slide-right-btn"
+                                    >
+                                        <Image
+                                            src="/icons/Slide.png"
+                                            alt="Slide right"
+                                            width={24}
+                                            height={24}
+                                            style={{ transform: 'rotate(180deg)' }}
+                                        />
+                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                        {activeChats.length === 0 && (
+                            <div className="drop-chat-hint">
+                                Drag a chat here or click the chat button to start a conversation
+                            </div>
+                        )}
+                    </div>
                 </div>
+
                 <div className="details-panel panel-border" ref={detailsPanelRef}>
                     <div className="icon-container">
                         <div 
