@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react';
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import styles from '@/app/styles/RecordPlayer.module.css';
 
-const RecordPlayer = ({ isVisible, currentTheme }) => {
+export default function RecordPlayer({ isVisible, currentTheme }) {
     const [isActive, setIsActive] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
 
@@ -29,14 +32,19 @@ const RecordPlayer = ({ isVisible, currentTheme }) => {
                             className={`${styles.controlButton} ${styles.previousButton}`}
                             onClick={() => setIsPlaying(false)}
                         >
-                            <img src="/icons/Next.png" alt="Previous" width={36} height={36} />
+                            <Image 
+                                src="/icons/Next.png" 
+                                alt="Previous" 
+                                width={36} 
+                                height={36} 
+                            />
                         </button>
 
                         <button 
                             className={`${styles.controlButton} ${styles.playButton}`}
                             onClick={() => setIsPlaying(!isPlaying)}
                         >
-                            <img 
+                            <Image 
                                 src={`/icons/${isPlaying ? 'Pause' : 'Play'}.png`} 
                                 alt={isPlaying ? 'Pause' : 'Play'} 
                                 width={36} 
@@ -48,20 +56,28 @@ const RecordPlayer = ({ isVisible, currentTheme }) => {
                             className={styles.controlButton}
                             onClick={() => setIsPlaying(false)}
                         >
-                            <img src="/icons/Next.png" alt="Next" width={36} height={36} />
+                            <Image 
+                                src="/icons/Next.png" 
+                                alt="Next" 
+                                width={36} 
+                                height={36} 
+                            />
                         </button>
 
                         <button 
                             className={`${styles.controlButton} ${styles.menuButton}`}
                             onClick={() => setIsActive(!isActive)}
                         >
-                            <img src="/icons/Menu.png" alt="Menu" width={36} height={36} />
+                            <Image 
+                                src="/icons/Menu.png" 
+                                alt="Menu" 
+                                width={36} 
+                                height={36} 
+                            />
                         </button>
                     </div>
                 </div>
             </div>
         </div>
     );
-};
-
-export default RecordPlayer; 
+} 

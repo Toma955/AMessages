@@ -2,9 +2,12 @@
 
 import { useState, useRef, useEffect } from "react";
 import CanvasBackground from "@/components/CanvasBackground";
-import RecordPlayer from "@/components/RecordPlayer";
+import RecordPlayer from "@/components/RecordPlayer.jsx";
+import RadioPlayer from "@/components/RadioPlayer.jsx";
+import PianoWidget from "@/components/PianoWidget.jsx";
+import RadioStationsList from "@/components/RadioStationsList.jsx";
 import "@/app/styles/main.css";
-import LogoutModal from '@/components/LogoutModal';
+import LogoutModal from '@/components/LogoutModal.jsx';
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import SearchWidget from '@/components/SearchWidget';
@@ -13,6 +16,7 @@ import ChatListItem from '@/components/ChatListItem';
 import '@/app/styles/chatListItem.css';
 import ChatWindow from '@/components/ChatWindow';
 import '@/app/styles/chatWindow.css';
+import SettingsWidget from "@/components/SettingsWidget.jsx";
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -56,6 +60,7 @@ export default function MainLayout({ children }) {
     const [highlightStyle, setHighlightStyle] = useState({});
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [isRecordPlayerVisible, setIsRecordPlayerVisible] = useState(false);
+    const [isRadioPlayerVisible, setIsRadioPlayerVisible] = useState(false);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
     const [chats, setChats] = useState([]);
@@ -72,6 +77,14 @@ export default function MainLayout({ children }) {
     const [isDraggingResize, setIsDraggingResize] = useState(false);
     const dragStartX = useRef(null);
     const initialWidths = useRef(null);
+    const [isRadioListVisible, setIsRadioListVisible] = useState(false);
+    const [isPianoVisible, setIsPianoVisible] = useState(false);
+    const [isPianoActive, setIsPianoActive] = useState(false);
+    const [radioStations, setRadioStations] = useState([]);
+    const [currentStation, setCurrentStation] = useState(null);
+    const radioPlayerRef = useRef(null);
+    const [isSettingsVisible, setIsSettingsVisible] = useState(false);
+    const [isSettingsActive, setIsSettingsActive] = useState(false);
 
     const updateHighlightPosition = (buttonElement) => {
         if (!buttonElement) return;
@@ -199,11 +212,132 @@ export default function MainLayout({ children }) {
             setHighlightStyle({ opacity: 0 });
             handleIconTransition(false, true);
         } else if (name === "Record") {
+            // Close all other widgets first
+            if (isPianoVisible) {
+                setIsPianoVisible(false);
+                const pianoIcon = detailsPanelRef.current?.querySelector('[data-name="Piano"]');
+                if (pianoIcon) {
+                    pianoIcon.classList.remove('active-icon');
+                }
+            }
+            if (isRadioPlayerVisible) {
+                setIsRadioPlayerVisible(false);
+                const radioIcon = detailsPanelRef.current?.querySelector('[data-name="Radio"]');
+                if (radioIcon) {
+                    radioIcon.classList.remove('active-icon');
+                }
+            }
+            if (isSettingsVisible) {
+                setIsSettingsVisible(false);
+                const settingsIcon = detailsPanelRef.current?.querySelector('[data-name="Cogwheel"]');
+                if (settingsIcon) {
+                    settingsIcon.classList.remove('active-icon');
+                }
+            }
+            // Toggle record player visibility
             setIsRecordPlayerVisible(!isRecordPlayerVisible);
-            event.currentTarget.classList.toggle('active-icon');
+            // Toggle active state of the icon
+            if (!isRecordPlayerVisible) {
+                event.currentTarget.classList.add('active-icon');
+            } else {
+                event.currentTarget.classList.remove('active-icon');
+            }
+        } else if (name === "Piano") {
+            // Close all other widgets first
+            if (isRadioPlayerVisible) {
+                setIsRadioPlayerVisible(false);
+                const radioIcon = detailsPanelRef.current?.querySelector('[data-name="Radio"]');
+                if (radioIcon) {
+                    radioIcon.classList.remove('active-icon');
+                }
+            }
+            if (isRecordPlayerVisible) {
+                setIsRecordPlayerVisible(false);
+                const recordIcon = detailsPanelRef.current?.querySelector('[data-name="Record"]');
+                if (recordIcon) {
+                    recordIcon.classList.remove('active-icon');
+                }
+            }
+            if (isSettingsVisible) {
+                setIsSettingsVisible(false);
+                const settingsIcon = detailsPanelRef.current?.querySelector('[data-name="Cogwheel"]');
+                if (settingsIcon) {
+                    settingsIcon.classList.remove('active-icon');
+                }
+            }
+            // Toggle piano visibility
+            setIsPianoVisible(!isPianoVisible);
+            // Toggle active state of the icon
+            if (!isPianoVisible) {
+                event.currentTarget.classList.add('active-icon');
+            } else {
+                event.currentTarget.classList.remove('active-icon');
+            }
+        } else if (name === "Radio") {
+            // Close all other widgets first
+            if (isPianoVisible) {
+                setIsPianoVisible(false);
+                const pianoIcon = detailsPanelRef.current?.querySelector('[data-name="Piano"]');
+                if (pianoIcon) {
+                    pianoIcon.classList.remove('active-icon');
+                }
+            }
+            if (isRecordPlayerVisible) {
+                setIsRecordPlayerVisible(false);
+                const recordIcon = detailsPanelRef.current?.querySelector('[data-name="Record"]');
+                if (recordIcon) {
+                    recordIcon.classList.remove('active-icon');
+                }
+            }
+            if (isSettingsVisible) {
+                setIsSettingsVisible(false);
+                const settingsIcon = detailsPanelRef.current?.querySelector('[data-name="Cogwheel"]');
+                if (settingsIcon) {
+                    settingsIcon.classList.remove('active-icon');
+                }
+            }
+            // Toggle radio visibility
+            setIsRadioPlayerVisible(!isRadioPlayerVisible);
+            // Toggle active state of the icon
+            if (!isRadioPlayerVisible) {
+                event.currentTarget.classList.add('active-icon');
+            } else {
+                event.currentTarget.classList.remove('active-icon');
+            }
         } else if (name === "Magnifying_glass") {
             setShowSearch(true);
             event.currentTarget.classList.toggle('active-icon');
+        } else if (name === "Cogwheel") {
+            // Close all other widgets first
+            if (isRadioPlayerVisible) {
+                setIsRadioPlayerVisible(false);
+                const radioIcon = detailsPanelRef.current?.querySelector('[data-name="Radio"]');
+                if (radioIcon) {
+                    radioIcon.classList.remove('active-icon');
+                }
+            }
+            if (isRecordPlayerVisible) {
+                setIsRecordPlayerVisible(false);
+                const recordIcon = detailsPanelRef.current?.querySelector('[data-name="Record"]');
+                if (recordIcon) {
+                    recordIcon.classList.remove('active-icon');
+                }
+            }
+            if (isPianoVisible) {
+                setIsPianoVisible(false);
+                const pianoIcon = detailsPanelRef.current?.querySelector('[data-name="Piano"]');
+                if (pianoIcon) {
+                    pianoIcon.classList.remove('active-icon');
+                }
+            }
+            // Toggle settings visibility
+            setIsSettingsVisible(!isSettingsVisible);
+            // Toggle active state of the icon
+            if (!isSettingsVisible) {
+                event.currentTarget.classList.add('active-icon');
+            } else {
+                event.currentTarget.classList.remove('active-icon');
+            }
         } else if (isThemeView && name !== "Arrow") {
             setSelectedTheme(name);
             updateHighlightPosition(event.currentTarget);
@@ -577,25 +711,77 @@ export default function MainLayout({ children }) {
         }
     }, [isThemeView, selectedTheme]);
 
+    const handleMenuClick = () => {
+        setIsRadioListVisible(!isRadioListVisible);
+    };
+
+    const handleStationSelect = (station, index) => {
+        setCurrentStation(station);
+        // Proslijedi odabranu stanicu RadioPlayer komponenti
+        if (radioPlayerRef.current?.selectStation) {
+            radioPlayerRef.current.selectStation(station, index);
+        }
+    };
+
+    // Update the contacts panel class based on piano and radio states
+    const contactsPanelClass = `contacts-panel panel-border ${
+        isRecordPlayerVisible || isRadioPlayerVisible || isPianoVisible || isSettingsVisible ? 'panel-shrink' : ''
+    } ${isRadioListVisible ? 'radio-list-active' : ''} ${isPianoActive ? 'piano-active' : ''} ${isSettingsActive ? 'settings-active' : ''}`;
+
+    const handlePianoActivate = () => {
+        setIsPianoActive(!isPianoActive);
+    };
+
+    const handleSettingsActivate = () => {
+        setIsSettingsActive(!isSettingsActive);
+    };
+
     return (
         <div className="main-container" data-theme={currentTheme}>
             <CanvasBackground currentTheme={currentTheme} />
             <RecordPlayer isVisible={isRecordPlayerVisible} currentTheme={currentTheme} />
+            <RadioPlayer 
+                ref={radioPlayerRef}
+                isVisible={isRadioPlayerVisible} 
+                currentTheme={currentTheme}
+                onMenuClick={() => setIsRadioListVisible(!isRadioListVisible)}
+                isMenuActive={isRadioListVisible}
+            />
+            <PianoWidget 
+                isVisible={isPianoVisible}
+                onActivate={handlePianoActivate}
+                isActive={isPianoActive}
+            />
+            <SettingsWidget
+                isVisible={isSettingsVisible}
+                onActivate={handleSettingsActivate}
+                isActive={isSettingsActive}
+            />
             <div className="content-container">
                 <div 
-                    className={`contacts-panel panel-border ${isRecordPlayerVisible ? 'panel-shrink' : ''}`}
+                    className={contactsPanelClass}
                     onDragOver={handleDragOver}
                     onDrop={handleDrop}
                 >
-                    {chats.map((chat, index) => (
-                        <ChatListItem
-                            key={chat.id}
-                            chat={chat}
-                            onDelete={handleDeleteChat}
-                            onChat={handleChatClick}
-                            onInfo={handleInfoClick}
+                    <div className="panel-content">
+                        <div className={`contacts-list ${isRadioListVisible ? 'hidden' : ''}`}>
+                            {chats.map((chat, index) => (
+                                <ChatListItem
+                                    key={chat.id}
+                                    chat={chat}
+                                    onDelete={handleDeleteChat}
+                                    onChat={handleChatClick}
+                                    onInfo={handleInfoClick}
+                                />
+                            ))}
+                        </div>
+                        <RadioStationsList 
+                            stations={radioStations}
+                            onStationSelect={handleStationSelect}
+                            currentStation={currentStation}
+                            isVisible={isRadioListVisible}
                         />
-                    ))}
+                    </div>
                 </div>
                 
                 <div 
@@ -603,6 +789,11 @@ export default function MainLayout({ children }) {
                     onDragOver={handleDragOver}
                     onDrop={handleChatDrop}
                 >
+                    {activeChats.length === 0 && (
+                        <div className="drop-chat-hint">
+                            Drag a chat here or click the chat button to start a conversation
+                        </div>
+                    )}
                     <div className="active-chats-container">
                         {activeChats.map((chat, index) => (
                             <ChatWindow
@@ -618,35 +809,12 @@ export default function MainLayout({ children }) {
                                 <div className="vertical-line"></div>
                                 <div className="controls-square">
                                     <button
-                                        title="Show controls"
-                                    >
-                                        <Image
-                                            src="/icons/Arrow.png"
-                                            alt="Show controls"
-                                            width={24}
-                                            height={24}
-                                            style={{ transform: 'rotate(90deg)' }}
-                                        />
-                                    </button>
-                                    <button
                                         onClick={handleSwapChats}
                                         title="Swap chat positions"
                                     >
                                         <Image
                                             src="/icons/Swap.png"
                                             alt="Swap"
-                                            width={24}
-                                            height={24}
-                                        />
-                                    </button>
-                                    <button
-                                        onMouseDown={handleResizeStart}
-                                        className={isDraggingResize ? 'active' : ''}
-                                        title="Resize chats"
-                                    >
-                                        <Image
-                                            src="/icons/Resize.png"
-                                            alt="Resize"
                                             width={24}
                                             height={24}
                                         />
@@ -677,11 +845,6 @@ export default function MainLayout({ children }) {
                                         />
                                     </button>
                                 </div>
-                            </div>
-                        )}
-                        {activeChats.length === 0 && (
-                            <div className="drop-chat-hint">
-                                Drag a chat here or click the chat button to start a conversation
                             </div>
                         )}
                     </div>

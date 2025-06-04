@@ -3,13 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 
-export default function ChatWindow({ chat, onClose, width = '100%', onResize }) {
+export default function ChatWindow({ chat, onClose, width = '100%' }) {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-    const [isResizing, setIsResizing] = useState(false);
     const messagesEndRef = useRef(null);
-    const resizeStartX = useRef(null);
-    const initialWidth = useRef(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -18,38 +15,6 @@ export default function ChatWindow({ chat, onClose, width = '100%', onResize }) 
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
-
-    useEffect(() => {
-        if (isResizing) {
-            const handleMouseMove = (e) => {
-                if (!resizeStartX.current || !initialWidth.current) return;
-                const delta = e.clientX - resizeStartX.current;
-                const newWidth = `${Math.max(30, Math.min(70, initialWidth.current + delta * 0.2))}%`;
-                onResize && onResize(newWidth);
-            };
-
-            const handleMouseUp = () => {
-                setIsResizing(false);
-                resizeStartX.current = null;
-                initialWidth.current = null;
-            };
-
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-
-            return () => {
-                document.removeEventListener('mousemove', handleMouseMove);
-                document.removeEventListener('mouseup', handleMouseUp);
-            };
-        }
-    }, [isResizing, onResize]);
-
-    const handleResizeStart = (e) => {
-        setIsResizing(true);
-        resizeStartX.current = e.clientX;
-        initialWidth.current = parseInt(width);
-        e.preventDefault();
-    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -123,56 +88,44 @@ export default function ChatWindow({ chat, onClose, width = '100%', onResize }) 
                 <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSubmit} className="message-input-container">
-                <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Type a message..."
-                    className="message-input"
-                />
-                <div className="message-actions">
-                    <button 
-                        type="button" 
-                        className="action-button"
-                        onClick={handleClearMessage}
-                        title="Clear message"
-                    >
-                        <Image
-                            src="/icons/Delete.png"
-                            alt="Clear"
-                            width={20}
-                            height={20}
-                        />
-                    </button>
-                    <button 
-                        type="submit" 
-                        className="send-button"
-                        disabled={!message.trim()}
-                        title="Send message"
-                    >
-                        <Image
-                            src="/icons/Send.png"
-                            alt="Send"
-                            width={20}
-                            height={20}
-                        />
-                    </button>
-                </div>
-            </form>
-
-            {onResize && (
-                <div 
-                    className={`resize-handle ${isResizing ? 'active' : ''}`}
-                    onMouseDown={handleResizeStart}
-                >
-                    <Image
-                        src="/icons/Resize.png"
-                        alt="Resize"
-                        width={24}
-                        height={24}
+            {messages.length > 0 && (
+                <form onSubmit={handleSubmit} className="message-input-container">
+                    <input
+                        type="text"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Type a message..."
+                        className="message-input"
                     />
-                </div>
+                    <div className="message-actions">
+                        <button 
+                            type="button" 
+                            className="action-button"
+                            onClick={handleClearMessage}
+                            title="Clear message"
+                        >
+                            <Image
+                                src="/icons/Delete.png"
+                                alt="Clear"
+                                width={20}
+                                height={20}
+                            />
+                        </button>
+                        <button 
+                            type="submit" 
+                            className="send-button"
+                            disabled={!message.trim()}
+                            title="Send message"
+                        >
+                            <Image
+                                src="/icons/Send.png"
+                                alt="Send"
+                                width={20}
+                                height={20}
+                            />
+                        </button>
+                    </div>
+                </form>
             )}
         </div>
     );
