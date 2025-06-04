@@ -1,9 +1,17 @@
-const RADIO_API_BASE = 'https://de1.api.radio-browser.info/json/stations';
+// Radio Browser API koristi round-robin DNS za balansiranje opterećenja
+// Lista dostupnih servera
+const RADIO_API_SERVERS = [
+    'de1.api.radio-browser.info',
+    'at1.api.radio-browser.info',
+    'nl1.api.radio-browser.info',
+    'fr1.api.radio-browser.info'
+];
 
 class RadioService {
     constructor() {
         this.audio = null;
         this.currentStation = null;
+        this.currentServerIndex = 0;
         this.initAudio();
     }
 
@@ -29,27 +37,70 @@ class RadioService {
         }
     }
 
-    async getTopStations(limit = 10) {
+    async getRadioApiBaseUrl() {
+        const server = RADIO_API_SERVERS[this.currentServerIndex];
+        return `https://${server}/json`;
+    }
+
+    async tryNextServer() {
+        this.currentServerIndex = (this.currentServerIndex + 1) % RADIO_API_SERVERS.length;
+        return this.getRadioApiBaseUrl();
+    }
+
+    async fetchWithRetry(url, options, retries = 3) {
         try {
-            // Dodaj User-Agent header koji Radio Browser API zahtijeva
-            const response = await fetch(`${RADIO_API_BASE}/topclick/${limit}`, {
+            const response = await fetch(url, {
+                ...options,
+                mode: 'cors',
                 headers: {
-                    'User-Agent': 'AMessages Radio Player',
+                    ...options.headers,
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'AMessages/1.0.0',
                     'Accept': 'application/json'
                 }
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+
+            return await response.json();
+        } catch (error) {
+            console.warn(`Error fetching from ${url}:`, error);
             
-            const stations = await response.json();
-            // Filtriraj samo stanice koje imaju SSL stream (https)
-            return stations.filter(station => 
-                station.url_resolved && 
-                station.favicon && 
-                station.url_resolved.startsWith('https://')
-            );
+            if (retries > 0) {
+                const nextBaseUrl = await this.tryNextServer();
+                const nextUrl = url.replace(/^https:\/\/[^/]+/, nextBaseUrl);
+                console.log(`Retrying with next server: ${nextUrl}`);
+                return this.fetchWithRetry(nextUrl, options, retries - 1);
+            }
+            
+            throw error;
+        }
+    }
+
+    async getTopStations(limit = 10) {
+        try {
+            const baseUrl = await this.getRadioApiBaseUrl();
+            const stations = await this.fetchWithRetry(`${baseUrl}/stations/topclick/100`, {
+                method: 'GET'
+            });
+
+            // Filtriraj samo stanice koje imaju SSL stream (https) i favicon
+            const filteredStations = stations
+                .filter(station => 
+                    station.url_resolved && 
+                    station.favicon && 
+                    station.url_resolved.startsWith('https://')
+                )
+                .slice(0, limit);
+
+            if (filteredStations.length === 0) {
+                console.warn('No valid stations found after filtering');
+                return [];
+            }
+
+            return filteredStations;
         } catch (error) {
             console.error('Error fetching radio stations:', error);
             return [];
@@ -96,6 +147,7 @@ class RadioService {
             }
         } catch (error) {
             console.error('Error in play function:', error);
+            throw error;
         }
     }
 

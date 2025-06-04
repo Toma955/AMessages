@@ -115,7 +115,7 @@
     box-sizing: border-box;
     position: relative;
     z-index: 1;
-    transition: background-color 0.5s ease-in-out;
+    transition: all 1.5s ease;
 }
 
 .content-container {
@@ -134,7 +134,7 @@
     border-radius: var(--border-radius);
     backdrop-filter: blur(12px);
     overflow: hidden;
-    transition: all 0.5s ease-in-out;
+    transition: all 1.5s ease;
 }
 
 .panel-border::before {
@@ -154,9 +154,7 @@
     mask-composite: exclude;
     animation: gradientBorder var(--gradient-animation-duration) linear infinite;
     pointer-events: none;
-    transition: background 0.5s ease-in-out, 
-                animation 0.5s ease-in-out,
-                box-shadow 0.5s ease-in-out;
+    transition: all 1.5s ease;
 }
 
 /* Green theme border animation */
@@ -456,7 +454,7 @@
 
 /* Canvas background transition */
 .canvas-background {
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 1.5s ease;
 }
 
 /* Theme-specific text colors */
@@ -552,11 +550,9 @@
     position: absolute;
     background-color: #22c55e;
     border-radius: 12px;
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                background-color 0.5s ease-in-out,
-                box-shadow 0.5s ease-in-out,
-                opacity 0.3s ease-in-out;
+    transition: all 1.5s ease;
     pointer-events: none;
+    opacity: 0;
     z-index: 0;
     box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);
     margin: -4px;
@@ -612,7 +608,7 @@
 
 /* Icon transition states */
 .icon-button {
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: all 1.5s ease;
     will-change: transform, opacity;
 }
 
@@ -902,7 +898,7 @@
     align-items: center;
     gap: 8px;
     backdrop-filter: blur(8px);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 1.5s ease;
     height: 140px;
 }
 
@@ -972,7 +968,7 @@
     border-radius: 50%;
     background: currentColor;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 1.5s ease;
 }
 
 .mixer-slider::-moz-range-thumb {
@@ -981,7 +977,7 @@
     border-radius: 50%;
     background: currentColor;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 1.5s ease;
     border: none;
 }
 
@@ -992,7 +988,7 @@
     padding: 12px;
     cursor: pointer;
     border-radius: 8px;
-    transition: all 0.3s ease;
+    transition: all 1.5s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1256,5 +1252,51 @@
 
 .active-chats-container::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+/* Animacija za glatku promjenu gradijenta */
+@keyframes smoothGradientChange {
+    0% { opacity: 0; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Primijeni animaciju na promjenu teme */
+[data-theme] .panel-border::before {
+    animation: smoothGradientChange 1.5s ease;
+}
+
+/* Dodaj transition za highlight efekte svih tema */
+[data-theme] .theme-highlight {
+    transition: all 1.5s ease;
+}
+
+/* Dodaj transition za aktivne ikone svih tema */
+[data-theme] .icon-button.active-icon {
+    transition: all 1.5s ease;
+}
+
+/* Dodaj transition za hover stanja svih tema */
+[data-theme] .details-panel button.icon-button:hover {
+    transition: all 1.5s ease;
+}
+
+/* Dodaj transition za mixer kontrole svih tema */
+[data-theme] .mixer-control-container {
+    transition: all 1.5s ease;
+}
+
+/* Dodaj transition za slider thumbs svih tema */
+[data-theme] .mixer-slider::-webkit-slider-thumb {
+    transition: all 1.5s ease;
+}
+
+[data-theme] .mixer-slider::-moz-range-thumb {
+    transition: all 1.5s ease;
+}
+
+/* Dodaj transition za aktivne mixer toggle buttone svih tema */
+[data-theme] .mixer-toggle.active {
+    transition: all 1.5s ease;
 }
 

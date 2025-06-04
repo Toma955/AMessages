@@ -157,7 +157,7 @@ export default function CanvasBackground({ currentTheme = 'orange' }) {
                 cancelAnimationFrame(animationFrameId);
             }
         };
-    }, [currentTheme]); // Dodali smo currentTheme kao dependency
+    }, [currentTheme]);
 
     return (
         <canvas 
@@ -171,7 +171,8 @@ export default function CanvasBackground({ currentTheme = 'orange' }) {
                 height: '100%',
                 zIndex: -1,
                 pointerEvents: 'none',
-                touchAction: 'none'
+                touchAction: 'none',
+                transition: 'background-color 3s ease'
             }}
         />
     );
