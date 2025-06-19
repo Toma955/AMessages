@@ -46,13 +46,14 @@
 
 .settingsGrid {
     flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 16px;
-    padding: 16px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-items: center;
+    justify-content: flex-start;
+    padding-top: 2vh;
+    padding-bottom: 2vh;
+    gap: 1px;
+    height: 100%;
 }
 
 .gridButton {

@@ -7,7 +7,12 @@ const nextConfig = {
                 destination: 'http://localhost:5000/api/:path*'
             }
         ]
-    }
+    },
+    images: {
+        domains: [
+            "icecast.walmradio.com"
+        ],
+    },
 }
 
 module.exports = nextConfig 

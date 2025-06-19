@@ -10,7 +10,7 @@ const handleResponse = async (response) => {
     const data = await response.json();
     
     if (!response.ok) {
-        // If the server sends an error message, use it
+       
         throw new Error(data.error_code || data.message || 'Network response was not ok');
     }
     

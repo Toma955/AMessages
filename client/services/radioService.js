@@ -39,7 +39,7 @@ class RadioService {
 
     async getRadioApiBaseUrl() {
         const server = RADIO_API_SERVERS[this.currentServerIndex];
-        return `https://${server}/json`;
+        return `https://${server}`;
     }
 
     async tryNextServer() {
@@ -47,16 +47,21 @@ class RadioService {
         return this.getRadioApiBaseUrl();
     }
 
-    async fetchWithRetry(url, options, retries = 3) {
+    async fetchWithRetry(url, options = {}, retries = 3) {
         try {
+            // Ensure URL starts with https://
+            if (!url.startsWith('https://')) {
+                url = `https://${url.replace('http://', '')}`;
+            }
+
             const response = await fetch(url, {
                 ...options,
                 mode: 'cors',
                 headers: {
-                    ...options.headers,
                     'Content-Type': 'application/json',
                     'User-Agent': 'AMessages/1.0.0',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    ...options.headers
                 }
             });
 
@@ -64,25 +69,31 @@ class RadioService {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            return await response.json();
+            const data = await response.json();
+            return data;
+
         } catch (error) {
             console.warn(`Error fetching from ${url}:`, error);
             
             if (retries > 0) {
+                console.log(`Retrying... ${retries} attempts left`);
                 const nextBaseUrl = await this.tryNextServer();
-                const nextUrl = url.replace(/^https:\/\/[^/]+/, nextBaseUrl);
-                console.log(`Retrying with next server: ${nextUrl}`);
+                const nextUrl = url.replace(/^https?:\/\/[^/]+/, nextBaseUrl);
+                console.log(`Trying next server: ${nextUrl}`);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1s before retry
                 return this.fetchWithRetry(nextUrl, options, retries - 1);
             }
             
-            throw error;
+            throw new Error(`Failed to fetch after ${3 - retries} retries: ${error.message}`);
         }
     }
 
     async getTopStations(limit = 10) {
         try {
             const baseUrl = await this.getRadioApiBaseUrl();
-            const stations = await this.fetchWithRetry(`${baseUrl}/stations/topclick/100`, {
+            console.log('Fetching from:', baseUrl);
+            
+            const stations = await this.fetchWithRetry(`${baseUrl}/json/stations/topclick/100`, {
                 method: 'GET'
             });
 
@@ -94,6 +105,8 @@ class RadioService {
                     station.url_resolved.startsWith('https://')
                 )
                 .slice(0, limit);
+
+            console.log('Filtered stations:', filteredStations.length);
 
             if (filteredStations.length === 0) {
                 console.warn('No valid stations found after filtering');

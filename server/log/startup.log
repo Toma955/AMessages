@@ -31,3 +31,19 @@
 {"level":30,"time":1749053873314,"pid":6444,"hostname":"TomPC","msg":"Database system.db exists."}
 {"level":30,"time":1749053873314,"pid":6444,"hostname":"TomPC","msg":"Database usernames.db exists."}
 {"level":30,"time":1749053873316,"pid":6444,"hostname":"TomPC","msg":"[2025-06-04 16:17:53] Startup checks passed. All critical files are present."}
+{"level":30,"time":1749401202896,"pid":8132,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1749401202897,"pid":8132,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1749401202898,"pid":8132,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1749401202900,"pid":8132,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1749401202900,"pid":8132,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1749401202900,"pid":8132,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1749401202901,"pid":8132,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1749401202902,"pid":8132,"hostname":"TomPC","msg":"[2025-06-08 16:46:42] Startup checks passed. All critical files are present."}
+{"level":30,"time":1750308054551,"pid":45004,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1750308054552,"pid":45004,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1750308054553,"pid":45004,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1750308054571,"pid":45004,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1750308054573,"pid":45004,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1750308054573,"pid":45004,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1750308054574,"pid":45004,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1750308054575,"pid":45004,"hostname":"TomPC","msg":"[2025-06-19 04:40:54] Startup checks passed. All critical files are present."}

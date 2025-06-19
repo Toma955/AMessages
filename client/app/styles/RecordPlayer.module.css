@@ -14,7 +14,7 @@
 }
 
 .recordPlayerBox {
-    background: #E08543 url('/RecordBackground.jpg') center/cover;
+    background: #000 url('/icons/RecordBackground.jpg') center/cover;
     border-radius: 16px;
     padding: 20px;
     width: 100%;
