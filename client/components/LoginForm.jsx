@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import hrv from "../locales/Hrv.json";
@@ -28,7 +28,18 @@ const getErrorMessage = (errorCode) => {
     }
 };
 
-export default function LoginForm() {
+export default function LoginForm({ 
+    backIcon, 
+    googleIcon, 
+    magnifyingGlassIcon,
+    leftIcon,
+    rightIcon,
+    calendarIcon,
+    maleIcon,
+    femaleIcon,
+    yesIcon,
+    noIcon
+}) {
     const router = useRouter();
     const [language, setLanguage] = useState("en");
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -38,13 +49,17 @@ export default function LoginForm() {
     const [showRegister, setShowRegister] = useState(false);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     const t = language === "en" ? eng : hrv;
     const showReset = passwordInput.length > 0;
 
     const handleGoogleLogin = () => console.log("Google login requested.");
     const handleResetPassword = () => console.log("Reset password requested.");
-    const handleCreateAccount = () => setShowRegister(true);
+    const handleCreateAccount = () => {
+        console.log("Create Account clicked, setting showRegister to true");
+        setShowRegister(true);
+    };
     
     const handleLogin = async () => {
         try {
@@ -61,17 +76,17 @@ export default function LoginForm() {
                 password: passwordInput
             });
 
-            // Store the token in both localStorage and cookie
+           
             localStorage.setItem('token', data.token);
             localStorage.setItem('userId', data.userId);
             setCookie('token', data.token);
 
-            // Redirect to main page
+           
             router.push('/main');
             
         } catch (err) {
             console.error('Login error:', err);
-            // Extract error code from the error message
+           
             const errorCode = err.message.includes(':') ? err.message.split(':')[0] : err.message;
             setError(getErrorMessage(errorCode));
         } finally {
@@ -79,118 +94,123 @@ export default function LoginForm() {
         }
     };
 
+    useEffect(() => {
+        setIsLoaded(true);
+    }, []);
+
+    console.log("showRegister state:", showRegister);
+
     if (showRegister) {
-        return <RegisterForm onBack={() => setShowRegister(false)} language={language} />;
+        console.log("Rendering RegisterForm");
+        return <RegisterForm 
+            onBack={() => setShowRegister(false)} 
+            language={language}
+            backIcon={backIcon}
+            leftIcon={leftIcon}
+            rightIcon={rightIcon}
+            calendarIcon={calendarIcon}
+            maleIcon={maleIcon}
+            femaleIcon={femaleIcon}
+            googleIcon={googleIcon}
+            magnifyingGlassIcon={magnifyingGlassIcon}
+            yesIcon={yesIcon}
+            noIcon={noIcon}
+        />;
     }
 
     return (
-        <div className="login-container">
-            <div className="login-form-wrapper">
-                <div className="login-box login">
-                    <h1 className="title">{t.loginTitle}</h1>
-                    {hoverText && <div className="hover-message">{hoverText}</div>}
-                    {error && <div className="error-message">{error}</div>}
+        <>
+            <div style={{ display: isLoaded ? undefined : "none" }}>
+                <div className="login-container">
+                    <div className="login-form-wrapper">
+                        <div className="login-box login">
+                            <h1 className="title">{t.loginTitle}</h1>
+                            {hoverText && <div className="hover-message">{hoverText}</div>}
+                            {error && <div className="error-message">{error}</div>}
 
-                    <input 
-                        type="text" 
-                        placeholder={t.usernamePlaceholder}
-                        value={usernameInput}
-                        onChange={(e) => setUsernameInput(e.target.value)}
-                        className="login-input"
-                    />
+                            <input 
+                                type="text" 
+                                placeholder={t.usernamePlaceholder}
+                                value={usernameInput}
+                                onChange={(e) => setUsernameInput(e.target.value)}
+                                className="login-input"
+                            />
 
-                    <input
-                        type={passwordVisible ? "text" : "password"}
-                        placeholder={t.passwordPlaceholder}
-                        value={passwordInput}
-                        onChange={(e) => setPasswordInput(e.target.value)}
-                        className="login-input"
-                        onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                    />
+                            <input
+                                type={passwordVisible ? "text" : "password"}
+                                placeholder={t.passwordPlaceholder}
+                                value={passwordInput}
+                                onChange={(e) => setPasswordInput(e.target.value)}
+                                className="login-input"
+                                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                            />
 
-                    <div className="icon-buttons">
-                        {showReset ? (
-                            <button
-                                className="icon-circle white"
-                                onClick={handleResetPassword}
-                                onMouseEnter={() => setHoverText(t.resetHover)}
-                                onMouseLeave={() => setHoverText("")}
+                            <div className="icon-buttons">
+                                <button
+                                    className="icon-circle white"
+                                    onClick={handleGoogleLogin}
+                                    onMouseEnter={() => setHoverText(t.googleHover)}
+                                    onMouseLeave={() => setHoverText("")}
+                                >
+                                    <Image
+                                        src={googleIcon}
+                                        alt="Google"
+                                        width={24}
+                                        height={24}
+                                    />
+                                </button>
+                                <button
+                                    className="icon-circle white"
+                                    onClick={() => setLanguage((prev) => (prev === "en" ? "hr" : "en"))}
+                                    onMouseEnter={() => setHoverText(t.languageHover)}
+                                    onMouseLeave={() => setHoverText("")}
+                                >
+                                    <Image 
+                                        src="/icons/Languages.png" 
+                                        alt="Lang" 
+                                        width={24} 
+                                        height={24}
+                                    />
+                                </button>
+                                <button
+                                    className={`icon-circle ${passwordVisible ? "red" : "green"}`}
+                                    onClick={() => setPasswordVisible((prev) => !prev)}
+                                    onMouseEnter={() => setHoverText(passwordVisible ? t.hideHover : t.showHover)}
+                                    onMouseLeave={() => setHoverText("")}
+                                >
+                                    <Image
+                                        src={magnifyingGlassIcon}
+                                        alt="Show"
+                                        width={24}
+                                        height={24}
+                                    />
+                                </button>
+                                <button
+                                    className="icon-circle white"
+                                    onClick={handleCreateAccount}
+                                    onMouseEnter={() => setHoverText(t.newUserHover)}
+                                    onMouseLeave={() => setHoverText("")}
+                                >
+                                    <Image 
+                                        src="/icons/New_User.png" 
+                                        alt="Add" 
+                                        width={24} 
+                                        height={24}
+                                    />
+                                </button>
+                            </div>
+
+                            <button 
+                                className="primary-button"
+                                onClick={handleLogin}
+                                disabled={isLoading}
                             >
-                                <Image
-                                    src="/icons/reset-password.png"
-                                    alt="Reset"
-                                    width={24}
-                                    height={24}
-                                />
+                                {isLoading ? "Logging in..." : t.loginButton}
                             </button>
-                        ) : (
-                            <button
-                                className="icon-circle white"
-                                onClick={handleGoogleLogin}
-                                onMouseEnter={() => setHoverText(t.googleHover)}
-                                onMouseLeave={() => setHoverText("")}
-                            >
-                                <Image
-                                    src="/icons/Google.png"
-                                    alt="Google"
-                                    width={24}
-                                    height={24}
-                                />
-                            </button>
-                        )}
-
-                        <button
-                            className="icon-circle white"
-                            onClick={() => setLanguage((prev) => (prev === "en" ? "hr" : "en"))}
-                            onMouseEnter={() => setHoverText(t.languageHover)}
-                            onMouseLeave={() => setHoverText("")}
-                        >
-                            <Image 
-                                src="/icons/Languages.png" 
-                                alt="Lang" 
-                                width={24} 
-                                height={24}
-                            />
-                        </button>
-
-                        <button
-                            className={`icon-circle ${passwordVisible ? "red" : "green"}`}
-                            onClick={() => setPasswordVisible((prev) => !prev)}
-                            onMouseEnter={() => setHoverText(passwordVisible ? t.hideHover : t.showHover)}
-                            onMouseLeave={() => setHoverText("")}
-                        >
-                            <Image
-                                src="/icons/Magnifying_glass.png"
-                                alt="Show"
-                                width={24}
-                                height={24}
-                            />
-                        </button>
-
-                        <button
-                            className="icon-circle red"
-                            onClick={handleCreateAccount}
-                            onMouseEnter={() => setHoverText(t.newUserHover)}
-                            onMouseLeave={() => setHoverText("")}
-                        >
-                            <Image 
-                                src="/icons/New_User.png" 
-                                alt="Add" 
-                                width={24} 
-                                height={24}
-                            />
-                        </button>
+                        </div>
                     </div>
-
-                    <button 
-                        className="primary-button"
-                        onClick={handleLogin}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? "Logging in..." : t.loginButton}
-                    </button>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

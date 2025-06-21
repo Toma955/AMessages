@@ -10,6 +10,7 @@
   "newUserHover": "Create new account",
   "resetHover": "Reset password",
   "backToGoogleHover": "Back to Google sign-in",
+  "loginWithGoogle": "Login with Google",
   
   "registerTitle": "Create Account",
   "firstNamePlaceholder": "First Name",

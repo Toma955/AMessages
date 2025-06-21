@@ -1,0 +1,30 @@
+{
+    "menu": {
+        "welcome": "Welcome to Amessages Preloader, do you want to continue in Croatian or English?",
+        "selectedLang": "Chosen language: (English)",
+        "prompt": "Press SPACE to change language, ENTER to confirm, EXIT to quit.",
+        "info": "SPACE to change, ENTER to confirm, EXIT to quit.",
+        "exitMsg": "Exiting the program."
+    },
+    "ram": {
+        "ramMessage": "Total RAM memory: {{ram}} MB",
+        "ramLowWarning": "You only have {{total}} MB RAM, but at least {{min}} MB is required.",
+        "ramStopMessage": "Stopping due to insufficient memory.",
+        "ramOkMessage": "RAM is sufficient, continuing.",
+        "ramError": "You have only {{total}} MB RAM, but at least {{min}} MB is required."
+    },
+    "cpu": {
+        "cpuCoresMessage": "Number of CPU cores: {{cores}}",
+        "cpuLowWarning": "Number of CPU cores is less than 2.",
+        "cpuStopMessage": "Stopping due to insufficient CPU cores."
+    },
+    "dependencies": {
+        "dependenciesMissing": "Some dependencies are missing: {{deps}}",
+        "dependenciesOk": "All dependencies are present."
+    },
+    "disk": {
+        "diskSpaceMessage": "Free disk space: {{space}} MB",
+        "diskSpaceLowWarning": "Not enough free disk space.",
+        "diskSpaceStopMessage": "Stopping due to insufficient disk space."
+    }
+}

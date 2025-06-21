@@ -8,7 +8,7 @@ import api from "../services/api";
 
 const NAME_REGEX = /^[a-zA-ZčćđšžČĆĐŠŽ\s]+$/;
 const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
-const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%?&])[A-Za-z\d@$!%?&]{6,}$/;
 const COMMON_PASSWORDS = ['abc123', 'password123', '123456', 'qwerty'];
 
 const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -17,141 +17,20 @@ const MONTHS = [
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-function CustomDatePicker({ selectedDate, onDateSelect, visible, language }) {
-    const [currentDate, setCurrentDate] = useState(new Date());
-    const [displayedMonth, setDisplayedMonth] = useState(new Date());
-
-    const t = language === "en" ? eng : hrv;
-
-    const getDaysInMonth = (date) => {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    };
-
-    const getFirstDayOfMonth = (date) => {
-        return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-    };
-
-    const generateCalendarDays = () => {
-        const daysInMonth = getDaysInMonth(displayedMonth);
-        const firstDay = getFirstDayOfMonth(displayedMonth);
-        const days = [];
-
-        // Previous month days
-        const prevMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() - 1, 1);
-        const daysInPrevMonth = getDaysInMonth(prevMonth);
-        for (let i = firstDay - 1; i >= 0; i--) {
-            days.push({
-                day: daysInPrevMonth - i,
-                month: 'prev',
-                date: new Date(prevMonth.getFullYear(), prevMonth.getMonth(), daysInPrevMonth - i)
-            });
-        }
-
-        // Current month days
-        for (let i = 1; i <= daysInMonth; i++) {
-            days.push({
-                day: i,
-                month: 'current',
-                date: new Date(displayedMonth.getFullYear(), displayedMonth.getMonth(), i)
-            });
-        }
-
-        // Next month days
-        const remainingDays = 42 - days.length; // 6 rows * 7 days = 42
-        for (let i = 1; i <= remainingDays; i++) {
-            days.push({
-                day: i,
-                month: 'next',
-                date: new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() + 1, i)
-            });
-        }
-
-        return days;
-    };
-
-    const handlePrevMonth = () => {
-        setDisplayedMonth(new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() - 1));
-    };
-
-    const handleNextMonth = () => {
-        setDisplayedMonth(new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() + 1));
-    };
-
-    const isToday = (date) => {
-        const today = new Date();
-        return date.toDateString() === today.toDateString();
-    };
-
-    const isSelected = (date) => {
-        return selectedDate && date.toDateString() === new Date(selectedDate).toDateString();
-    };
-
-    const isFutureDate = (date) => {
-        return date > new Date();
-    };
-
-    const isUnder13 = (date) => {
-        const today = new Date();
-        const age = today.getFullYear() - date.getFullYear();
-        return age < 13;
-    };
-
-    const handleDateClick = (date) => {
-        if (!isFutureDate(date) && !isUnder13(date)) {
-            const formattedDate = date.toISOString().split('T')[0];
-            onDateSelect(formattedDate);
-            setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
-            const error = validateField('dateOfBirth', formattedDate);
-            setErrors(prev => ({ ...prev, dateOfBirth: error }));
-        }
-    };
-
-    return (
-        <div className={`custom-date-picker ${visible ? 'visible' : ''}`}>
-            <div className="calendar-header">
-                <div className="month-year">
-                    {MONTHS[displayedMonth.getMonth()]} {displayedMonth.getFullYear()}
-                </div>
-                <div className="calendar-nav">
-                    <button className="calendar-nav-button prev" onClick={handlePrevMonth}>
-                        <Image src="/icons/chevron-right.png" alt="Previous" width={20} height={20} />
-                    </button>
-                    <button className="calendar-nav-button" onClick={handleNextMonth}>
-                        <Image src="/icons/chevron-right.png" alt="Next" width={20} height={20} />
-                    </button>
-                </div>
-            </div>
-            <div className="calendar-grid">
-                {DAYS_OF_WEEK.map(day => (
-                    <div key={day} className="weekday">{day}</div>
-                ))}
-                {generateCalendarDays().map((day, index) => {
-                    const isDisabled = isFutureDate(day.date) || isUnder13(day.date);
-                    const isCurrentMonth = day.month === 'current';
-                    const classes = [
-                        'date-cell',
-                        day.month !== 'current' ? 'other-month' : '',
-                        isToday(day.date) ? 'today' : '',
-                        isSelected(day.date) ? 'selected' : '',
-                        isDisabled ? 'disabled' : ''
-                    ].filter(Boolean).join(' ');
-
-                    return (
-                        <div
-                            key={`${day.month}-${day.day}-${index}`}
-                            className={classes}
-                            onClick={() => !isDisabled && handleDateClick(day.date)}
-                        >
-                            {day.day}
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
-
-export default function RegisterForm({ onBack, language = "en" }) {
+export default function RegisterForm({ 
+    onBack, 
+    language = "en",
+    backIcon,
+    leftIcon,
+    rightIcon,
+    calendarIcon,
+    maleIcon,
+    femaleIcon,
+    googleIcon,
+    magnifyingGlassIcon,
+    yesIcon,
+    noIcon
+}) {
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
@@ -281,6 +160,11 @@ export default function RegisterForm({ onBack, language = "en" }) {
         );
     };
 
+    const handleGoogleSignup = () => {
+        console.log("Google signup requested");
+        // TODO: Implement Google OAuth signup
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
@@ -367,283 +251,442 @@ export default function RegisterForm({ onBack, language = "en" }) {
         return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-    return (
-        <div className="login-container">
-            <div className="login-form-wrapper">
-                <div className="login-box register">
-                    <div className="form-header">
-                        <button
-                            className="back-button"
-                            onClick={onBack}
-                            onMouseEnter={() => setHoverText(t.backToLogin)}
-                            onMouseLeave={() => setHoverText("")}
-                        >
-                            <Image
-                                src="/icons/Back.png"
-                                alt="Back"
-                                width={24}
-                                height={24}
-                            />
-                        </button>
-                        <h1 className="title">{t.registerTitle}</h1>
+    // CustomDatePicker component inside RegisterForm to access props
+    function CustomDatePicker({ selectedDate, onDateSelect, visible }) {
+        const [currentDate, setCurrentDate] = useState(new Date());
+        const [displayedMonth, setDisplayedMonth] = useState(new Date());
+
+        const getDaysInMonth = (date) => {
+            return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+        };
+
+        const getFirstDayOfMonth = (date) => {
+            return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+        };
+
+        const generateCalendarDays = () => {
+            const daysInMonth = getDaysInMonth(displayedMonth);
+            const firstDay = getFirstDayOfMonth(displayedMonth);
+            const days = [];
+
+            // Previous month days
+            const prevMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() - 1, 1);
+            const daysInPrevMonth = getDaysInMonth(prevMonth);
+            for (let i = firstDay - 1; i >= 0; i--) {
+                days.push({
+                    day: daysInPrevMonth - i,
+                    month: 'prev',
+                    date: new Date(prevMonth.getFullYear(), prevMonth.getMonth(), daysInPrevMonth - i)
+                });
+            }
+
+            // Current month days
+            for (let i = 1; i <= daysInMonth; i++) {
+                days.push({
+                    day: i,
+                    month: 'current',
+                    date: new Date(displayedMonth.getFullYear(), displayedMonth.getMonth(), i)
+                });
+            }
+
+            // Next month days
+            const remainingDays = 42 - days.length; // 6 rows * 7 days = 42
+            for (let i = 1; i <= remainingDays; i++) {
+                days.push({
+                    day: i,
+                    month: 'next',
+                    date: new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() + 1, i)
+                });
+            }
+
+            return days;
+        };
+
+        const handlePrevMonth = () => {
+            setDisplayedMonth(new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() - 1));
+        };
+
+        const handleNextMonth = () => {
+            setDisplayedMonth(new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() + 1));
+        };
+
+        const isToday = (date) => {
+            const today = new Date();
+            return date.toDateString() === today.toDateString();
+        };
+
+        const isSelected = (date) => {
+            return selectedDate && date.toDateString() === new Date(selectedDate).toDateString();
+        };
+
+        const isFutureDate = (date) => {
+            return date > new Date();
+        };
+
+        const isUnder13 = (date) => {
+            const today = new Date();
+            const age = today.getFullYear() - date.getFullYear();
+            return age < 13;
+        };
+
+        const handleDateClick = (date) => {
+            if (!isFutureDate(date) && !isUnder13(date)) {
+                const formattedDate = date.toISOString().split('T')[0];
+                onDateSelect(formattedDate);
+                setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
+                const error = validateField('dateOfBirth', formattedDate);
+                setErrors(prev => ({ ...prev, dateOfBirth: error }));
+            }
+        };
+
+        return (
+            <div className={`custom-date-picker ${visible ? 'visible' : ''}`}>
+                <div className="calendar-header">
+                    <div className="month-year">
+                        {MONTHS[displayedMonth.getMonth()]} {displayedMonth.getFullYear()}
                     </div>
+                    <div className="calendar-nav">
+                        <button className="calendar-nav-button prev" onClick={handlePrevMonth}>
+                            <Image src={leftIcon} alt="Previous" width={20} height={20} unoptimized />
+                        </button>
+                        <button className="calendar-nav-button" onClick={handleNextMonth}>
+                            <Image src={rightIcon} alt="Next" width={20} height={20} unoptimized />
+                        </button>
+                    </div>
+                </div>
+                <div className="calendar-grid">
+                    {DAYS_OF_WEEK.map(day => (
+                        <div key={day} className="weekday">{day}</div>
+                    ))}
+                    {generateCalendarDays().map((day, index) => {
+                        const isDisabled = isFutureDate(day.date) || isUnder13(day.date);
+                        const isCurrentMonth = day.month === 'current';
+                        const classes = [
+                            'date-cell',
+                            day.month !== 'current' ? 'other-month' : '',
+                            isToday(day.date) ? 'today' : '',
+                            isSelected(day.date) ? 'selected' : '',
+                            isDisabled ? 'disabled' : ''
+                        ].filter(Boolean).join(' ');
 
-                    {hoverText && <div className="hover-message">{hoverText}</div>}
-
-                    <form onSubmit={handleSubmit} className="register-form">
-                        {errors.general && (
-                            <div className="error-message text-center">{errors.general}</div>
-                        )}
-                        
-                        <div className="name-row">
-                            <div className="input-group">
-                                <input
-                                    type="text"
-                                    name="firstName"
-                                    placeholder={t.firstNamePlaceholder}
-                                    value={formData.firstName}
-                                    onChange={handleChange}
-                                    className={errors.firstName ? "error" : ""}
-                                />
-                                {errors.firstName && <span className="error-message">{errors.firstName}</span>}
+                        return (
+                            <div
+                                key={`${day.month}-${day.day}-${index}`}
+                                className={classes}
+                                onClick={() => !isDisabled && handleDateClick(day.date)}
+                            >
+                                {day.day}
                             </div>
+                        );
+                    })}
+                </div>
+            </div>
+        );
+    }
 
-                            <div className="input-group">
-                                <input
-                                    type="text"
-                                    name="lastName"
-                                    placeholder={t.lastNamePlaceholder}
-                                    value={formData.lastName}
-                                    onChange={handleChange}
-                                    className={errors.lastName ? "error" : ""}
+    return (
+        <div>
+            <div className="login-container">
+                <div className="login-form-wrapper">
+                    <div className="login-box register">
+                        <div className="form-header">
+                            <button
+                                className="back-button"
+                                onClick={onBack}
+                                onMouseEnter={() => setHoverText(t.backToLogin)}
+                                onMouseLeave={() => setHoverText("")}
+                            >
+                                <Image
+                                    src={backIcon}
+                                    alt="Back"
+                                    width={24}
+                                    height={24}
+                                    unoptimized
                                 />
-                                {errors.lastName && <span className="error-message">{errors.lastName}</span>}
-                            </div>
+                            </button>
+                            <h1 className="title">{t.registerTitle}</h1>
                         </div>
 
-                        <div className="input-group">
-                            <input
-                                type="text"
-                                name="username"
-                                placeholder={t.usernamePlaceholder}
-                                value={formData.username}
-                                onChange={handleChange}
-                                className={errors.username ? "error" : ""}
-                            />
-                            {errors.username && <span className="error-message">{errors.username}</span>}
-                        </div>
+                        {hoverText && <div className="hover-message">{hoverText}</div>}
 
-                        <div className="input-group">
-                            <div className="password-input">
-                                <input
-                                    type={passwordVisible ? "text" : "password"}
-                                    name="password"
-                                    placeholder={t.passwordPlaceholder}
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    className={errors.password ? "error" : ""}
-                                />
-                                <button
-                                    type="button"
-                                    className={`icon-circle small ${passwordVisible ? "red" : "green"}`}
-                                    onClick={() => setPasswordVisible(prev => !prev)}
-                                    onMouseEnter={() => setHoverText(passwordVisible ? t.hideHover : t.showHover)}
-                                    onMouseLeave={() => setHoverText("")}
-                                >
-                                    <Image
-                                        src="/icons/Magnifying_glass.png"
-                                        alt="Toggle"
-                                        width={16}
-                                        height={16}
+                        <form onSubmit={handleSubmit} className="register-form">
+                            {errors.general && (
+                                <div className="error-message text-center">{errors.general}</div>
+                            )}
+                            
+                            <div className="name-row">
+                                <div className="input-group">
+                                    <input
+                                        type="text"
+                                        name="firstName"
+                                        placeholder={t.firstNamePlaceholder}
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        className={errors.firstName ? "error" : ""}
                                     />
-                                </button>
-                            </div>
-                            {errors.password && <span className="error-message">{errors.password}</span>}
-                        </div>
+                                    {errors.firstName && <span className="error-message">{errors.firstName}</span>}
+                                </div>
 
-                        <div className="input-group">
-                            <input
-                                type={passwordVisible ? "text" : "password"}
-                                name="confirmPassword"
-                                placeholder={t.confirmPasswordPlaceholder}
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                className={errors.confirmPassword ? "error" : ""}
-                            />
-                            {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
-                        </div>
-
-                        <div className="input-group">
-                            <div className="date-input-container">
-                                <input
-                                    type="date"
-                                    name="dateOfBirth"
-                                    value={formData.dateOfBirth}
-                                    onChange={handleChange}
-                                    className={`date-input ${errors.dateOfBirth ? "error" : ""}`}
-                                    max={new Date().toISOString().split("T")[0]}
-                                />
-                                <div 
-                                    className="calendar-icon"
-                                    onClick={handleCalendarClick}
-                                >
-                                    <Image
-                                        src="/icons/Calendar.png"
-                                        alt="Calendar"
-                                        width={24}
-                                        height={24}
+                                <div className="input-group">
+                                    <input
+                                        type="text"
+                                        name="lastName"
+                                        placeholder={t.lastNamePlaceholder}
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        className={errors.lastName ? "error" : ""}
                                     />
+                                    {errors.lastName && <span className="error-message">{errors.lastName}</span>}
                                 </div>
                             </div>
-                            {errors.dateOfBirth && <span className="error-message">{errors.dateOfBirth}</span>}
-                        </div>
 
-                        <div className="gender-selection">
-                            <button
-                                type="button"
-                                className={`gender-button male ${formData.gender === "M" ? "selected" : ""}`}
-                                onClick={() => handleGenderSelect("M")}
-                            >
-                                <Image
-                                    src="/icons/male.png"
-                                    alt="Male"
-                                    width={24}
-                                    height={24}
+                            <div className="input-group">
+                                <input
+                                    type="text"
+                                    name="username"
+                                    placeholder={t.usernamePlaceholder}
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    className={errors.username ? "error" : ""}
                                 />
-                                {t.male}
-                            </button>
-                            <button
-                                type="button"
-                                className={`gender-button female ${formData.gender === "F" ? "selected" : ""}`}
-                                onClick={() => handleGenderSelect("F")}
-                            >
-                                <Image
-                                    src="/icons/female.png"
-                                    alt="Female"
-                                    width={24}
-                                    height={24}
+                                {errors.username && <span className="error-message">{errors.username}</span>}
+                            </div>
+
+                            <div className="input-group">
+                                <div className="password-input">
+                                    <input
+                                        type={passwordVisible ? "text" : "password"}
+                                        name="password"
+                                        placeholder={t.passwordPlaceholder}
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        className={errors.password ? "error" : ""}
+                                    />
+                                    <button
+                                        type="button"
+                                        className={`icon-circle small ${passwordVisible ? "red" : "green"}`}
+                                        onClick={() => setPasswordVisible(prev => !prev)}
+                                        onMouseEnter={() => setHoverText(passwordVisible ? t.hideHover : t.showHover)}
+                                        onMouseLeave={() => setHoverText("")}
+                                    >
+                                        <Image
+                                            src={magnifyingGlassIcon}
+                                            alt="Toggle"
+                                            width={16}
+                                            height={16}
+                                            unoptimized
+                                        />
+                                    </button>
+                                </div>
+                                {errors.password && <span className="error-message">{errors.password}</span>}
+                            </div>
+
+                            <div className="input-group">
+                                <input
+                                    type={passwordVisible ? "text" : "password"}
+                                    name="confirmPassword"
+                                    placeholder={t.confirmPasswordPlaceholder}
+                                    value={formData.confirmPassword}
+                                    onChange={handleChange}
+                                    className={errors.confirmPassword ? "error" : ""}
                                 />
-                                {t.female}
-                            </button>
-                        </div>
-                        {errors.gender && <span className="error-message text-center">{errors.gender}</span>}
+                                {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
+                            </div>
 
-                        <button 
-                            type="submit" 
-                            className="primary-button"
-                            disabled={!isFormValid()}
-                        >
-                            {t.registerButton}
-                        </button>
-                    </form>
-                </div>
+                            <div className="input-group">
+                                <div className="date-input-container">
+                                    <input
+                                        type="date"
+                                        name="dateOfBirth"
+                                        value={formData.dateOfBirth}
+                                        onChange={handleChange}
+                                        className={`date-input ${errors.dateOfBirth ? "error" : ""}`}
+                                        max={new Date().toISOString().split("T")[0]}
+                                    />
+                                    <div 
+                                        className="calendar-icon"
+                                        onClick={handleCalendarClick}
+                                    >
+                                        <Image
+                                            src={calendarIcon}
+                                            alt="Calendar"
+                                            width={24}
+                                            height={24}
+                                            unoptimized
+                                        />
+                                    </div>
+                                </div>
+                                {errors.dateOfBirth && <span className="error-message">{errors.dateOfBirth}</span>}
+                            </div>
 
-                <CustomDatePicker
-                    selectedDate={formData.dateOfBirth}
-                    onDateSelect={handleDateSelect}
-                    visible={showDatePicker}
-                    language={language}
-                />
+                            <div className="gender-selection">
+                                <button
+                                    type="button"
+                                    className={`gender-button male ${formData.gender === "M" ? "selected" : ""}`}
+                                    onClick={() => handleGenderSelect("M")}
+                                >
+                                    <Image
+                                        src={maleIcon}
+                                        alt="Male"
+                                        width={24}
+                                        height={24}
+                                        unoptimized
+                                    />
+                                    {t.male}
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`gender-button female ${formData.gender === "F" ? "selected" : ""}`}
+                                    onClick={() => handleGenderSelect("F")}
+                                >
+                                    <Image
+                                        src={femaleIcon}
+                                        alt="Female"
+                                        width={24}
+                                        height={24}
+                                        unoptimized
+                                    />
+                                    {t.female}
+                                </button>
+                            </div>
+                            {errors.gender && <span className="error-message text-center">{errors.gender}</span>}
 
-                <div className={`validation-sidebar ${showValidation ? 'visible' : ''}`}>
-                    <div className={`validation-item ${validations.firstName ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.firstName ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
-                        </div>
-                        {t.firstNameValidation}
+                            <div className="buttons-grid">
+                                <button 
+                                    type="button" 
+                                    className="google-btn"
+                                    onClick={handleGoogleSignup}
+                                >
+                                    <Image src={googleIcon} alt="Google" width={24} height={24} />
+                                    {t.loginWithGoogle}
+                                </button>
+
+                                <button 
+                                    type="submit" 
+                                    className="register-btn"
+                                    disabled={!isFormValid()}
+                                >
+                                    {t.registerButton || "Register"}
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                    <div className={`validation-item ${validations.lastName ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.lastName ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
+
+                    <CustomDatePicker
+                        selectedDate={formData.dateOfBirth}
+                        onDateSelect={handleDateSelect}
+                        visible={showDatePicker}
+                    />
+
+                    <div className={`validation-sidebar ${showValidation ? 'visible strong' : ''}`}>
+                        <div className={`validation-item ${validations.firstName ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.firstName ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.firstNameValidation}
                         </div>
-                        {t.lastNameValidation}
-                    </div>
-                    <div className={`validation-item ${validations.username ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.username ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
+                        <div className={`validation-item ${validations.lastName ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.lastName ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.lastNameValidation}
                         </div>
-                        {t.usernameValidation}
-                    </div>
-                    <div className={`validation-item ${validations.password.length ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.password.length ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
+                        <div className={`validation-item ${validations.username ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.username ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.usernameValidation}
                         </div>
-                        {t.passwordLengthValidation}
-                    </div>
-                    <div className={`validation-item ${validations.password.uppercase ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.password.uppercase ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
+                        <div className={`validation-item ${validations.password.length ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.password.length ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.passwordLengthValidation}
                         </div>
-                        {t.passwordUppercaseValidation}
-                    </div>
-                    <div className={`validation-item ${validations.password.lowercase ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.password.lowercase ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
+                        <div className={`validation-item ${validations.password.uppercase ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.password.uppercase ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.passwordUppercaseValidation}
                         </div>
-                        {t.passwordLowercaseValidation}
-                    </div>
-                    <div className={`validation-item ${validations.password.number ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.password.number ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
+                        <div className={`validation-item ${validations.password.lowercase ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.password.lowercase ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.passwordLowercaseValidation}
                         </div>
-                        {t.passwordNumberValidation}
-                    </div>
-                    <div className={`validation-item ${validations.password.special ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.password.special ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
+                        <div className={`validation-item ${validations.password.number ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.password.number ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.passwordNumberValidation}
                         </div>
-                        {t.passwordSpecialValidation}
-                    </div>
-                    <div className={`validation-item ${validations.password.notCommon ? 'valid' : 'invalid'}`}>
-                        <div className="validation-icon">
-                            <Image
-                                src={validations.password.notCommon ? "/icons/yes.png" : "/icons/no.png"}
-                                alt="Validation"
-                                width={16}
-                                height={16}
-                            />
+                        <div className={`validation-item ${validations.password.special ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.password.special ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.passwordSpecialValidation}
                         </div>
-                        {t.passwordCommonValidation}
+                        <div className={`validation-item ${validations.password.notCommon ? 'valid' : 'invalid'}`}>
+                            <div className="validation-icon">
+                                <Image
+                                    src={validations.password.notCommon ? yesIcon : noIcon}
+                                    alt="Validation"
+                                    width={16}
+                                    height={16}
+                                    unoptimized
+                                />
+                            </div>
+                            {t.passwordCommonValidation}
+                        </div>
                     </div>
                 </div>
             </div>

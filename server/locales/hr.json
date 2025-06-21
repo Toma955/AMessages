@@ -1,0 +1,30 @@
+{
+    "menu": {
+        "welcome": "Dobrodošli u Amessages Preloader, želite li nastaviti na hrvatskom ili engleskom?",
+        "selectedLang": "Odabrani jezik: (Hrvatski)",
+        "prompt": "Pritisnite SPACE za promjenu jezika, ENTER za potvrdu, EXIT za izlaz.",
+        "info": "SPACE za promjenu, ENTER za potvrdu, EXIT za izlaz.",
+        "exitMsg": "Izlaz iz programa."
+    },
+    "ram": {
+        "ramMessage": "Ukupno RAM memorije: {{ram}} MB",
+        "ramLowWarning": "Imate samo {{total}} MB RAM-a, a potrebno je barem {{min}} MB.",
+        "ramStopMessage": "Prekidam zbog nedostatka memorije.",
+        "ramOkMessage": "RAM je dovoljan, nastavljam.",
+        "ramError": "Imate samo {{total}} MB RAM-a, a potrebno je barem {{min}} MB."
+    },
+    "cpu": {
+        "cpuCoresMessage": "Broj CPU jezgri: {{cores}}",
+        "cpuLowWarning": "Broj CPU jezgri je manji od 2.",
+        "cpuStopMessage": "Prekidam zbog premalog broja CPU jezgri."
+    },
+    "dependencies": {
+        "dependenciesMissing": "Nedostaju neke ovisnosti: {{deps}}",
+        "dependenciesOk": "Sve ovisnosti su prisutne."
+    },
+    "disk": {
+        "diskSpaceMessage": "Slobodan prostor na disku: {{space}} MB",
+        "diskSpaceLowWarning": "Nema dovoljno slobodnog prostora na disku.",
+        "diskSpaceStopMessage": "Prekidam zbog nedostatka prostora na disku."
+    }
+}

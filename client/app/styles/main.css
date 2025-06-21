@@ -279,13 +279,14 @@
 }
 
 .details-panel {
+    position: relative;
     width: 80px;
     height: 100%;
-    position: relative;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
     z-index: 3;
     overflow: hidden;
-    padding: 0;
-    box-sizing: border-box;
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -308,13 +309,13 @@
 .details-panel button.icon-button {
     background: none;
     border: none;
-    padding: 8px;
+    padding: 0;
     cursor: pointer !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     border-radius: 12px;
     position: relative;
     z-index: 2;
@@ -324,8 +325,11 @@
 
 /* Icon styles */
 .icon-button img {
-    width: 48px;
-    height: 48px;
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
     pointer-events: none;
     user-select: none;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -335,7 +339,11 @@
 
 /* Special Arrow rotation */
 .icon-button[data-name="Arrow"] {
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-button[data-name="Arrow"].arrow-rotated {
+    transform: rotate(90deg);
 }
 
 .icon-button[data-name="Arrow"].menu-view {
@@ -596,15 +604,19 @@
 
 /* Icon container */
 .icon-container {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    box-sizing: border-box;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
-    box-sizing: border-box;
+    justify-content: space-between;
 }
 
 /* Icon transition states */
@@ -647,13 +659,13 @@
 .details-panel button.icon-button {
     background: none;
     border: none;
-    padding: 8px;
+    padding: 0;
     cursor: pointer !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 64px;
-    height: 64px;
+    width: 40px;
+    height: 40px;
     border-radius: 12px;
     position: relative;
     z-index: 2;
@@ -820,13 +832,13 @@
 .details-panel button.icon-button {
     background: none;
     border: none;
-    padding: 8px;
+    padding: 0;
     cursor: pointer !important;
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 64px;
-    height: 64px;
+    width: 40px;
+    height: 40px;
     border-radius: 12px;
     position: relative;
     z-index: 2;
@@ -884,130 +896,81 @@
 .mixer-controls {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 16px 8px;
+    align-items: stretch;
+    justify-content: stretch;
     width: 100%;
     height: 100%;
-    box-sizing: border-box;
+    gap: 1.5%;
+    padding: 0;
+    margin: 0;
 }
 
 .mixer-control-container {
-    border-radius: 12px;
-    padding: 12px;
+    flex: 1 1 0;
+    min-height: 0;
+    min-width: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    backdrop-filter: blur(8px);
-    transition: all 1.5s ease;
-    height: 140px;
-}
-
-/* Theme-specific container backgrounds */
-[data-theme="yellow"] .mixer-control-container {
-    background: rgba(255, 222, 33, 0.15);
-    border: 1px solid rgba(255, 222, 33, 0.3);
-}
-
-[data-theme="green"] .mixer-control-container {
-    background: rgba(0, 255, 64, 0.15);
-    border: 1px solid rgba(0, 255, 64, 0.3);
-}
-
-[data-theme="orange"] .mixer-control-container {
-    background: rgba(233, 116, 81, 0.15);
-    border: 1px solid rgba(233, 116, 81, 0.3);
-}
-
-[data-theme="white"] .mixer-control-container {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-[data-theme="red"] .mixer-control-container {
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-}
-
-[data-theme="blue"] .mixer-control-container {
-    background: rgba(59, 130, 246, 0.15);
-    border: 1px solid rgba(59, 130, 246, 0.3);
-}
-
-[data-theme="black"] .mixer-control-container {
-    background: rgba(31, 41, 55, 0.15);
-    border: 1px solid rgba(31, 41, 55, 0.3);
+    justify-content: stretch;
+    gap: 0.5em;
+    box-sizing: border-box;
+    padding: 0.5em 0;
 }
 
 .mixer-slider-container {
+    flex: 1 1 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
-    padding: 4px;
-    width: 100%;
-    height: 100%;
+    justify-content: stretch;
+    gap: 0.5em;
 }
 
 .mixer-slider {
-    -webkit-appearance: none;
-    width: 4px;
-    height: 80px;
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    outline: none;
-    transition: all 0.3s ease;
+    width: 8px !important;
+    min-width: 8px !important;
+    max-width: 8px !important;
+    height: 80px !important;
     writing-mode: bt-lr;
     -webkit-appearance: slider-vertical;
+    margin: 0 auto;
 }
 
-.mixer-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: currentColor;
-    cursor: pointer;
-    transition: all 1.5s ease;
-}
-
-.mixer-slider::-moz-range-thumb {
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: currentColor;
-    cursor: pointer;
-    transition: all 1.5s ease;
+.mixer-toggle,
+.mixer-toggle.active,
+[data-theme="yellow"] .mixer-toggle.active,
+[data-theme="green"] .mixer-toggle.active,
+[data-theme="orange"] .mixer-toggle.active,
+[data-theme="white"] .mixer-toggle.active,
+[data-theme="red"] .mixer-toggle.active,
+[data-theme="blue"] .mixer-toggle.active,
+[data-theme="black"] .mixer-toggle.active {
+    background: none !important;
     border: none;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.mixer-toggle img,
+.mixer-slider-container img {
+    width: 36px;
+    height: 36px;
+    max-width: 36px;
+    max-height: 36px;
+    background: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
 }
 
 /* Toggle buttons styling */
-.mixer-toggle {
-    background: none;
-    border: none;
-    padding: 12px;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: all 1.5s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 8px;
-}
-
 .mixer-toggle:hover {
     background: rgba(255, 255, 255, 0.1);
-    transform: scale(1.1);
-}
-
-.mixer-toggle img {
-    width: 32px;
-    height: 32px;
-    transition: all 0.3s ease;
-}
-
-.mixer-toggle:hover img {
     transform: scale(1.1);
 }
 
@@ -1299,5 +1262,23 @@
 /* Dodaj transition za aktivne mixer toggle buttone svih tema */
 [data-theme] .mixer-toggle.active {
     transition: all 1.5s ease;
+}
+
+.mixer-controls > .icon-button,
+.mixer-controls > button[data-name='Arrow'] {
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.piano-icon-bg {
+    background: #fff;
+    border-radius: 10px;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 

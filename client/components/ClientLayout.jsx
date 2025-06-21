@@ -20,7 +20,7 @@ export default function ClientLayout({ children }) {
             }}>
                 <CanvasBackground />
             </div>
-            <div style={{ 
+            <div style={{
                 position: 'relative',
                 zIndex: 1,
                 minHeight: '100vh'

@@ -849,12 +849,23 @@ export default function ClientMainLayout({ children }) {
                                     {mixerSettings.filter(control => control.type === "slider").map((control) => (
                                         <div key={control.name} className="mixer-control-container">
                                             <div className="mixer-slider-container">
-                                                <img 
-                                                    src={`/icons/${control.name}.png`}
-                                                    alt={control.alt}
-                                                    width={32}
-                                                    height={32}
-                                                />
+                                                {control.name === "Piano_sound" ? (
+                                                    <div className="piano-icon-bg">
+                                                        <img 
+                                                            src={`/icons/${control.name}.png`}
+                                                            alt={control.alt}
+                                                            width={32}
+                                                            height={32}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <img 
+                                                        src={`/icons/${control.name}.png`}
+                                                        alt={control.alt}
+                                                        width={32}
+                                                        height={32}
+                                                    />
+                                                )}
                                                 <input
                                                     type="range"
                                                     min="0"
