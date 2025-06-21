@@ -46,6 +46,10 @@ export default function RegisterForm({
     const [passwordVisible, setPasswordVisible] = useState(false);
     const [showValidation, setShowValidation] = useState(false);
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showMonthPicker, setShowMonthPicker] = useState(false);
+    const [showYearPicker, setShowYearPicker] = useState(false);
+    const [selectedYear, setSelectedYear] = useState(null);
+    const [selectedMonth, setSelectedMonth] = useState(null);
     const [validations, setValidations] = useState({
         firstName: false,
         lastName: false,
@@ -118,14 +122,27 @@ export default function RegisterForm({
                 return matches ? "" : t.passwordMismatch;
             
             case "dateOfBirth":
-                const date = new Date(value);
-                const age = (new Date().getFullYear() - date.getFullYear());
-                const isValidAge = age >= 13;
-                setValidations(prev => ({
-                    ...prev,
-                    dateOfBirth: isValidAge
-                }));
-                return isValidAge ? "" : t.minimumAge;
+                // Handle dd.mm.yyyy format
+                const dateRegex = /^(\d{2})\.(\d{2})\.(\d{4})$/;
+                const match = value.match(dateRegex);
+                
+                if (match) {
+                    const [, day, month, year] = match;
+                    const date = new Date(year, month - 1, day);
+                    const age = (new Date().getFullYear() - date.getFullYear());
+                    const isValidAge = age >= 13;
+                    setValidations(prev => ({
+                        ...prev,
+                        dateOfBirth: isValidAge
+                    }));
+                    return isValidAge ? "" : t.minimumAge;
+                } else {
+                    setValidations(prev => ({
+                        ...prev,
+                        dateOfBirth: false
+                    }));
+                    return "Please use dd.mm.yyyy format";
+                }
             
             case "gender":
                 const isValidGender = ["M", "F"].includes(value);
@@ -230,12 +247,25 @@ export default function RegisterForm({
     const handleCalendarClick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        setShowDatePicker(prev => !prev);
+        console.log('Calendar clicked, current state:', { showDatePicker, showYearPicker, showMonthPicker });
+        
+        if (showDatePicker || showYearPicker || showMonthPicker) {
+            // If any picker is open, close everything
+            console.log('Closing calendar');
+            setShowDatePicker(false);
+            setShowMonthPicker(false);
+            setShowYearPicker(false);
+        } else {
+            // If nothing is open, start with ONLY year picker
+            console.log('Opening year picker only');
+            setShowDatePicker(false); // Don't show calendar background
+            setShowYearPicker(true);
+            setShowMonthPicker(false);
+        }
     };
 
     const handleDateInputClick = (e) => {
-        e.preventDefault();
-        setShowDatePicker(true);
+        // Do nothing - let user type in the input
     };
 
     useEffect(() => {
@@ -244,6 +274,8 @@ export default function RegisterForm({
                 !e.target.closest('.calendar-icon') && 
                 !e.target.closest('.date-input')) {
                 setShowDatePicker(false);
+                setShowMonthPicker(false);
+                setShowYearPicker(false);
             }
         };
 
@@ -252,9 +284,18 @@ export default function RegisterForm({
     }, []);
 
     // CustomDatePicker component inside RegisterForm to access props
-    function CustomDatePicker({ selectedDate, onDateSelect, visible }) {
+    function CustomDatePicker({ selectedDate, onDateSelect, visible, showYearPicker, showMonthPicker, setShowYearPicker, setShowMonthPicker, setShowDatePicker, selectedYear, selectedMonth, setSelectedYear, setSelectedMonth }) {
         const [currentDate, setCurrentDate] = useState(new Date());
         const [displayedMonth, setDisplayedMonth] = useState(new Date());
+
+        // Update displayedMonth when selectedYear and selectedMonth change
+        useEffect(() => {
+            if (selectedYear !== null && selectedMonth !== null) {
+                const newDate = new Date(selectedYear, selectedMonth, 1);
+                console.log('Updating displayedMonth to:', newDate);
+                setDisplayedMonth(newDate);
+            }
+        }, [selectedYear, selectedMonth]);
 
         const getDaysInMonth = (date) => {
             return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -265,13 +306,20 @@ export default function RegisterForm({
         };
 
         const generateCalendarDays = () => {
+            console.log('Generating calendar days for displayedMonth:', displayedMonth, 'Year:', displayedMonth.getFullYear(), 'Month:', displayedMonth.getMonth());
+            console.log('Selected year:', selectedYear, 'Selected month:', selectedMonth);
+            
             const daysInMonth = getDaysInMonth(displayedMonth);
             const firstDay = getFirstDayOfMonth(displayedMonth);
+            console.log('Days in month:', daysInMonth, 'First day of week:', firstDay);
+            console.log('displayedMonth is valid:', !isNaN(displayedMonth.getTime()));
+            
             const days = [];
 
-            // Previous month days
+            // Previous month days (only to fill the first week)
             const prevMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() - 1, 1);
             const daysInPrevMonth = getDaysInMonth(prevMonth);
+            console.log('Previous month days to add:', Math.max(0, firstDay - 1));
             for (let i = firstDay - 1; i >= 0; i--) {
                 days.push({
                     day: daysInPrevMonth - i,
@@ -281,6 +329,7 @@ export default function RegisterForm({
             }
 
             // Current month days
+            console.log('Adding current month days:', daysInMonth);
             for (let i = 1; i <= daysInMonth; i++) {
                 days.push({
                     day: i,
@@ -289,8 +338,13 @@ export default function RegisterForm({
                 });
             }
 
-            // Next month days
-            const remainingDays = 42 - days.length; // 6 rows * 7 days = 42
+            // Next month days (only to complete the last week)
+            const totalDays = days.length;
+            const weeksNeeded = Math.ceil(totalDays / 7);
+            const totalCellsNeeded = weeksNeeded * 7;
+            const remainingDays = totalCellsNeeded - totalDays;
+            console.log('Total days so far:', totalDays, 'Weeks needed:', weeksNeeded, 'Remaining days to add:', remainingDays);
+            
             for (let i = 1; i <= remainingDays; i++) {
                 days.push({
                     day: i,
@@ -299,20 +353,12 @@ export default function RegisterForm({
                 });
             }
 
+            console.log('Generated days:', days.length, 'for month with', daysInMonth, 'days');
             return days;
         };
 
-        const handlePrevMonth = () => {
-            setDisplayedMonth(new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() - 1));
-        };
-
-        const handleNextMonth = () => {
-            setDisplayedMonth(new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() + 1));
-        };
-
         const isToday = (date) => {
-            const today = new Date();
-            return date.toDateString() === today.toDateString();
+            return false; // Don't highlight today's date
         };
 
         const isSelected = (date) => {
@@ -330,56 +376,221 @@ export default function RegisterForm({
         };
 
         const handleDateClick = (date) => {
+            console.log('Date clicked:', date);
             if (!isFutureDate(date) && !isUnder13(date)) {
-                const formattedDate = date.toISOString().split('T')[0];
+                // Only update the day part, keep existing month and year from selected values
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (selectedMonth !== null ? selectedMonth + 1 : displayedMonth.getMonth() + 1).toString().padStart(2, '0');
+                const year = (selectedYear || displayedMonth.getFullYear()).toString();
+                const formattedDate = `${day}.${month}.${year}`;
+                
+                console.log('Final formatted date:', formattedDate);
+                
                 onDateSelect(formattedDate);
                 setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
                 const error = validateField('dateOfBirth', formattedDate);
                 setErrors(prev => ({ ...prev, dateOfBirth: error }));
+                // Close everything
+                setShowDatePicker(false);
+                setShowMonthPicker(false);
+                setShowYearPicker(false);
             }
         };
 
-        return (
-            <div className={`custom-date-picker ${visible ? 'visible' : ''}`}>
-                <div className="calendar-header">
-                    <div className="month-year">
-                        {MONTHS[displayedMonth.getMonth()]} {displayedMonth.getFullYear()}
-                    </div>
-                    <div className="calendar-nav">
-                        <button className="calendar-nav-button prev" onClick={handlePrevMonth}>
-                            <Image src={leftIcon} alt="Previous" width={20} height={20} unoptimized />
-                        </button>
-                        <button className="calendar-nav-button" onClick={handleNextMonth}>
-                            <Image src={rightIcon} alt="Next" width={20} height={20} unoptimized />
-                        </button>
-                    </div>
-                </div>
-                <div className="calendar-grid">
-                    {DAYS_OF_WEEK.map(day => (
-                        <div key={day} className="weekday">{day}</div>
-                    ))}
-                    {generateCalendarDays().map((day, index) => {
-                        const isDisabled = isFutureDate(day.date) || isUnder13(day.date);
-                        const isCurrentMonth = day.month === 'current';
-                        const classes = [
-                            'date-cell',
-                            day.month !== 'current' ? 'other-month' : '',
-                            isToday(day.date) ? 'today' : '',
-                            isSelected(day.date) ? 'selected' : '',
-                            isDisabled ? 'disabled' : ''
-                        ].filter(Boolean).join(' ');
+        const handleYearSelect = (year) => {
+            console.log('Year selected:', year);
+            setSelectedYear(year);
+            
+            // Only update the year part, keep existing day and month if any
+            const currentValue = formData.dateOfBirth || "";
+            const parts = currentValue.split('.');
+            const day = parts[0] || "";
+            const month = parts[1] || "";
+            const formattedDate = `${day}.${month}.${year}`;
+            
+            console.log('Formatted date after year:', formattedDate);
+            
+            // Update the form data
+            setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
+            
+            // Show month picker next
+            setShowYearPicker(false);
+            setShowMonthPicker(true);
+            setShowDatePicker(false);
+        };
 
-                        return (
-                            <div
-                                key={`${day.month}-${day.day}-${index}`}
-                                className={classes}
-                                onClick={() => !isDisabled && handleDateClick(day.date)}
+        const handleMonthSelect = (monthIndex) => {
+            console.log('Month selected:', monthIndex, MONTHS[monthIndex]);
+            console.log('Current selectedYear:', selectedYear);
+            setSelectedMonth(monthIndex);
+            
+            // Only update the month part, keep existing day and year
+            const month = (monthIndex + 1).toString().padStart(2, '0');
+            const currentValue = formData.dateOfBirth || "";
+            const parts = currentValue.split('.');
+            const day = parts[0] || "";
+            const year = parts[2] || selectedYear || "";
+            const formattedDate = `${day}.${month}.${year}`;
+            
+            console.log('Formatted date after month:', formattedDate);
+            
+            // Update the form data
+            setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
+            
+            // Show calendar with days - use selectedYear and selectedMonth
+            const yearToUse = selectedYear || parseInt(year) || new Date().getFullYear();
+            console.log('Using year:', yearToUse, 'and month:', monthIndex, 'for calendar');
+            
+            // Set the selected year and month
+            setSelectedYear(yearToUse);
+            setSelectedMonth(monthIndex);
+            
+            // The displayedMonth will be updated by the useEffect
+            setShowMonthPicker(false);
+            setShowDatePicker(true);
+            console.log('After setting - showDatePicker:', true, 'selectedYear:', yearToUse, 'selectedMonth:', monthIndex);
+        };
+
+        const generateYearOptions = () => {
+            const currentYear = new Date().getFullYear();
+            const years = [];
+            for (let i = currentYear - 100; i <= currentYear - 13; i++) {
+                years.push(i);
+            }
+            return years.reverse();
+        };
+
+        return (
+            <div 
+                className={`custom-date-picker ${(showDatePicker || showYearPicker || showMonthPicker) ? 'visible' : ''}`}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {/* Step 1: Year Picker */}
+                {showYearPicker && (
+                    <div className="year-picker">
+                        <div className="picker-header">
+                            <h3>Select Year</h3>
+                        </div>
+                        <div className="picker-grid">
+                            {generateYearOptions().map((year) => (
+                                <button
+                                    key={year}
+                                    className={`picker-item ${year === selectedYear ? 'selected' : ''}`}
+                                    onClick={() => {
+                                        console.log('Year button clicked:', year);
+                                        handleYearSelect(year);
+                                    }}
+                                >
+                                    {year}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 2: Month Picker */}
+                {showMonthPicker && (
+                    <div className="month-picker">
+                        <div className="picker-header">
+                            <button 
+                                className="picker-back-button"
+                                onClick={() => {
+                                    setShowMonthPicker(false);
+                                    setShowYearPicker(true);
+                                    setShowDatePicker(false);
+                                    // Reset the date when going back
+                                    setFormData(prev => ({ ...prev, dateOfBirth: "" }));
+                                }}
                             >
-                                {day.day}
+                                <Image src={leftIcon} alt="Back" width={16} height={16} unoptimized />
+                                Back to Year
+                            </button>
+                            <h3>Select Month</h3>
+                        </div>
+                        <div className="picker-grid">
+                            {MONTHS.map((month, index) => (
+                                <button
+                                    key={month}
+                                    className={`picker-item ${index === selectedMonth ? 'selected' : ''}`}
+                                    onClick={() => {
+                                        console.log('Month button clicked:', index, month);
+                                        handleMonthSelect(index);
+                                    }}
+                                >
+                                    {month.substring(0, 3)}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Step 3: Calendar with Days */}
+                {showDatePicker && (
+                    <>
+                        <div className="calendar-header">
+                            <div className="month-year">
+                                <button 
+                                    className="picker-back-button"
+                                    onClick={() => {
+                                        setShowDatePicker(false);
+                                        setShowMonthPicker(true);
+                                        setShowYearPicker(false);
+                                    }}
+                                >
+                                    <Image src={leftIcon} alt="Back" width={16} height={16} unoptimized />
+                                    Back to Month
+                                </button>
+                                <span className="month-year-text">
+                                    {selectedMonth !== null ? MONTHS[selectedMonth] : MONTHS[displayedMonth.getMonth()]} {selectedYear || displayedMonth.getFullYear()}
+                                </span>
                             </div>
-                        );
-                    })}
-                </div>
+                            <div className="calendar-nav">
+                                <button className="calendar-close-button" onClick={() => {
+                                    setShowDatePicker(false);
+                                    setShowMonthPicker(false);
+                                    setShowYearPicker(false);
+                                }}>
+                                    <Image src="/icons/Close.png" alt="Close" width={20} height={20} unoptimized />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="calendar-grid">
+                            {DAYS_OF_WEEK.map(day => (
+                                <div key={day} className="weekday">{day}</div>
+                            ))}
+                            {(() => {
+                                const days = generateCalendarDays();
+                                return days.map((day, index) => {
+                                    const isDisabled = isFutureDate(day.date) || isUnder13(day.date);
+                                    const classes = [
+                                        'date-cell',
+                                        day.month !== 'current' ? 'other-month' : '',
+                                        isToday(day.date) ? 'today' : '',
+                                        isSelected(day.date) ? 'selected' : '',
+                                        isDisabled ? 'disabled' : ''
+                                    ].filter(Boolean).join(' ');
+
+                                    return (
+                                        <div
+                                            key={`${day.month}-${day.day}-${index}`}
+                                            className={classes}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                console.log('Cell clicked:', day.date, 'Disabled:', isDisabled);
+                                                if (!isDisabled) {
+                                                    handleDateClick(day.date);
+                                                }
+                                            }}
+                                        >
+                                            {day.day}
+                                        </div>
+                                    );
+                                });
+                            })()}
+                        </div>
+                    </>
+                )}
             </div>
         );
     }
@@ -496,12 +707,12 @@ export default function RegisterForm({
                             <div className="input-group">
                                 <div className="date-input-container">
                                     <input
-                                        type="date"
+                                        type="text"
                                         name="dateOfBirth"
+                                        placeholder="dd.mm.yyyy"
                                         value={formData.dateOfBirth}
                                         onChange={handleChange}
                                         className={`date-input ${errors.dateOfBirth ? "error" : ""}`}
-                                        max={new Date().toISOString().split("T")[0]}
                                     />
                                     <div 
                                         className="calendar-icon"
@@ -576,6 +787,15 @@ export default function RegisterForm({
                         selectedDate={formData.dateOfBirth}
                         onDateSelect={handleDateSelect}
                         visible={showDatePicker}
+                        showYearPicker={showYearPicker}
+                        showMonthPicker={showMonthPicker}
+                        setShowYearPicker={setShowYearPicker}
+                        setShowMonthPicker={setShowMonthPicker}
+                        setShowDatePicker={setShowDatePicker}
+                        selectedYear={selectedYear}
+                        selectedMonth={selectedMonth}
+                        setSelectedYear={setSelectedYear}
+                        setSelectedMonth={setSelectedMonth}
                     />
 
                     <div className={`validation-sidebar ${showValidation ? 'visible strong' : ''}`}>
@@ -692,4 +912,4 @@ export default function RegisterForm({
             </div>
         </div>
     );
-} 
+}

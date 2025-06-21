@@ -588,12 +588,14 @@
     visibility: hidden;
     transition: all 0.3s ease;
     z-index: 1000;
+    pointer-events: auto;
 }
 
 .custom-date-picker.visible {
     opacity: 1;
     visibility: visible;
     transform: translateY(-50%) translateX(0);
+    pointer-events: auto;
 }
 
 .calendar-header {
@@ -601,6 +603,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    pointer-events: auto;
 }
 
 .month-year {
@@ -608,62 +611,128 @@
     font-weight: 500;
     color: var(--color-white);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.calendar-nav {
+    pointer-events: none;
     display: flex;
-    gap: 12px;
-}
-
-.calendar-nav-button {
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: var(--color-white);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.calendar-nav-button:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.calendar-nav-button img,
-.calendar-nav-button [data-nextjs-image] {
-    width: 20px;
-    height: 20px;
-    filter: brightness(0) invert(1);
-    display: block;
-    margin: 0 auto;
-}
-
-.calendar-nav-button.prev img,
-.calendar-nav-button.prev [data-nextjs-image] {
-    transform: rotate(180deg);
-    display: block;
-    margin: 0 auto;
-}
-
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
     gap: 8px;
 }
 
-.weekday {
-    text-align: center;
-    font-size: 14px;
-    color: var(--color-placeholder);
-    padding: 8px 0;
+.month-button,
+.year-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--color-white);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 18px;
     font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.month-button:hover,
+.year-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Month and Year Pickers */
+.month-picker,
+.year-picker {
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.picker-header h3 {
+    color: var(--color-white);
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.month-year-text {
+    color: var(--color-white);
+    font-size: 20px;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.picker-back-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--color-white);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
+.picker-back-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.02);
+}
+
+.picker-back-button img,
+.picker-back-button [data-nextjs-image] {
+    width: 16px;
+    height: 16px;
+    filter: brightness(0) invert(1);
+}
+
+.picker-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.picker-item {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--color-white);
+    padding: 12px 8px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.picker-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.picker-item.selected {
+    background: var(--color-green);
+    color: var(--color-black);
+    font-weight: 600;
+}
+
+.picker-item.selected:hover {
+    background: var(--color-green);
+    transform: scale(1.05);
+}
+
+/* Enhanced Date Cells */
 .date-cell {
     aspect-ratio: 1;
     display: flex;
@@ -676,31 +745,92 @@
     border: 2px solid transparent;
     color: var(--color-white);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    pointer-events: auto;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.date-cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.date-cell:hover:not(.disabled)::before {
+    opacity: 1;
 }
 
 .date-cell:hover:not(.disabled) {
-    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .date-cell.today {
     border-color: var(--color-green);
-    font-weight: 500;
+    font-weight: 600;
+    box-shadow: 0 0 0 2px rgba(0, 255, 0, 0.3);
 }
 
 .date-cell.selected {
     background: var(--color-green);
     color: var(--color-black);
-    font-weight: 500;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 255, 0, 0.4);
+}
+
+.date-cell.selected::before {
+    display: none;
 }
 
 .date-cell.disabled {
     color: rgba(255, 255, 255, 0.3);
     cursor: not-allowed;
     text-shadow: none;
+    pointer-events: none;
+    opacity: 0.5;
 }
 
 .date-cell.other-month {
     opacity: 0.4;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Scrollbar for pickers */
+.picker-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.picker-grid::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.picker-grid::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.picker-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
 }
 
 /* Date input styling */
@@ -722,15 +852,31 @@
     height: 24px;
     cursor: pointer;
     z-index: 2;
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.date-input-container .calendar-icon:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
 }
 
 .date-input-container .calendar-icon img {
     filter: brightness(0) invert(1);
+    width: 20px;
+    height: 20px;
 }
 
 .date-input-container .calendar-icon img,
 .date-input-container .calendar-icon [data-nextjs-image] {
     filter: brightness(0) invert(1);
+    width: 20px;
+    height: 20px;
 }
 
 /* Hide default calendar picker */
@@ -787,4 +933,90 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .centered-arrow:hover img,
 .centered-arrow:hover [data-nextjs-image] {
     transform: rotate(180deg);
+}
+
+.calendar-close-button {
+    background: rgba(255, 0, 0, 0.2);
+    border: none;
+    color: var(--color-white);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-left: 8px;
+}
+
+.calendar-close-button:hover {
+    background: rgba(255, 0, 0, 0.4);
+}
+
+.calendar-close-button img,
+.calendar-close-button [data-nextjs-image] {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+    display: block;
+    margin: 0 auto;
+}
+
+.calendar-nav {
+    display: flex;
+    gap: 12px;
+    pointer-events: auto;
+}
+
+.calendar-nav-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: var(--color-white);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.calendar-nav-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.calendar-nav-button img,
+.calendar-nav-button [data-nextjs-image] {
+    width: 20px;
+    height: 20px;
+    filter: brightness(0) invert(1);
+    display: block;
+    margin: 0 auto;
+}
+
+.calendar-nav-button.prev img,
+.calendar-nav-button.prev [data-nextjs-image] {
+    transform: rotate(180deg);
+    display: block;
+    margin: 0 auto;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+}
+
+.weekday {
+    text-align: center;
+    font-size: 14px;
+    color: var(--color-placeholder);
+    padding: 8px 0;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
