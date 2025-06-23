@@ -71,19 +71,30 @@ export default function LoginForm({
             setError("");
             setIsLoading(true);
 
+            // Normal user login (includes admin login handled by backend)
             const data = await api.post('/api/auth/login', {
                 username: usernameInput,
                 password: passwordInput
             });
 
+            console.log('Login response:', data);
            
             localStorage.setItem('token', data.token);
             localStorage.setItem('userId', data.userId);
+            if (data.isAdmin) {
+                console.log('Admin login detected, setting admin flag');
+                localStorage.setItem('isAdmin', 'true');
+            } else {
+                console.log('Regular user login');
+            }
+            
+            // Backend odlučuje gdje korisnik ide
+            const redirectUrl = data.redirectUrl || '/main';
+            console.log('Redirecting to:', redirectUrl);
+            router.push(redirectUrl);
             setCookie('token', data.token);
 
            
-            router.push('/main');
-            
         } catch (err) {
             console.error('Login error:', err);
            

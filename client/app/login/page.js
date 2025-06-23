@@ -22,16 +22,15 @@ export default function LoginPage() {
     const [hide, setHide] = useState(false);
 
     useEffect(() => {
-        let interval = setInterval(() => {
-            setProgress((prev) => {
-                if (prev >= 100) {
-                    clearInterval(interval);
-                    setHide(true);
-                    return 100;
-                }
-                return prev + 1;
-            });
-        }, 15);
+        let i = 0;
+        const interval = setInterval(() => {
+            i++;
+            setProgress(i);
+            if (i >= 100) {
+                clearInterval(interval);
+                setTimeout(() => setHide(true), 200);
+            }
+        }, 20);
         return () => clearInterval(interval);
     }, []);
 
@@ -60,13 +59,7 @@ export default function LoginPage() {
                     }}
                 >
                     <div className="text-center">
-                        <h1 className="text-4xl font-bold">Loading {progress}%</h1>
-                        <div className="mt-4 h-2 w-64 bg-gray-700 rounded">
-                            <div
-                                className="h-full bg-green-500 rounded"
-                                style={{ width: `${progress}%` }}
-                            />
-                        </div>
+                        <div className="preloader-text">Loading {progress}%</div>
                     </div>
                 </div>
             )}

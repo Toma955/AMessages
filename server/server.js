@@ -26,6 +26,12 @@ const httpRequestDuration = new client.Histogram({
 
 dotenv.config();
 
+// Admin credentials from environment variables
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+
+console.log(`Admin credentials loaded: ${ADMIN_USERNAME}`);
+
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
     tracesSampleRate: 1.0

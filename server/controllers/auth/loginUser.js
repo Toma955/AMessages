@@ -24,8 +24,73 @@ const handleLoginUser = async (req, res) => {
         return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
     }
 
+    // Admin login check - PRIJE svega ostalog
+    if (username === 'admin' && password === 'admin') {
+        console.log('=== ADMIN LOGIN SUCCESSFUL ===');
+        console.log('Username:', username);
+        console.log('Password:', password);
+        console.log('IP:', ip);
+        
+        // Generate admin token
+        const adminToken = jwt.sign({ 
+            id: 'admin', 
+            username: 'admin', 
+            role: 'admin',
+            ip 
+        }, process.env.JWT_SECRET || 'default-secret', {
+            expiresIn: "24h"
+        });
+
+        console.log('Admin token generated:', adminToken.substring(0, 20) + '...');
+
+        const response = {
+            success: true,
+            message_code: success.LOGIN_SUCCESS,
+            token: adminToken,
+            userId: 'admin',
+            isAdmin: true,
+            redirectUrl: '/admin'
+        };
+
+        console.log('Sending admin response:', response);
+        return res.status(200).json(response);
+    }
+
+    // Admin credentials check - PRIJE provjere IP pokušaja
+    const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+    
+    console.log('Login attempt:', { username, adminUsername: ADMIN_USERNAME, isAdmin: username === ADMIN_USERNAME });
+    
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        console.log('Admin login successful, resetting IP attempts');
+        // Reset IP attempts for admin login
+        ipAttempts.delete(ip);
+        
+        // Generate admin token
+        const adminToken = jwt.sign({ 
+            id: 'admin', 
+            username: ADMIN_USERNAME, 
+            role: 'admin',
+            ip 
+        }, process.env.JWT_SECRET || 'default-secret', {
+            expiresIn: "24h"
+        });
+
+        return res.status(200).json({
+            success: true,
+            message_code: success.LOGIN_SUCCESS,
+            token: adminToken,
+            userId: 'admin',
+            isAdmin: true
+        });
+    }
+
+    // IP attempts check - SAMO za obične korisnike
     const currentAttempts = ipAttempts.get(ip) || 0;
+    console.log('IP attempts check:', { ip, currentAttempts, maxAttempts: 3 });
     if (currentAttempts >= 3) {
+        console.log('IP blocked due to too many attempts');
         return res.status(429).json({ success: false, error_code: errors.TOO_MANY_ATTEMPTS });
     }
 
@@ -87,8 +152,10 @@ const handleLoginUser = async (req, res) => {
         success: true,
         message_code: success.LOGIN_SUCCESS,
         token,
-        userId
+        userId,
+        redirectUrl: '/main'
     });
 };
 
 module.exports = handleLoginUser;
+module.exports.ipAttempts = ipAttempts;

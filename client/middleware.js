@@ -11,11 +11,11 @@ export function middleware(request) {
 
     // Public paths that don't require authentication
     const publicPaths = ['/login', '/register', '/'];
+    const protectedPaths = ['/main', '/admin'];
 
     // Check if the path is public
-    const isPublicPath = publicPaths.some(publicPath => 
-        path === publicPath || path.startsWith(`${publicPath}/`)
-    );
+    const isPublicPath = publicPaths.includes(path);
+    const isProtectedPath = protectedPaths.some(p => path.startsWith(p));
 
     // Get the token from the cookies
     const token = request.cookies.get('token')?.value;
@@ -28,12 +28,13 @@ export function middleware(request) {
 
     // If the path is not public and the user is not logged in,
     // redirect to the login page
-    if (!isPublicPath && !token) {
+    if (isProtectedPath && !token) {
         const loginUrl = new URL('/login', request.url);
         loginUrl.searchParams.set('from', request.nextUrl.pathname);
         return NextResponse.redirect(loginUrl);
     }
 
+    // Za sve ostale slučajeve (uključujući nepostojeće stranice), Next.js preuzima
     return NextResponse.next();
 }
 

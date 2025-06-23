@@ -3,28 +3,78 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+// Pomoćna funkcija za animaciju punjenja progress bara
+const animateProgress = (start, end, duration, setPercent) => {
+    return new Promise(resolve => {
+        const stepTime = 20; // Ažuriraj svakih 20ms
+        const totalSteps = duration / stepTime;
+        const increment = (end - start) / totalSteps;
+        let currentProgress = start;
+
+        const interval = setInterval(() => {
+            currentProgress += increment;
+            if (currentProgress >= end) {
+                clearInterval(interval);
+                setPercent(end); // Osiguraj da završi točno na cilju
+                resolve();
+            } else {
+                setPercent(Math.floor(currentProgress));
+            }
+        }, stepTime);
+    });
+};
+
+async function checkServerWithTimeout(timeout) {
+    try {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        const response = await fetch('/test', { signal: controller.signal });
+        clearTimeout(id);
+        return response.ok;
+    } catch (error) {
+        return false;
+    }
+}
+
 export default function LoadingCounter() {
     const [percent, setPercent] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
+    const [isCheckingServer, setIsCheckingServer] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setPercent((prev) => {
-                const next = prev + 1;
-                if (next >= 100) {
-                    clearInterval(interval);
-                    // Start fade out animation
-                    setIsVisible(false);
-                    // Wait for animation to complete before navigation
-                    setTimeout(() => router.push("/login"), 500);
-                    return 100;
-                }
-                return next;
-            });
-        }, 25);
+        let isMounted = true;
+        const setSafePercent = (val) => { if (isMounted) setPercent(val); };
 
-        return () => clearInterval(interval);
+        const initialize = async () => {
+            // Provjera servera
+            const firstTry = await checkServerWithTimeout(1000);
+            if (!firstTry) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const secondTry = await checkServerWithTimeout(1000);
+                if (!secondTry) {
+                    router.push('/server-down'); // Preusmjeri ako server ne odgovara
+                    return;
+                }
+            }
+            
+            if (!isMounted) return;
+            setIsCheckingServer(false); // Počni prikazivati postotke
+
+            // Nastavi s animacijom
+            await router.prefetch('/login');
+            await animateProgress(0, 50, 400, setSafePercent);
+            await router.prefetch('/main');
+            await animateProgress(50, 100, 400, setSafePercent);
+
+            if (isMounted) {
+                setIsVisible(false);
+                setTimeout(() => router.push('/login'), 500);
+            }
+        };
+
+        initialize();
+        return () => { isMounted = false; };
     }, [router]);
 
     return (
@@ -53,26 +103,30 @@ export default function LoadingCounter() {
                     transition: 'transform 0.5s ease-in-out'
                 }}
             >
-                <p className="loading-text" style={{ fontSize: '5rem', fontWeight: 'bold' }}>{percent}%</p>
-                <div 
-                    style={{
-                        width: '300px',
-                        height: '4px',
-                        background: '#333',
-                        borderRadius: '2px',
-                        overflow: 'hidden',
-                        margin: '20px auto'
-                    }}
-                >
-                    <div 
-                        style={{
-                            width: `${percent}%`,
-                            height: '100%',
-                            background: '#ff884d',
-                            transition: 'width 0.3s ease-in-out'
-                        }}
-                    />
-                </div>
+                {!isCheckingServer && (
+                    <>
+                        <p className="loading-text" style={{ fontSize: '5rem', fontWeight: 'bold' }}>{percent}%</p>
+                        <div 
+                            style={{
+                                width: '300px',
+                                height: '4px',
+                                background: '#333',
+                                borderRadius: '2px',
+                                overflow: 'hidden',
+                                margin: '20px auto'
+                            }}
+                        >
+                            <div 
+                                style={{
+                                    width: `${percent}%`,
+                                    height: '100%',
+                                    background: '#ff884d',
+                                    transition: 'width 0.02s ease-out'
+                                }}
+                            />
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
