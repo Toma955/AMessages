@@ -166,10 +166,30 @@ export default function AdminPage() {
         return () => window.removeEventListener('resize', checkScreenSize);
     }, [router]);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
+        // Call backend logout to close session
+        try {
+            const userId = localStorage.getItem('userId');
+            if (userId) {
+                await fetch('http://localhost:5000/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ userId })
+                });
+            }
+        } catch (e) {
+            // Ignore errors, continue with logout
+        }
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         localStorage.removeItem('isAdmin');
+        // Remove token cookie for all paths
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
+        // Umesto reload-a koristi router.push
         router.push('/login');
     };
 
