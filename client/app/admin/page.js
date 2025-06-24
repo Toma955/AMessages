@@ -130,6 +130,55 @@ export default function AdminPage() {
         user: 60
     });
 
+    const [users, setUsers] = useState([]);
+    const [loadingUsers, setLoadingUsers] = useState(true);
+    const [usersError, setUsersError] = useState(null);
+
+    const [startupLog, setStartupLog] = useState("");
+    const [loadingLog, setLoadingLog] = useState(false);
+    const [logError, setLogError] = useState(null);
+
+    const [startupLogFontSize, setStartupLogFontSize] = useState(0.95);
+
+    // Funkcija za dohvat korisnika (može se pozvati i ručno)
+    const fetchUsers = () => {
+        setLoadingUsers(true);
+        setUsersError(null);
+        fetch('http://localhost:5000/api/users')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setUsers(data.users);
+                } else {
+                    setUsersError('Greška kod dohvata korisnika');
+                }
+                setLoadingUsers(false);
+            })
+            .catch(() => {
+                setUsersError('Greška kod dohvata korisnika');
+                setLoadingUsers(false);
+            });
+    };
+
+    const fetchStartupLog = () => {
+        setLoadingLog(true);
+        setLogError(null);
+        fetch('http://localhost:5000/api/admin/logs/startup')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setStartupLog(data.log);
+                } else {
+                    setLogError('Greška kod dohvata loga');
+                }
+                setLoadingLog(false);
+            })
+            .catch(() => {
+                setLogError('Greška kod dohvata loga');
+                setLoadingLog(false);
+            });
+    };
+
     useEffect(() => {
         // Check if user is admin
         const adminStatus = localStorage.getItem('isAdmin');
@@ -162,6 +211,9 @@ export default function AdminPage() {
 
         checkScreenSize();
         window.addEventListener('resize', checkScreenSize);
+
+        fetchUsers(); // koristi novu funkciju
+        fetchStartupLog();
 
         return () => window.removeEventListener('resize', checkScreenSize);
     }, [router]);
@@ -200,6 +252,11 @@ export default function AdminPage() {
         }));
     };
 
+    const handleDeleteUser = (userId) => {
+        alert(`Brisanje korisnika s ID: ${userId}`);
+        // Ovdje možeš dodati backend poziv za brisanje
+    };
+
     if (!isAdmin) {
         return <div>Loading...</div>;
     }
@@ -208,7 +265,7 @@ export default function AdminPage() {
         <div className="admin-page">
             <div className="admin-container">
                 <header className="admin-header">
-                    <h1>👑 Admin Dashboard</h1>
+                    <h1>Admin Dashboard</h1>
                     <div className="admin-actions">
                         {isMobile ? (
                             <>
@@ -220,9 +277,9 @@ export default function AdminPage() {
                                 </button>
                                 {showMobileMenu && (
                                     <div className="mobile-menu">
-                                        <Link href="/main">
+                                        {/* <Link href="/main">
                                             <button className="nav-btn">Go to Main</button>
-                                        </Link>
+                                        </Link> */}
                                         <button onClick={handleLogout} className="logout-btn">
                                             Logout
                                         </button>
@@ -231,9 +288,9 @@ export default function AdminPage() {
                             </>
                         ) : (
                             <>
-                                <Link href="/main">
+                                {/* <Link href="/main">
                                     <button className="nav-btn">Go to Main</button>
-                                </Link>
+                                </Link> */}
                                 <button onClick={handleLogout} className="logout-btn">
                                     Logout
                                 </button>
@@ -275,11 +332,54 @@ export default function AdminPage() {
 
                     <section className="admin-section">
                         <h2>User Management</h2>
-                        <div className="admin-actions">
-                            <button className="admin-btn">View All Users</button>
-                            <button className="admin-btn">Delete User</button>
-                            <button className="admin-btn">Reset IP Attempts</button>
-                        </div>
+                        {loadingUsers ? (
+                            <div>Učitavanje korisnika...</div>
+                        ) : usersError ? (
+                            <div style={{color: 'red'}}>{usersError}</div>
+                        ) : (
+                            <div className="user-list-admin">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Username</th>
+                                            <th>Name</th>
+                                            <th>Surname</th>
+                                            <th>Gender</th>
+                                            <th>Date of Birth</th>
+                                            <th>Theme</th>
+                                            <th>Language</th>
+                                            <th>Created At</th>
+                                            <th>
+                                                <button className="refresh-users-btn" onClick={fetchUsers} title="Refresh users">
+                                                    <img src="/icons/Refresh.png" alt="Refresh" style={{width: 22, height: 22}} />
+                                                </button>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {users.map(user => (
+                                            <tr key={user.id}>
+                                                <td>{user.id}</td>
+                                                <td>{user.username}</td>
+                                                <td>{user.name}</td>
+                                                <td>{user.surname}</td>
+                                                <td>{user.gender}</td>
+                                                <td>{user.date_of_birth}</td>
+                                                <td>{user.theme}</td>
+                                                <td>{user.language}</td>
+                                                <td>{user.created_at}</td>
+                                                <td>
+                                                    <button className="delete-user-btn" onClick={() => handleDeleteUser(user.id)} title="Delete user">
+                                                        🗑️
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </section>
 
                     <section className="admin-section logs-section">
@@ -287,7 +387,34 @@ export default function AdminPage() {
                             <h2>System Logs</h2>
                         </div>
                         <div className="logs-grid">
-                            {Object.entries(logData).map(([type, entries]) => (
+                            <div className="log-square">
+                                <h3>Startup Logs</h3>
+                                <div className="log-content">
+                                    <div className="log-slider startup-slider">
+                                        <input
+                                            type="range"
+                                            min="0.7"
+                                            max="2"
+                                            step="0.01"
+                                            value={startupLogFontSize}
+                                            className="log-range"
+                                            onChange={e => setStartupLogFontSize(Number(e.target.value))}
+                                        />
+                                        <span className="log-value">{startupLogFontSize.toFixed(2)}x</span>
+                                    </div>
+                                    <button className="refresh-users-btn" onClick={fetchStartupLog} style={{marginBottom: 8}}>
+                                        <img src="/icons/Refresh.png" alt="Refresh" style={{width: 22, height: 22}} />
+                                    </button>
+                                    {loadingLog ? (
+                                        <div>Učitavanje loga...</div>
+                                    ) : logError ? (
+                                        <div style={{color: 'red'}}>{logError}</div>
+                                    ) : startupLog && (
+                                        <pre className="startup-log-box" style={{fontSize: `${startupLogFontSize}rem`}}>{startupLog}</pre>
+                                    )}
+                                </div>
+                            </div>
+                            {Object.entries(logData).filter(([type]) => type !== 'startup').map(([type, entries]) => (
                                 <div className="log-square" key={type}>
                                     <h3>{type.charAt(0).toUpperCase() + type.slice(1)} Logs</h3>
                                     <div className="log-content">

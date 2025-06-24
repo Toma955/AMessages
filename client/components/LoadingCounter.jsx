@@ -28,7 +28,7 @@ async function checkServerWithTimeout(timeout) {
     try {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeout);
-        const response = await fetch('/test', { signal: controller.signal });
+        const response = await fetch('http://localhost:5000/test', { signal: controller.signal });
         clearTimeout(id);
         return response.ok;
     } catch (error) {

@@ -15,7 +15,7 @@ export default function ServerDown() {
 
     const checkStatus = async () => {
       try {
-        const response = await fetch('/test');
+        const response = await fetch('http://localhost:5000/test');
         if (response.ok) {
           router.replace('/'); // Vrati se na početnu ako server oživi
         }
