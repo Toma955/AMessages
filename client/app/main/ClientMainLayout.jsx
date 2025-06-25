@@ -17,6 +17,8 @@ import "@/app/styles/main.css";
 import '@/app/styles/searchWidget.css';
 import '@/app/styles/chatListItem.css';
 import '@/app/styles/chatWindow.css';
+import styles from '@/app/styles/RecordPlayer.module.css';
+import RadioListWidget from '@/components/RadioListWidget';
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -81,10 +83,33 @@ export default function ClientMainLayout({ children }) {
     const [isPianoVisible, setIsPianoVisible] = useState(false);
     const [isPianoActive, setIsPianoActive] = useState(false);
     const [radioStations, setRadioStations] = useState([]);
-    const [currentStation, setCurrentStation] = useState(null);
+    const [currentStation, setCurrentStation] = useState({
+        name: 'NPO Radio 1',
+        url: 'https://icecast.omroep.nl/radio1-bb-mp3',
+        stationuuid: 'npo-radio-1',
+    });
     const radioPlayerRef = useRef(null);
     const [isSettingsVisible, setIsSettingsVisible] = useState(false);
     const [isSettingsActive, setIsSettingsActive] = useState(false);
+    const [prevMixerValues, setPrevMixerValues] = useState({});
+
+    // Record Player State
+    const [songs, setSongs] = useState([]);
+    const [currentSong, setCurrentSong] = useState(null);
+    const [isSongListLoading, setIsSongListLoading] = useState(false);
+    const [isSongListActive, setIsSongListActive] = useState(false);
+    const [playerVolume, setPlayerVolume] = useState(0.5); // 0.0 - 1.0
+
+    const [activePanel, setActivePanel] = useState('record'); // 'record', 'radio', 'piano'
+    const [panelAnimation, setPanelAnimation] = useState('slideIn');
+
+    const [panelState, setPanelState] = useState('contacts'); // 'contacts' | 'radio' | 'animating-to-radio' | 'animating-to-contacts'
+    const [contactsAnim, setContactsAnim] = useState('');
+    const [radioAnim, setRadioAnim] = useState('');
+
+    const [showRadioList, setShowRadioList] = useState(false);
+    const [radioWidgetAnim, setRadioWidgetAnim] = useState('');
+    const [radioListAnim, setRadioListAnim] = useState('');
 
     const updateHighlightPosition = (buttonElement) => {
         if (!buttonElement) return;
@@ -102,19 +127,47 @@ export default function ClientMainLayout({ children }) {
     };
 
     const handleMixerControlChange = (name, newValue) => {
-        if (name === "Sound" && !newValue) {
-            setMixerSettings(prev => prev.map(control => 
-                control.type === "slider" ? { ...control, value: 0 } :
-                control.name === "Sound" ? { ...control, value: false } :
-                control
-            ));
-        } else if (name === "Sound" && newValue) {
-            setMixerSettings(prev => prev.map(control => 
-                control.type === "slider" ? { ...control, value: 50 } :
-                control.name === "Sound" ? { ...control, value: true } :
-                control
-            ));
-        } else {
+        if (name === "Sound") {
+            if (!newValue) {
+                // Spremi sve trenutne vrijednosti slidera
+                const prev = {};
+                mixerSettings.forEach(control => {
+                    if (control.type === "slider") prev[control.name] = control.value;
+                });
+                setPrevMixerValues(prev);
+
+                // Postavi sve slider vrijednosti na 0
+                setMixerSettings(prevSettings =>
+                    prevSettings.map(control =>
+                        control.type === "slider"
+                            ? { ...control, value: 0 }
+                            : control.name === "Sound"
+                            ? { ...control, value: false }
+                            : control
+                    )
+                );
+                setPlayerVolume(0);
+                // Dodaj ovdje i settere za radio, piano, group ako ih imaš
+            } else {
+                // Vrati vrijednosti iz prevMixerValues
+                setMixerSettings(prevSettings =>
+                    prevSettings.map(control =>
+                        control.type === "slider"
+                            ? { ...control, value: prevMixerValues[control.name] ?? 50 }
+                            : control.name === "Sound"
+                            ? { ...control, value: true }
+                            : control
+                    )
+                );
+                setPlayerVolume((prevMixerValues["Record_player_sound"] ?? 50) / 100);
+                // Dodaj ovdje i settere za radio, piano, group ako ih imaš
+            }
+            return;
+        }
+        if (name === "Record_player_sound") {
+            setPlayerVolume(newValue / 100);
+        }
+        if (name === "Grup_message_sound") {
             setMixerSettings(prev => {
                 const isSlider = prev.find(c => c.name === name)?.type === "slider";
                 const allSlidersZero = prev
@@ -127,7 +180,58 @@ export default function ClientMainLayout({ children }) {
                     control
                 );
             });
+        } else if (name === "Piano_sound") {
+            setMixerSettings(prev => {
+                const isSlider = prev.find(c => c.name === name)?.type === "slider";
+                const allSlidersZero = prev
+                    .filter(c => c.type === "slider")
+                    .every(c => (c.name === name ? newValue : c.value) === 0);
+
+                return prev.map(control => 
+                    control.name === name ? { ...control, value: newValue } :
+                    control.name === "Sound" ? { ...control, value: !allSlidersZero } :
+                    control
+                );
+            });
+        } else if (name === "Radio_sound") {
+            setMixerSettings(prev => {
+                const isSlider = prev.find(c => c.name === name)?.type === "slider";
+                const allSlidersZero = prev
+                    .filter(c => c.type === "slider")
+                    .every(c => (c.name === name ? newValue : c.value) === 0);
+
+                return prev.map(control => 
+                    control.name === name ? { ...control, value: newValue } :
+                    control.name === "Sound" ? { ...control, value: !allSlidersZero } :
+                    control
+                );
+            });
+        } else if (name === "Notifications") {
+            setMixerSettings(prev => {
+                const isSlider = prev.find(c => c.name === name)?.type === "toggle";
+                const allTogglesZero = prev
+                    .filter(c => c.type === "toggle")
+                    .every(c => (c.name === name ? newValue : c.value) === false);
+
+                return prev.map(control => 
+                    control.name === name ? { ...control, value: newValue } :
+                    control.name === "Sound" ? { ...control, value: !allTogglesZero } :
+                    control
+                );
+            });
         }
+        setMixerSettings(prev => {
+            const isSlider = prev.find(c => c.name === name)?.type === "slider";
+            const allSlidersZero = prev
+                .filter(c => c.type === "slider")
+                .every(c => (c.name === name ? newValue : c.value) === 0);
+
+            return prev.map(control => 
+                control.name === name ? { ...control, value: newValue } :
+                control.name === "Sound" ? { ...control, value: !allSlidersZero } :
+                control
+            );
+        });
     };
 
     const handleIconTransition = (toThemeView, toMixerView = false) => {
@@ -216,88 +320,37 @@ export default function ClientMainLayout({ children }) {
             setHighlightStyle({ opacity: 0 });
             handleIconTransition(false, true);
         } else if (name === "Record") {
-            if (isPianoVisible) {
-                setIsPianoVisible(false);
-                const pianoIcon = detailsPanelRef.current?.querySelector('[data-name="Piano"]');
-                if (pianoIcon) {
-                    pianoIcon.classList.remove('active-icon');
-                }
+            setIsRecordPlayerVisible(true);
+            setIsRadioPlayerVisible(false);
+            setIsPianoVisible(false);
+            switchPanel('record');
+            // Pauziraj radio
+            if (radioPlayerRef.current && radioPlayerRef.current.pause) {
+                radioPlayerRef.current.pause();
             }
-            if (isRadioPlayerVisible) {
-                setIsRadioPlayerVisible(false);
-                const radioIcon = detailsPanelRef.current?.querySelector('[data-name="Radio"]');
-                if (radioIcon) {
-                    radioIcon.classList.remove('active-icon');
-                }
-            }
-            if (isSettingsVisible) {
-                setIsSettingsVisible(false);
-                const settingsIcon = detailsPanelRef.current?.querySelector('[data-name="Cogwheel"]');
-                if (settingsIcon) {
-                    settingsIcon.classList.remove('active-icon');
-                }
-            }
-            setIsRecordPlayerVisible(!isRecordPlayerVisible);
-            if (!isRecordPlayerVisible) {
-                event.currentTarget.classList.add('active-icon');
-            } else {
-                event.currentTarget.classList.remove('active-icon');
-            }
-        } else if (name === "Piano") {
-            if (isRadioPlayerVisible) {
-                setIsRadioPlayerVisible(false);
-                const radioIcon = detailsPanelRef.current?.querySelector('[data-name="Radio"]');
-                if (radioIcon) {
-                    radioIcon.classList.remove('active-icon');
-                }
-            }
-            if (isRecordPlayerVisible) {
-                setIsRecordPlayerVisible(false);
-                const recordIcon = detailsPanelRef.current?.querySelector('[data-name="Record"]');
-                if (recordIcon) {
-                    recordIcon.classList.remove('active-icon');
-                }
-            }
-            if (isSettingsVisible) {
-                setIsSettingsVisible(false);
-                const settingsIcon = detailsPanelRef.current?.querySelector('[data-name="Cogwheel"]');
-                if (settingsIcon) {
-                    settingsIcon.classList.remove('active-icon');
-                }
-            }
-            setIsPianoVisible(!isPianoVisible);
-            if (!isPianoVisible) {
-                event.currentTarget.classList.add('active-icon');
-            } else {
-                event.currentTarget.classList.remove('active-icon');
-            }
+            // Pauziraj piano (ako imaš funkciju)
+            // ...
         } else if (name === "Radio") {
-            if (isPianoVisible) {
-                setIsPianoVisible(false);
-                const pianoIcon = detailsPanelRef.current?.querySelector('[data-name="Piano"]');
-                if (pianoIcon) {
-                    pianoIcon.classList.remove('active-icon');
-                }
-            }
-            if (isRecordPlayerVisible) {
-                setIsRecordPlayerVisible(false);
-                const recordIcon = detailsPanelRef.current?.querySelector('[data-name="Record"]');
-                if (recordIcon) {
-                    recordIcon.classList.remove('active-icon');
-                }
-            }
-            if (isSettingsVisible) {
-                setIsSettingsVisible(false);
-                const settingsIcon = detailsPanelRef.current?.querySelector('[data-name="Cogwheel"]');
-                if (settingsIcon) {
-                    settingsIcon.classList.remove('active-icon');
-                }
-            }
-            setIsRadioPlayerVisible(!isRadioPlayerVisible);
-            if (!isRadioPlayerVisible) {
-                event.currentTarget.classList.add('active-icon');
-            } else {
-                event.currentTarget.classList.remove('active-icon');
+            setIsRadioPlayerVisible(true);
+            setIsRecordPlayerVisible(false);
+            setIsPianoVisible(false);
+            switchPanel('radio');
+            // Pauziraj record
+            const audio = document.querySelector('audio');
+            if (audio) audio.pause();
+            // Pauziraj piano (ako imaš funkciju)
+            // ...
+        } else if (name === "Piano") {
+            setIsPianoVisible(true);
+            setIsRecordPlayerVisible(false);
+            setIsRadioPlayerVisible(false);
+            switchPanel('piano');
+            // Pauziraj record
+            const audio = document.querySelector('audio');
+            if (audio) audio.pause();
+            // Pauziraj radio
+            if (radioPlayerRef.current && radioPlayerRef.current.pause) {
+                radioPlayerRef.current.pause();
             }
         } else if (name === "Magnifying_glass") {
             setShowSearch(true);
@@ -374,12 +427,28 @@ export default function ClientMainLayout({ children }) {
     };
 
     const handleAddChat = (user) => {
-        if (!chats.some(chat => chat.id === user.id)) {
-            setChats(prevChats => [...prevChats, {
-                id: user.id,
-                username: user.username,
-                avatar: `/avatars/${user.gender || 'default'}.png`
-            }]);
+        const chat = {
+            id: user.id,
+            username: user.username,
+            avatar: `/avatars/${user.gender || 'default'}.png`
+        };
+
+        if (!chats.some(c => c.id === user.id)) {
+            setChats(prevChats => [...prevChats, chat]);
+        }
+        
+        if (!activeChats.some(ac => ac.id === user.id)) {
+            if (activeChats.length < 3) {
+                const newActiveChats = [...activeChats, chat];
+                setActiveChats(newActiveChats);
+
+                const newWidth = 100 / newActiveChats.length;
+                const newWidths = {};
+                newActiveChats.forEach(c => {
+                    newWidths[c.id] = `${newWidth}%`;
+                });
+                setChatWidths(newWidths);
+            }
         }
     };
 
@@ -670,7 +739,23 @@ export default function ClientMainLayout({ children }) {
     }, [isThemeView, selectedTheme]);
 
     const handleMenuClick = () => {
-        setIsRadioListVisible(!isRadioListVisible);
+        if (panelState === 'contacts') {
+            setContactsAnim('slideOutLeft');
+            setRadioAnim('slideInRight');
+            setPanelState('animating-to-radio');
+            setTimeout(() => {
+                setPanelState('radio');
+                setContactsAnim('');
+            }, 300);
+        } else if (panelState === 'radio') {
+            setContactsAnim('slideInRight');
+            setRadioAnim('slideOutRight');
+            setPanelState('animating-to-contacts');
+            setTimeout(() => {
+                setPanelState('contacts');
+                setRadioAnim('');
+            }, 300);
+        }
     };
 
     const handleStationSelect = (station, index) => {
@@ -678,6 +763,7 @@ export default function ClientMainLayout({ children }) {
         if (radioPlayerRef.current?.selectStation) {
             radioPlayerRef.current.selectStation(station, index);
         }
+        setIsRadioListVisible(false);
     };
 
     const contactsPanelClass = `contacts-panel panel-border ${
@@ -692,16 +778,82 @@ export default function ClientMainLayout({ children }) {
         setIsSettingsActive(!isSettingsActive);
     };
 
+    const handleRecordPlayerMenuClick = async () => {
+        if (isSongListActive) {
+            setIsSongListActive(false);
+            return;
+        }
+
+        setIsSongListActive(true);
+        if (songs.length === 0) {
+            setIsSongListLoading(true);
+            try {
+                const response = await fetch('/api/media/songs');
+                const data = await response.json();
+                if (data.songs) {
+                    setSongs(data.songs);
+                }
+            } catch (error) {
+                console.error("Failed to fetch songs:", error);
+            } finally {
+                setIsSongListLoading(false);
+            }
+        }
+    };
+
+    const handleSongSelect = (song) => {
+        setCurrentSong(song);
+    };
+
+    const switchPanel = (panel) => {
+        if (!isSongListActive) {
+            setActivePanel(panel);
+            setPanelAnimation(styles.slideIn);
+            return;
+        }
+        setPanelAnimation(styles.slideOut);
+        setTimeout(() => {
+            setActivePanel(panel);
+            setPanelAnimation(styles.slideIn);
+        }, 300);
+    };
+
+    // Fallback logika: ako defaultni stream ne radi, koristi prvu dostupnu stanicu
+    useEffect(() => {
+        if (!currentStation || !currentStation.url) return;
+        if (window && window.Audio) {
+            const testAudio = new window.Audio(currentStation.url);
+            testAudio.crossOrigin = 'anonymous';
+            testAudio.addEventListener('error', () => {
+                // Ako defaultni stream ne radi, pokušaj prvu iz liste
+                if (radioStations && radioStations.length > 0) {
+                    setCurrentStation(radioStations[0]);
+                }
+            });
+            // Pokušaj load
+            testAudio.load();
+        }
+        // eslint-disable-next-line
+    }, [currentStation, radioStations]);
+
     return (
         <div className="main-container" data-theme={currentTheme}>
             <CanvasBackground currentTheme={currentTheme} />
-            <RecordPlayer isVisible={isRecordPlayerVisible} currentTheme={currentTheme} />
-            <RadioPlayer 
+            <RecordPlayer 
+                isVisible={isRecordPlayerVisible}
+                onMenuClick={handleRecordPlayerMenuClick}
+                currentSong={currentSong}
+                setCurrentSong={setCurrentSong}
+                songs={songs}
+                playerVolume={playerVolume}
+            />
+            <RadioPlayer
                 ref={radioPlayerRef}
-                isVisible={isRadioPlayerVisible} 
+                isVisible={isRadioPlayerVisible}
                 currentTheme={currentTheme}
                 onMenuClick={() => setIsRadioListVisible(!isRadioListVisible)}
                 isMenuActive={isRadioListVisible}
+                currentStation={currentStation}
             />
             <PianoWidget 
                 isVisible={isPianoVisible}
@@ -720,23 +872,50 @@ export default function ClientMainLayout({ children }) {
                     onDrop={handleDrop}
                 >
                     <div className="panel-content">
-                        <div className={`contacts-list ${isRadioListVisible ? 'hidden' : ''}`}>
-                            {chats.map((chat, index) => (
-                                <ChatListItem
-                                    key={chat.id}
-                                    chat={chat}
-                                    onDelete={handleDeleteChat}
-                                    onChat={handleChatClick}
-                                    onInfo={handleInfoClick}
-                                />
-                            ))}
-                        </div>
-                        <RadioStationsList 
-                            stations={radioStations}
-                            onStationSelect={handleStationSelect}
-                            currentStation={currentStation}
-                            isVisible={isRadioListVisible}
-                        />
+                        {isRadioListVisible ? (
+                            <RadioListWidget
+                                isVisible={isRadioListVisible}
+                                onClose={() => setIsRadioListVisible(false)}
+                                onStationSelect={handleStationSelect}
+                                currentStation={currentStation}
+                            />
+                        ) : (
+                            (panelState === 'contacts' || panelState === 'animating-to-radio' || panelState === 'animating-to-contacts') && (
+                                <div className={`contacts-list${contactsAnim ? ' ' + contactsAnim : ''}`}> 
+                                    {isSongListActive ? (
+                                        <div className={`song-list${activePanel === 'radio' ? ' ' + styles.radioBgPanel : ''}`}>
+                                            {isSongListLoading ? (
+                                                <p>Loading songs...</p>
+                                            ) : songs.length > 0 ? (
+                                                <ul>
+                                                    {songs.map((song, index) => (
+                                                        <li
+                                                            key={index}
+                                                            onClick={() => handleSongSelect(song)}
+                                                            className={song === currentSong ? styles.frostedSongListItem : ''}
+                                                        >
+                                                            {song.replace(/\.mp3$|\.wav$|\.waw$/,'')}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <p>No songs found.</p>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        chats.map((chat, index) => (
+                                            <ChatListItem
+                                                key={chat.id}
+                                                chat={chat}
+                                                onDelete={handleDeleteChat}
+                                                onChat={handleChatClick}
+                                                onInfo={handleInfoClick}
+                                            />
+                                        ))
+                                    )}
+                                </div>
+                            )
+                        )}
                     </div>
                 </div>
                 
@@ -855,47 +1034,10 @@ export default function ClientMainLayout({ children }) {
                                         <button
                                             key={control.name}
                                             className={`mixer-toggle ${control.value ? 'active' : ''}`}
-                                            onClick={(e) => handleMixerControlChange(control.name, !control.value)}
+                                            onClick={(e) => handleMixerControlChange(control.name, e.target.classList.contains('active'))}
                                         >
-                                            <img 
-                                                src={`/icons/${control.name}${control.value ? '_on' : '_off'}.png`}
-                                                alt={control.alt}
-                                                width={32}
-                                                height={32}
-                                            />
+                                            {control.name}
                                         </button>
-                                    ))}
-
-                                    {mixerSettings.filter(control => control.type === "slider").map((control) => (
-                                        <div key={control.name} className="mixer-control-container">
-                                            <div className="mixer-slider-container">
-                                                {control.name === "Piano_sound" ? (
-                                                    <div className="piano-icon-bg">
-                                                        <img 
-                                                            src={`/icons/${control.name}.png`}
-                                                            alt={control.alt}
-                                                            width={32}
-                                                            height={32}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <img 
-                                                        src={`/icons/${control.name}.png`}
-                                                        alt={control.alt}
-                                                        width={32}
-                                                        height={32}
-                                                    />
-                                                )}
-                                                <input
-                                                    type="range"
-                                                    min="0"
-                                                    max="100"
-                                                    value={control.value}
-                                                    onChange={(e) => handleMixerControlChange(control.name, parseInt(e.target.value))}
-                                                    className="mixer-slider"
-                                                />
-                                            </div>
-                                        </div>
                                     ))}
                                 </div>
                             </div>
@@ -903,13 +1045,6 @@ export default function ClientMainLayout({ children }) {
                     </div>
                 </div>
             </div>
-            <LogoutModal 
-                isOpen={isLogoutModalOpen}
-                onClose={() => setIsLogoutModalOpen(false)}
-                onConfirm={handleLogout}
-                language="hr"
-            />
-            {showSearch && <SearchWidget onClose={handleCloseSearch} onAddChat={handleAddChat} />}
         </div>
     );
-} 
+}

@@ -7,6 +7,7 @@ import hrv from "../locales/Hrv.json";
 import eng from "../locales/Eng.json";
 import RegisterForm from "./RegisterForm";
 import api from "../utils/api";
+import LogRocket from 'logrocket';
 
 const setCookie = (name, value, days = 7) => {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
@@ -54,7 +55,49 @@ export default function LoginForm({
     const t = language === "en" ? eng : hrv;
     const showReset = passwordInput.length > 0;
 
-    const handleGoogleLogin = () => console.log("Google login requested.");
+    const handleGoogleLogin = () => {
+        // Redirect to Google OAuth
+        window.location.href = 'http://localhost:5000/api/auth/google';
+    };
+
+    // Handle OAuth success callback
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const error = urlParams.get('error');
+        
+        if (token) {
+            // Store token and redirect
+            localStorage.setItem('token', token);
+            const tokenData = JSON.parse(atob(token.split('.')[1]));
+            localStorage.setItem('userId', tokenData.userId);
+            if (tokenData.provider === 'google') {
+                localStorage.setItem('isGoogleUser', 'true');
+            }
+            
+            // Identify user in LogRocket
+            console.log('LogRocket: Identifying user:', tokenData.userId, tokenData.username);
+            LogRocket.identify(tokenData.userId, {
+                name: tokenData.username,
+                email: tokenData.email,
+                userId: tokenData.userId,
+                provider: tokenData.provider,
+                isGoogleUser: true
+            });
+            console.log('LogRocket: User identified successfully');
+            
+            // Clean URL and redirect
+            window.history.replaceState({}, document.title, window.location.pathname);
+            router.push('/main');
+        }
+        
+        if (error) {
+            setError('Google authentication failed. Please try again.');
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, [router]);
+
     const handleResetPassword = () => console.log("Reset password requested.");
     const handleCreateAccount = () => {
         console.log("Create Account clicked, setting showRegister to true");
@@ -80,6 +123,7 @@ export default function LoginForm({
             console.log('Login response:', data);
            
             localStorage.setItem('token', data.token);
+            console.log('JWT token nakon login-a:', data.token);
             localStorage.setItem('userId', data.userId);
             if (data.isAdmin) {
                 console.log('Admin login detected, setting admin flag');
@@ -94,7 +138,17 @@ export default function LoginForm({
             router.push(redirectUrl);
             setCookie('token', data.token);
 
-           
+            console.log('LogRocket: Identifying user:', data.userId, usernameInput);
+            LogRocket.identify(data.userId, {
+                email: usernameInput,
+                name: usernameInput,
+                userId: data.userId,
+                provider: data.provider,
+                isAdmin: data.isAdmin,
+                isGoogleUser: data.isGoogleUser
+            });
+            console.log('LogRocket: User identified successfully');
+
         } catch (err) {
             console.error('Login error:', err);
            
@@ -109,10 +163,7 @@ export default function LoginForm({
         setIsLoaded(true);
     }, []);
 
-    console.log("showRegister state:", showRegister);
-
     if (showRegister) {
-        console.log("Rendering RegisterForm");
         return <RegisterForm 
             onBack={() => setShowRegister(false)} 
             language={language}

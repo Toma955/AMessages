@@ -55,7 +55,7 @@ const verifyAdminToken = (req, res, next) => {
             });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret');
         
         if (decoded.role !== 'admin') {
             return res.status(403).json({

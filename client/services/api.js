@@ -1,3 +1,6 @@
+// API client utility for making authenticated requests
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 const getAuthToken = () => {
     if (typeof window !== 'undefined') {
         return localStorage.getItem('token');
@@ -6,11 +9,34 @@ const getAuthToken = () => {
 };
 
 const handleResponse = async (response) => {
-    const data = await response.json();
+    let data;
+    
+    try {
+        // Try to parse JSON response
+        const text = await response.text();
+        data = text ? JSON.parse(text) : {};
+    } catch (error) {
+        // Safe console logging
+        if (typeof console !== 'undefined' && console.error) {
+            console.error('JSON parsing error:', error);
+        }
+        // If JSON parsing fails, create a basic error object
+        data = {
+            error_code: 'INVALID_RESPONSE',
+            message: 'Invalid response format'
+        };
+    }
     
     if (!response.ok) {
-        // If the server sends an error message, use it
-        throw new Error(data.error_code || data.message || 'Network response was not ok');
+        // Safe console logging
+        if (typeof console !== 'undefined' && console.error) {
+            console.error('API Error:', {
+                status: response.status,
+                statusText: response.statusText,
+                data: data
+            });
+        }
+        throw new Error(data.error_code || data.message || `HTTP ${response.status}: ${response.statusText}`);
     }
     
     return data;
@@ -18,57 +44,99 @@ const handleResponse = async (response) => {
 
 const api = {
     get: async (url) => {
-        const token = getAuthToken();
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
+        try {
+            const token = getAuthToken();
+            const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+            console.log('API GET - URL:', fullUrl);
+            console.log('API GET - Token exists:', !!token);
+            console.log('API GET - Token:', token ? token.substring(0, 20) + '...' : 'none');
+            
+            const headers = {
                 'Content-Type': 'application/json',
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            };
+            console.log('API GET - Headers:', headers);
+            
+            const response = await fetch(fullUrl, {
+                method: 'GET',
+                headers: headers
+            });
+            
+            console.log('API GET - Response status:', response.status);
+            console.log('API GET - Response ok:', response.ok);
+            
+            return handleResponse(response);
+        } catch (error) {
+            if (typeof console !== 'undefined' && console.error) {
+                console.error('GET request failed:', error);
             }
-        });
-        
-        return handleResponse(response);
+            throw new Error(error.message || 'Network request failed');
+        }
     },
 
     post: async (url, data) => {
-        const token = getAuthToken();
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-            },
-            body: JSON.stringify(data)
-        });
+        try {
+            const token = getAuthToken();
+            const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+            const response = await fetch(fullUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify(data)
+            });
 
-        return handleResponse(response);
+            return handleResponse(response);
+        } catch (error) {
+            if (typeof console !== 'undefined' && console.error) {
+                console.error('POST request failed:', error);
+            }
+            throw new Error(error.message || 'Network request failed');
+        }
     },
 
     put: async (url, data) => {
-        const token = getAuthToken();
-        const response = await fetch(url, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-            },
-            body: JSON.stringify(data)
-        });
+        try {
+            const token = getAuthToken();
+            const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+            const response = await fetch(fullUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify(data)
+            });
 
-        return handleResponse(response);
+            return handleResponse(response);
+        } catch (error) {
+            if (typeof console !== 'undefined' && console.error) {
+                console.error('PUT request failed:', error);
+            }
+            throw new Error(error.message || 'Network request failed');
+        }
     },
 
     delete: async (url) => {
-        const token = getAuthToken();
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-            }
-        });
+        try {
+            const token = getAuthToken();
+            const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
+            const response = await fetch(fullUrl, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                }
+            });
 
-        return handleResponse(response);
+            return handleResponse(response);
+        } catch (error) {
+            if (typeof console !== 'undefined' && console.error) {
+                console.error('DELETE request failed:', error);
+            }
+            throw new Error(error.message || 'Network request failed');
+        }
     }
 };
 

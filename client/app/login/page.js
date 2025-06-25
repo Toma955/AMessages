@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import CanvasBackground from "@/components/CanvasBackground";
 import LoginForm from "@/components/LoginForm";
 import "@/app/styles/login.css";
 
@@ -18,22 +16,6 @@ import yesIcon from "../../public/icons/Yes.png";
 import noIcon from "../../public/icons/No.png";
 
 export default function LoginPage() {
-    const [progress, setProgress] = useState(0);
-    const [hide, setHide] = useState(false);
-
-    useEffect(() => {
-        let i = 0;
-        const interval = setInterval(() => {
-            i++;
-            setProgress(i);
-            if (i >= 100) {
-                clearInterval(interval);
-                setTimeout(() => setHide(true), 200);
-            }
-        }, 20);
-        return () => clearInterval(interval);
-    }, []);
-
     return (
         <div style={{ position: "relative", minHeight: "100vh" }}>
             <LoginForm 
@@ -48,21 +30,6 @@ export default function LoginPage() {
                 yesIcon={yesIcon}
                 noIcon={noIcon}
             />
-            {!hide && (
-                <div
-                    className="fixed inset-0 flex items-center justify-center bg-black text-white"
-                    style={{
-                        zIndex: 9999,
-                        opacity: hide ? 0 : 1,
-                        pointerEvents: hide ? "none" : undefined,
-                        transition: "opacity 0.5s"
-                    }}
-                >
-                    <div className="text-center">
-                        <div className="preloader-text">Loading {progress}%</div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

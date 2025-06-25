@@ -1,56 +1,70 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import styles from '@/app/styles/RadioPlayer.module.css';
 import radioService from '@/services/radioService';
 
+const RADIO_STATIONS = [
+  {
+    name: 'Dance UK Radio',
+    url: 'http://uk2.internet-radio.com:8024/',
+  },
+  {
+    name: 'Majestic Jukebox',
+    url: 'http://uk3.internet-radio.com:8405/',
+  },
+  {
+    name: 'Zero Radio',
+    url: 'http://uk7.internet-radio.com:8188/',
+  },
+  {
+    name: 'House Music Radio UK',
+    url: 'http://uk4-vn.mixstream.net:8128/',
+  },
+];
+
 export default function RadioPlayer({ isVisible, currentTheme, onMenuClick, isMenuActive }) {
+    const [currentStation, setCurrentStation] = useState(RADIO_STATIONS[0]);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [currentStationIndex, setCurrentStationIndex] = useState(0);
-    const [stations, setStations] = useState([]);
     const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+    const audioRef = useRef(null);
 
-    // Učitaj radio stanice kad se komponenta montira
-    useEffect(() => {
-        const loadStations = async () => {
-            const topStations = await radioService.getTopStations(10);
-            setStations(topStations);
-        };
+    const handleStationSelect = (station) => {
+        setCurrentStation(station);
+        setIsPlaying(true);
+        setTimeout(() => {
+            if (audioRef.current) audioRef.current.play();
+        }, 100);
+    };
 
-        if (isVisible) {
-            loadStations();
-        }
-    }, [isVisible]);
-
-    // Zaustavi radio kad komponenta nije vidljiva
-    useEffect(() => {
-        if (!isVisible) {
+    const handlePlayPause = () => {
+        if (!audioRef.current) return;
+        if (isPlaying) {
+            audioRef.current.pause();
             setIsPlaying(false);
-            radioService.stop();
+        } else {
+            audioRef.current.play();
+            setIsPlaying(true);
         }
-    }, [isVisible]);
+    };
 
     const handleStationChange = async (direction) => {
-        if (stations.length === 0 || isLoadingAudio) return;
+        if (RADIO_STATIONS.length === 0 || isLoadingAudio) return;
 
-        setCurrentStationIndex(prev => {
-            const newIndex = direction === 'next'
-                ? (prev + 1) % stations.length
-                : (prev - 1 + stations.length) % stations.length;
-            
-            if (isPlaying) {
-                playStation(stations[newIndex]);
-            }
-            
-            return newIndex;
-        });
+        const newIndex = direction === 'next'
+            ? (RADIO_STATIONS.indexOf(currentStation) + 1) % RADIO_STATIONS.length
+            : (RADIO_STATIONS.indexOf(currentStation) - 1 + RADIO_STATIONS.length) % RADIO_STATIONS.length;
+        
+        if (isPlaying) {
+            handleStationSelect(RADIO_STATIONS[newIndex]);
+        }
     };
 
     const playStation = async (station) => {
         try {
             setIsLoadingAudio(true);
-            await radioService.play(station.url_resolved);
+            await radioService.play(station.url);
             setIsPlaying(true);
         } catch (err) {
             setIsPlaying(false);
@@ -60,25 +74,23 @@ export default function RadioPlayer({ isVisible, currentTheme, onMenuClick, isMe
     };
 
     const togglePlay = async () => {
-        if (stations.length === 0 || isLoadingAudio) return;
+        if (RADIO_STATIONS.length === 0 || isLoadingAudio) return;
 
         try {
             if (isPlaying) {
                 radioService.pause();
                 setIsPlaying(false);
             } else {
-                await playStation(stations[currentStationIndex]);
+                await playStation(currentStation);
             }
         } catch (err) {
             setIsPlaying(false);
         }
     };
 
-    const currentStation = stations[currentStationIndex];
-
     return (
         <div className={`${styles.radioPlayerContainer} ${isVisible ? styles.visible : ''}`}>
-            <div className={styles.radioPlayerBox}>
+            <div className={`${styles.radioPlayerBox} ${isVisible ? styles.noBorder : ''}`}>
                 <div className={styles.menuButton}>
                     <button 
                         className={`${styles.iconButton} ${isMenuActive ? styles.active : ''}`}
@@ -114,7 +126,7 @@ export default function RadioPlayer({ isVisible, currentTheme, onMenuClick, isMe
                     <div className={styles.frequencyBar}>
                         <div 
                             className={styles.frequencyIndicator} 
-                            style={{ left: `${(currentStationIndex / (stations.length - 1)) * 100}%` }}
+                            style={{ left: `${(RADIO_STATIONS.indexOf(currentStation) / (RADIO_STATIONS.length - 1)) * 100}%` }}
                         ></div>
                     </div>
                 </div>

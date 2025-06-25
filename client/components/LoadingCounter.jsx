@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-// Pomoćna funkcija za animaciju punjenja progress bara
+
 const animateProgress = (start, end, duration, setPercent) => {
     return new Promise(resolve => {
-        const stepTime = 20; // Ažuriraj svakih 20ms
+        const stepTime = 20; 
         const totalSteps = duration / stepTime;
         const increment = (end - start) / totalSteps;
         let currentProgress = start;
@@ -15,7 +15,7 @@ const animateProgress = (start, end, duration, setPercent) => {
             currentProgress += increment;
             if (currentProgress >= end) {
                 clearInterval(interval);
-                setPercent(end); // Osiguraj da završi točno na cilju
+                setPercent(end); 
                 resolve();
             } else {
                 setPercent(Math.floor(currentProgress));
@@ -77,6 +77,11 @@ export default function LoadingCounter() {
         return () => { isMounted = false; };
     }, [router]);
 
+    // Ne prikazuj ništa dok se provjeri server
+    if (isCheckingServer) {
+        return null;
+    }
+
     return (
         <div 
             className="loading-overlay"
@@ -103,30 +108,26 @@ export default function LoadingCounter() {
                     transition: 'transform 0.5s ease-in-out'
                 }}
             >
-                {!isCheckingServer && (
-                    <>
-                        <p className="loading-text" style={{ fontSize: '5rem', fontWeight: 'bold' }}>{percent}%</p>
-                        <div 
-                            style={{
-                                width: '300px',
-                                height: '4px',
-                                background: '#333',
-                                borderRadius: '2px',
-                                overflow: 'hidden',
-                                margin: '20px auto'
-                            }}
-                        >
-                            <div 
-                                style={{
-                                    width: `${percent}%`,
-                                    height: '100%',
-                                    background: '#ff884d',
-                                    transition: 'width 0.02s ease-out'
-                                }}
-                            />
-                        </div>
-                    </>
-                )}
+                <p className="loading-text" style={{ fontSize: '5rem', fontWeight: 'bold' }}>{percent}%</p>
+                <div 
+                    style={{
+                        width: '300px',
+                        height: '4px',
+                        background: '#333',
+                        borderRadius: '2px',
+                        overflow: 'hidden',
+                        margin: '20px auto'
+                    }}
+                >
+                    <div 
+                        style={{
+                            width: `${percent}%`,
+                            height: '100%',
+                            background: '#ff884d',
+                            transition: 'width 0.02s ease-out'
+                        }}
+                    />
+                </div>
             </div>
         </div>
     );

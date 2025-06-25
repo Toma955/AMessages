@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import api from '../services/api';
+import api from '../utils/api';
 
 export default function UserList() {
     const [users, setUsers] = useState([]);
@@ -13,7 +13,7 @@ export default function UserList() {
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
-                const response = await api.get('/api/me');
+                const response = await api.get('/api/user/me');
                 if (response.success) {
                     setCurrentUserId(response.user.id);
                 }
@@ -25,8 +25,8 @@ export default function UserList() {
         const fetchUsers = async () => {
             try {
                 setLoading(true);
-                // Using the search endpoint with a general query to get all users
-                const response = await api.get('/api/users/search?query=%');
+                // Using the correct search endpoint that exists on the server
+                const response = await api.get('/api/search/users/search?query=%');
                 if (response.success) {
                     // Filter out the current user
                     const filteredUsers = response.results.filter(user => user.id !== currentUserId);

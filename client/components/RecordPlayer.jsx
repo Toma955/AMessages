@@ -1,22 +1,95 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import styles from '@/app/styles/RecordPlayer.module.css';
 
-export default function RecordPlayer({ isVisible, currentTheme }) {
-    const [isActive, setIsActive] = useState(false);
+export default function RecordPlayer({ 
+    isVisible, 
+    onMenuClick, 
+    currentSong, 
+    setCurrentSong,
+    songs,
+    playerVolume
+}) {
     const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef(null);
 
     useEffect(() => {
         if (!isVisible) {
             setIsPlaying(false);
-            setIsActive(false);
         }
     }, [isVisible]);
 
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (audio) {
+            if (currentSong) {
+                audio.src = `/api/media/stream/${encodeURIComponent(currentSong)}`;
+                audio.play().catch(e => console.error("Error playing audio:", e));
+            } else {
+                audio.pause();
+                audio.src = '';
+            }
+        }
+    }, [currentSong]);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (audio) {
+            const handlePlay = () => setIsPlaying(true);
+            const handlePause = () => setIsPlaying(false);
+            
+            audio.addEventListener('play', handlePlay);
+            audio.addEventListener('pause', handlePause);
+            audio.addEventListener('ended', playNextSong);
+
+            return () => {
+                audio.removeEventListener('play', handlePlay);
+                audio.removeEventListener('pause', handlePause);
+                audio.removeEventListener('ended', playNextSong);
+            };
+        }
+    }, [songs, currentSong]); // Re-attach listeners if songs/currentSong changes
+
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = playerVolume ?? 0.5;
+        }
+    }, [playerVolume]);
+
+    const togglePlayPause = () => {
+        if (!currentSong) {
+            if (songs.length > 0) {
+                setCurrentSong(songs[0]);
+            }
+            return;
+        }
+
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play();
+        }
+    };
+
+    const playNextSong = () => {
+        if (!songs || songs.length === 0) return;
+        const currentIndex = songs.findIndex(song => song === currentSong);
+        const nextIndex = (currentIndex + 1) % songs.length;
+        setCurrentSong(songs[nextIndex]);
+    };
+
+    const playPreviousSong = () => {
+        if (!songs || songs.length === 0) return;
+        const currentIndex = songs.findIndex(song => song === currentSong);
+        const prevIndex = (currentIndex - 1 + songs.length) % songs.length;
+        setCurrentSong(songs[prevIndex]);
+    };
+
     return (
         <div className={`${styles.recordPlayerContainer} ${isVisible ? styles.visible : ''}`}>
+            <audio ref={audioRef} />
             <div className={styles.recordPlayerBox}>
                 {/* Record disc */}
                 <div className={`${styles.recordDisc} ${isPlaying ? styles.spinning : ''}`}>
@@ -30,7 +103,7 @@ export default function RecordPlayer({ isVisible, currentTheme }) {
                     <div className={styles.mainControls}>
                         <button 
                             className={`${styles.controlButton} ${styles.previousButton}`}
-                            onClick={() => setIsPlaying(false)}
+                            onClick={playPreviousSong}
                         >
                             <Image 
                                 src="/icons/Next.png" 
@@ -42,7 +115,7 @@ export default function RecordPlayer({ isVisible, currentTheme }) {
 
                         <button 
                             className={`${styles.controlButton} ${styles.playButton}`}
-                            onClick={() => setIsPlaying(!isPlaying)}
+                            onClick={togglePlayPause}
                         >
                             <Image 
                                 src={`/icons/${isPlaying ? 'Pause' : 'Play'}.png`} 
@@ -54,7 +127,7 @@ export default function RecordPlayer({ isVisible, currentTheme }) {
 
                         <button 
                             className={styles.controlButton}
-                            onClick={() => setIsPlaying(false)}
+                            onClick={playNextSong}
                         >
                             <Image 
                                 src="/icons/Next.png" 
@@ -66,7 +139,7 @@ export default function RecordPlayer({ isVisible, currentTheme }) {
 
                         <button 
                             className={`${styles.controlButton} ${styles.menuButton}`}
-                            onClick={() => setIsActive(!isActive)}
+                            onClick={onMenuClick}
                         >
                             <Image 
                                 src="/icons/Menu.png" 

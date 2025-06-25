@@ -126,6 +126,14 @@ function CreateUser({
 
     authDb.close();
 
+    // Spremanje korisničkog imena u usernames.db
+    const usernamesDbPath = path.resolve(__dirname, "../database/data/usernames.db");
+    const usernamesDb = new Database(usernamesDbPath);
+    usernamesDb
+        .prepare("INSERT INTO registered_usernames (id, username) VALUES (?, ?)")
+        .run(userId, username);
+    usernamesDb.close();
+
     return { userId };
 }
 

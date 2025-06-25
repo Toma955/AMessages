@@ -5,6 +5,8 @@ const helmet = require("helmet");
 const Sentry = require("@sentry/node");
 const { handleNodeRequest, handleNodeError } = require("@sentry/node");
 const startupChecks = require("./utils/startupChecks");
+const path = require('path');
+const passport = require('./config/passport');
 
 // Prometheus monitoring
 const client = require("prom-client");
@@ -58,6 +60,12 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Passport inicijalizacija
+app.use(passport.initialize());
+
+// Static files za pjesme
+app.use('/songs', express.static(path.join(__dirname, 'songs')));
+
 app.use((req, res, next) => {
     const now = new Date().toLocaleString();
     console.log(`Request received: ${now} - [${req.method}] ${req.originalUrl}`);
@@ -77,10 +85,12 @@ app.get("/metrics", async (req, res) => {
 
 require("./routes")(app);
 app.use("/api/auth", require("./routes/AuthRoutes"));
+app.use("/api/auth", require("./routes/GoogleAuthRoutes"));
 app.use("/api/group", require("./routes/GroupRoutes"));
 app.use("/api/messages", require("./routes/MessageRoutes"));
 app.use("/api/search", require("./routes/SearchRoutes"));
 app.use("/api", require("./routes/UserRoutes"));
+app.use('/api/media', require('./routes/media'));
 
 app.get("/test", (req, res) => {
     res.send("Server is up");

@@ -13,13 +13,10 @@ export default function CanvasBackground({ currentTheme = 'orange' }) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        console.log("CanvasBackground mounted and context obtained");
-
         function resizeCanvas() {
             const { innerWidth, innerHeight } = window;
             canvas.width = innerWidth;
             canvas.height = innerHeight;
-            console.log(`Canvas resized to ${innerWidth}x${innerHeight}`);
         }
 
         // Initial resize

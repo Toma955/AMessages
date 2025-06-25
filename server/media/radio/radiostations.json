@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Radio Browser API",
+    "url": "https://api.radio-browser.info/"
+  },
+  {
+    "name": "Radio Browser Documentation",
+    "url": "https://de1.api.radio-browser.info/"
+  },
+  {
+    "name": "Jamendo API",
+    "url": "https://developer.jamendo.com/"
+  },
+  {
+    "name": "SHOUTcast Directory (unofficial)",
+    "url": "https://www.shoutcast.com/"
+  },
+  {
+    "name": "Internet Radio Directory",
+    "url": "https://www.internet-radio.com/"
+  }
+]

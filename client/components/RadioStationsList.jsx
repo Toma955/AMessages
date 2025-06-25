@@ -1,14 +1,28 @@
 "use client";
 
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
 import styles from '@/app/styles/RadioStationsList.module.css';
 
-export default function RadioStationsList({ stations, onStationSelect, currentStation, isVisible }) {
-    if (!isVisible) return null;
+export default function RadioStationsList({ stations, onStationSelect, currentStation, isVisible, animationClass = '' }) {
+    const [show, setShow] = useState(isVisible);
+    const timeoutRef = useRef();
+
+    useEffect(() => {
+        if (isVisible) {
+            setShow(true);
+        } else if (show) {
+            timeoutRef.current = setTimeout(() => {
+                setShow(false);
+            }, 500); // trajanje animacije
+        }
+        return () => clearTimeout(timeoutRef.current);
+    }, [isVisible]);
+
+    if (!show) return null;
 
     return (
-        <div className={styles.stationsListContainer}>
+        <div className={`${styles.stationsListContainer} ${animationClass ? styles[animationClass] || animationClass : ''}`}>
             <div className={styles.stationsList}>
                 {stations.map((station, index) => (
                     <button

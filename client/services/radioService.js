@@ -97,13 +97,23 @@ class RadioService {
                 method: 'GET'
             });
 
-            // Filtriraj samo stanice koje imaju SSL stream (https) i favicon
+            // Filtriraj samo stanice koje imaju SSL stream (https) i podržani format
             const filteredStations = stations
-                .filter(station => 
-                    station.url_resolved && 
-                    station.favicon && 
-                    station.url_resolved.startsWith('https://')
-                )
+                .filter(station => {
+                    const url = station.url_resolved;
+                    const isValid = url &&
+                        url.startsWith('https://') &&
+                        (
+                            url.endsWith('.mp3') ||
+                            url.endsWith('.aac') ||
+                            url.endsWith('.ogg') ||
+                            url.endsWith('.m3u8')
+                        );
+                    if (!isValid) {
+                        console.warn('Filtered out station (unsupported stream):', url);
+                    }
+                    return isValid;
+                })
                 .slice(0, limit);
 
             console.log('Filtered stations:', filteredStations.length);

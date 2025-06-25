@@ -257,7 +257,7 @@
 }
 
 .radio-list-active {
-    background: #4A90E2 !important;
+    /* background: url('/icons/RadioBackground.jpg') center/cover !important; */
 }
 
 .contacts-panel.panel-shrink {
@@ -1341,5 +1341,32 @@
 
 .admin-btn:active {
     transform: translateY(0);
+}
+
+.contacts-list.song-list {
+    padding: 10px;
+    color: var(--main-text-color);
+}
+
+.contacts-list.song-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.contacts-list.song-list li {
+    padding: 10px 15px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.contacts-list.song-list li:hover {
+    background-color: var(--hover-color);
+}
+
+.contacts-list.song-list p {
+    text-align: center;
+    padding: 20px;
 }
 

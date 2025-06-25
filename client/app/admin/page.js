@@ -252,9 +252,38 @@ export default function AdminPage() {
         }));
     };
 
-    const handleDeleteUser = (userId) => {
-        alert(`Brisanje korisnika s ID: ${userId}`);
-        // Ovdje možeš dodati backend poziv za brisanje
+    const handleDeleteUser = async (userId) => {
+        if (!window.confirm(`Jeste li sigurni da želite obrisati korisnika s ID: ${userId}?`)) {
+            return;
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Niste prijavljeni ili vaša sesija je istekla.');
+            router.push('/login');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                alert('Korisnik uspješno obrisan.');
+                fetchUsers(); // Osvježi listu korisnika
+            } else {
+                alert(`Greška kod brisanja korisnika: ${data.message || 'Nepoznata greška'}`);
+            }
+        } catch (error) {
+            console.error('Greška kod brisanja korisnika:', error);
+            alert('Došlo je do greške na strani klijenta.');
+        }
     };
 
     if (!isAdmin) {
