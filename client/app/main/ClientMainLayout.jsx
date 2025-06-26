@@ -836,6 +836,48 @@ export default function ClientMainLayout({ children }) {
         // eslint-disable-next-line
     }, [currentStation, radioStations]);
 
+    const renderMixerControls = () => {
+        return (
+            <div className="mixer-controls">
+                {mixerSettings.map((control, index) => (
+                    <div key={control.name} className="mixer-control-container">
+                        {control.type === "slider" ? (
+                            <div className="mixer-slider-container">
+                                <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={control.value}
+                                    onChange={(e) => handleMixerControlChange(control.name, parseInt(e.target.value))}
+                                    className="mixer-slider"
+                                    orient="vertical"
+                                />
+                                <img
+                                    src={`/icons/${control.name}.png`}
+                                    alt={control.alt}
+                                    width={36}
+                                    height={36}
+                                />
+                            </div>
+                        ) : (
+                            <button
+                                className={`mixer-toggle ${control.value ? 'active' : ''}`}
+                                onClick={() => handleMixerControlChange(control.name, !control.value)}
+                            >
+                                <img
+                                    src={`/icons/${control.name}.png`}
+                                    alt={control.alt}
+                                    width={36}
+                                    height={36}
+                                />
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
         <div className="main-container" data-theme={currentTheme}>
             <CanvasBackground currentTheme={currentTheme} />
@@ -1014,37 +1056,23 @@ export default function ClientMainLayout({ children }) {
                                 </div>
                             ))
                         ) : (
-                            <div className="mixer-controls">
-                                <button 
-                                    data-name="Arrow"
-                                    className="icon-button submenu-view"
-                                    onClick={(e) => handleIconClick("Arrow", e)}
-                                    disabled={isTransitioning}
-                                >
-                                    <img 
-                                        src="/icons/Arrow.png"
-                                        alt="Back"
-                                        width={48}
-                                        height={48}
-                                    />
-                                </button>
-
-                                <div className="controls-container">
-                                    {mixerSettings.filter(control => control.type === "toggle").map((control) => (
-                                        <button
-                                            key={control.name}
-                                            className={`mixer-toggle ${control.value ? 'active' : ''}`}
-                                            onClick={(e) => handleMixerControlChange(control.name, e.target.classList.contains('active'))}
-                                        >
-                                            {control.name}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+                            renderMixerControls()
                         )}
                     </div>
                 </div>
             </div>
+            
+            {/* Search Widget */}
+            {showSearch && (
+                <SearchWidget onClose={handleCloseSearch} onAddChat={handleAddChat} />
+            )}
+            {/* Logout Modal */}
+            <LogoutModal
+                isOpen={isLogoutModalOpen}
+                onClose={() => setIsLogoutModalOpen(false)}
+                onConfirm={handleLogout}
+                language="hr"
+            />
         </div>
     );
 }

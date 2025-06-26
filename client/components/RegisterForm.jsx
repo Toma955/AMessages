@@ -26,7 +26,6 @@ export default function RegisterForm({
     calendarIcon,
     maleIcon,
     femaleIcon,
-    googleIcon,
     magnifyingGlassIcon,
     yesIcon,
     noIcon
@@ -129,13 +128,12 @@ export default function RegisterForm({
                 if (match) {
                     const [, day, month, year] = match;
                     const date = new Date(year, month - 1, day);
-                    const age = (new Date().getFullYear() - date.getFullYear());
-                    const isValidAge = age >= 13;
+                    // Uklonjena dobna provjera - samo provjerava format
                     setValidations(prev => ({
                         ...prev,
-                        dateOfBirth: isValidAge
+                        dateOfBirth: true
                     }));
-                    return isValidAge ? "" : t.minimumAge;
+                    return "";
                 } else {
                     setValidations(prev => ({
                         ...prev,
@@ -175,11 +173,6 @@ export default function RegisterForm({
             validations.gender &&
             !Object.values(errors).some(Boolean)
         );
-    };
-
-    const handleGoogleSignup = () => {
-        console.log("Google signup requested");
-        // TODO: Implement Google OAuth signup
     };
 
     const handleSubmit = async (e) => {
@@ -285,8 +278,8 @@ export default function RegisterForm({
 
     // CustomDatePicker component inside RegisterForm to access props
     function CustomDatePicker({ selectedDate, onDateSelect, visible, showYearPicker, showMonthPicker, setShowYearPicker, setShowMonthPicker, setShowDatePicker, selectedYear, selectedMonth, setSelectedYear, setSelectedMonth }) {
-        const [currentDate, setCurrentDate] = useState(new Date());
-        const [displayedMonth, setDisplayedMonth] = useState(new Date());
+        const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1)); // Počinje od 2025
+        const [displayedMonth, setDisplayedMonth] = useState(new Date(2025, 0, 1)); // Počinje od 2025
 
         // Update displayedMonth when selectedYear and selectedMonth change
         useEffect(() => {
@@ -370,9 +363,7 @@ export default function RegisterForm({
         };
 
         const isUnder13 = (date) => {
-            const today = new Date();
-            const age = today.getFullYear() - date.getFullYear();
-            return age < 13;
+            return false; // Uklonjena dobna granica
         };
 
         const handleDateClick = (date) => {
@@ -438,7 +429,7 @@ export default function RegisterForm({
             setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
             
             // Show calendar with days - use selectedYear and selectedMonth
-            const yearToUse = selectedYear || parseInt(year) || new Date().getFullYear();
+            const yearToUse = selectedYear || parseInt(year) || 2025; // Default 2025
             console.log('Using year:', yearToUse, 'and month:', monthIndex, 'for calendar');
             
             // Set the selected year and month
@@ -452,9 +443,9 @@ export default function RegisterForm({
         };
 
         const generateYearOptions = () => {
-            const currentYear = new Date().getFullYear();
+            const currentYear = 2025; // Počinje od 2025
             const years = [];
-            for (let i = currentYear - 100; i <= currentYear - 13; i++) {
+            for (let i = currentYear - 100; i <= currentYear; i++) { // Uklonjena dobna granica
                 years.push(i);
             }
             return years.reverse();
@@ -762,16 +753,7 @@ export default function RegisterForm({
                             </div>
                             {errors.gender && <span className="error-message text-center">{errors.gender}</span>}
 
-                            <div className="buttons-grid">
-                                <button 
-                                    type="button" 
-                                    className="google-btn"
-                                    onClick={handleGoogleSignup}
-                                >
-                                    <Image src={googleIcon} alt="Google" width={24} height={24} />
-                                    {t.loginWithGoogle}
-                                </button>
-
+                            <div className="buttons-container">
                                 <button 
                                     type="submit" 
                                     className="register-btn"

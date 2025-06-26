@@ -50,11 +50,7 @@ export default function RadioListWidget({ onStationSelect, currentStation, isVis
             style={{
                 position: 'relative',
                 width: '100%',
-                height: '100%',
-                background: '#4A90E2 url(/icons/RadioBackground.jpg) center/cover',
-                borderRadius: 16,
-                boxShadow: '0 8px 32px rgba(74, 144, 226, 0.3)',
-                padding: 0
+                height: '100%'
             }}
         >
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8 }}>

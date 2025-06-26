@@ -892,7 +892,7 @@
     box-shadow: 0 0 15px rgba(233, 116, 81, 0.3);
 }
 
-/* Mixer Controls */
+/* ===== Mixer Controls ===== */
 .mixer-controls {
     display: flex;
     flex-direction: column;
@@ -1116,6 +1116,7 @@
     }
 }
 
+/* Chat item styles */
 .chat-item {
     display: flex;
     align-items: center;

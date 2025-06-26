@@ -26,7 +26,21 @@ const httpRequestDuration = new client.Histogram({
     buckets: [0.1, 0.3, 0.5, 0.7, 1, 2, 5]
 });
 
-dotenv.config();
+// Load environment variables with explicit path
+const result = dotenv.config();
+console.log('=== Dotenv Debug ===');
+console.log('Dotenv result:', result);
+console.log('Parsed:', result.parsed);
+console.log('Error:', result.error);
+console.log('===================');
+
+// Debug environment variables
+console.log('=== Environment Variables Debug ===');
+console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'EXISTS' : 'MISSING');
+console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'EXISTS' : 'MISSING');
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+console.log('PORT:', process.env.PORT);
+console.log('===================================');
 
 // Admin credentials from environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';

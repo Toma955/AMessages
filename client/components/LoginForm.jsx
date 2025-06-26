@@ -173,7 +173,6 @@ export default function LoginForm({
             calendarIcon={calendarIcon}
             maleIcon={maleIcon}
             femaleIcon={femaleIcon}
-            googleIcon={googleIcon}
             magnifyingGlassIcon={magnifyingGlassIcon}
             yesIcon={yesIcon}
             noIcon={noIcon}

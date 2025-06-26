@@ -5,9 +5,17 @@ const router = express.Router();
 
 // Check if Google OAuth is configured
 const isGoogleOAuthConfigured = () => {
-    return process.env.GOOGLE_CLIENT_ID && 
-           process.env.GOOGLE_CLIENT_SECRET && 
-           process.env.GOOGLE_CLIENT_ID !== 'placeholder-client-id';
+    // Hardcoded credentials for now
+    const GOOGLE_CLIENT_ID = '27094931648-hvjgmve0irldebe6d6u897m72cf4h610.apps.googleusercontent.com';
+    const GOOGLE_CLIENT_SECRET = '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';
+    const FRONTEND_URL = 'http://localhost:3000';
+    
+    console.log('Debug - Google OAuth check:');
+    console.log('GOOGLE_CLIENT_ID:', GOOGLE_CLIENT_ID);
+    console.log('GOOGLE_CLIENT_SECRET:', GOOGLE_CLIENT_SECRET ? 'EXISTS' : 'MISSING');
+    console.log('FRONTEND_URL:', FRONTEND_URL);
+    
+    return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET;
 };
 
 // Google OAuth login route

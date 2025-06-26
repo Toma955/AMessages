@@ -12,7 +12,19 @@ class RadioService {
         this.audio = null;
         this.currentStation = null;
         this.currentServerIndex = 0;
+        
+        // Definišemo funkcije ovde da bismo ih mogli ispravno ukloniti
+        this.handleError = this._handleError.bind(this);
+        this.handleLoadStart = () => console.log('Audio loading started');
+        this.handlePlaying = () => console.log('Audio started playing');
+
         this.initAudio();
+    }
+
+    _handleError(e) {
+        console.error('Audio Error:', e);
+        console.error('Error code:', this.audio.error?.code);
+        console.error('Error message:', this.audio.error?.message);
     }
 
     initAudio() {
@@ -20,20 +32,10 @@ class RadioService {
             this.audio = new Audio();
             this.audio.crossOrigin = "anonymous";
             
-            // Dodaj event listenere za debugiranje
-            this.audio.addEventListener('error', (e) => {
-                console.error('Audio Error:', e);
-                console.error('Error code:', this.audio.error?.code);
-                console.error('Error message:', this.audio.error?.message);
-            });
-
-            this.audio.addEventListener('loadstart', () => {
-                console.log('Audio loading started');
-            });
-
-            this.audio.addEventListener('playing', () => {
-                console.log('Audio started playing');
-            });
+            // Koristimo definisane funkcije
+            this.audio.addEventListener('error', this.handleError);
+            this.audio.addEventListener('loadstart', this.handleLoadStart);
+            this.audio.addEventListener('playing', this.handlePlaying);
         }
     }
 
@@ -201,6 +203,23 @@ class RadioService {
         } catch (error) {
             console.error('Error stopping radio:', error);
         }
+    }
+
+    destroy() {
+        if (this.audio) {
+            this.audio.pause();
+            this.audio.src = '';
+            // Sada ispravno uklanjamo listenere
+            this.audio.removeEventListener('error', this.handleError);
+            this.audio.removeEventListener('loadstart', this.handleLoadStart);
+            this.audio.removeEventListener('playing', this.handlePlaying);
+            
+            if (this.audio.parentNode) {
+                this.audio.parentNode.removeChild(this.audio);
+            }
+            this.audio = null;
+        }
+        console.log('RadioService destroyed and cleaned up');
     }
 }
 
