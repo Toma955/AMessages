@@ -60,9 +60,11 @@ function CreateUser({
     // Kreira strukturu direktorija za korisničke podatke
     const userFolder = path.resolve(__dirname, `../database/users/${userId}`);
     const chatFolder = path.join(userFolder, "chat");
+    const mediaFolder = path.join(userFolder, "media");
 
     if (!fs.existsSync(userFolder)) fs.mkdirSync(userFolder, { recursive: true });
     if (!fs.existsSync(chatFolder)) fs.mkdirSync(chatFolder);
+    if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder);
 
     // Kreira korisničku bazu podataka: info.db
     const infoDb = new Database(path.join(userFolder, "info.db"));
@@ -79,6 +81,17 @@ function CreateUser({
         )
         .run();
     infoDb.close();
+
+    // Kreira bazu Userlist.db za popis korisnika i broj nepročitanih poruka
+    const userlistDb = new Database(path.join(userFolder, "Userlist.db"));
+    userlistDb.prepare(`
+        CREATE TABLE IF NOT EXISTS userlist (
+            id INTEGER PRIMARY KEY,
+            username TEXT NOT NULL,
+            unread_messages INTEGER DEFAULT 0
+        );
+    `).run();
+    userlistDb.close();
 
     // Kreira login evidenciju: login.db
     const loginDb = new Database(path.join(userFolder, "login.db"));

@@ -423,12 +423,27 @@ export default function ClientMainLayout({ children }) {
         }
     };
 
-    const handleAddChat = (user) => {
+    const handleAddChat = async (user) => {
         const chat = {
             id: user.id,
             username: user.username,
             avatar: `/avatars/${user.gender || 'default'}.png`
         };
+
+        // Pushaj korisnika u Userlist.db na backendu
+        try {
+            const token = localStorage.getItem('token');
+            await fetch('/api/users/userlist/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({ id: user.id, username: user.username })
+            });
+        } catch (e) {
+            console.error('Greška pri upisu u Userlist.db:', e);
+        }
 
         if (!chats.some(c => c.id === user.id)) {
             setChats(prevChats => [...prevChats, chat]);
@@ -832,6 +847,35 @@ export default function ClientMainLayout({ children }) {
         }
         // eslint-disable-next-line
     }, [currentStation, radioStations]);
+
+    useEffect(() => {
+        // Dohvati korisničku listu chatova iz Userlist.db
+        const fetchUserlist = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch('/api/users/userlist', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                if (data.success && Array.isArray(data.users)) {
+                    // Pretvori u chat objekte s avatarom
+                    const chatList = data.users.map(u => ({
+                        id: u.id,
+                        username: u.username,
+                        avatar: `/avatars/default.png`, // ili koristi info iz baze ako imaš
+                        unread_messages: u.unread_messages
+                    }));
+                    setChats(chatList);
+                }
+            } catch (e) {
+                console.error('Greška pri dohvaćanju userlist:', e);
+            }
+        };
+        fetchUserlist();
+    }, []);
 
     const renderMixerControls = () => {
         return (

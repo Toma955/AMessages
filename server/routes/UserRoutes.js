@@ -3,7 +3,9 @@ const {
     handleCreateUser,
     handleUpdateUser,
     handleDeleteUser,
-    handleGetAllUsers
+    handleGetAllUsers,
+    addUserToUserlist,
+    getUserlist
 } = require("../controllers/UserController");
 
 const jwtMiddleware = require("../middlewares/jwtMiddleware");
@@ -19,5 +21,9 @@ router.get("/users", handleGetAllUsers);
 router.get("/me", jwtMiddleware, (req, res) => {
     res.status(200).json({ success: true, user: req.user });
 });
+
+router.post("/users/userlist/add", jwtMiddleware, addUserToUserlist);
+
+router.get("/users/userlist", jwtMiddleware, getUserlist);
 
 module.exports = router;

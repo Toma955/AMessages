@@ -45,7 +45,11 @@ export default function SettingsWidget({ isVisible, onActivate }) {
                 }
             });
             if (res.ok) {
-                // Ovdje možeš dodati logout ili redirect logiku
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('isAdmin');
+                document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
                 window.location.href = '/login';
             } else {
                 alert('Greška pri brisanju računa.');
