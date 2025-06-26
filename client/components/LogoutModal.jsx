@@ -3,38 +3,27 @@
 import React from 'react';
 import styles from './LogoutModal.module.css';
 
-export default function LogoutModal({ isOpen, onClose, onConfirm, language = 'hr' }) {
+export default function LogoutModal({ isOpen, onClose, onConfirm, language = 'hr', message }) {
     if (!isOpen) return null;
 
-    const text = {
-        hr: {
-            title: 'Želite li izaći?',
-            yes: 'Da',
-            no: 'Ne'
-        },
-        en: {
-            title: 'Do you want to exit?',
-            yes: 'Yes',
-            no: 'No'
-        }
-    };
+    // Odredi poruku
+    let promptMessage = message;
+    if (!promptMessage) {
+        promptMessage = language === 'hr'
+            ? 'Želite li izaći?'
+            : 'Do you want to log out?';
+    }
 
     return (
         <div className={styles.overlay}>
             <div className={styles.modal}>
-                <h2>{text[language].title}</h2>
+                <p>{promptMessage}</p>
                 <div className={styles.buttons}>
-                    <button 
-                        className={styles.noButton}
-                        onClick={onClose}
-                    >
-                        {text[language].no}
+                    <button className={styles.yesButton} onClick={onConfirm}>
+                        {language === 'hr' ? 'Da' : 'Yes'}
                     </button>
-                    <button 
-                        className={styles.yesButton}
-                        onClick={onConfirm}
-                    >
-                        {text[language].yes}
+                    <button className={styles.noButton} onClick={onClose}>
+                        {language === 'hr' ? 'Ne' : 'No'}
                     </button>
                 </div>
             </div>

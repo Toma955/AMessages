@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post("/users", handleCreateUser);
 router.put("/users/:id", handleUpdateUser);
-router.delete("/users/:id", verifyAdminToken, handleDeleteUser);
+router.delete("/users/:id", jwtMiddleware, handleDeleteUser);
 router.get("/users", handleGetAllUsers);
 
 router.get("/me", jwtMiddleware, (req, res) => {

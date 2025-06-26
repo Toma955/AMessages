@@ -276,29 +276,26 @@ export default function ClientMainLayout({ children }) {
     };
 
     const handleLogout = async () => {
-        // Call backend logout to close session
         try {
-            const userId = localStorage.getItem('userId');
-            if (userId) {
-                await fetch('http://localhost:5000/api/logout', {
+            const token = localStorage.getItem('token');
+            if (token) {
+                await fetch('http://localhost:5000/api/auth/logout', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({ userId })
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
             }
         } catch (e) {
-            // Ignore errors, continue with logout
+            console.error('Logout error:', e);
         }
+        // Briši token i preusmjeri tek nakon što je fetch završen
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         localStorage.removeItem('isAdmin');
-        // Remove token cookie for all paths
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-        // Hard reload to ensure cookie is gone before middleware runs
         window.location.href = '/login';
     };
 

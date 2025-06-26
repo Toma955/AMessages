@@ -12,6 +12,11 @@ const loginDbPath = path.resolve(__dirname, "../../database/data/login.db");
 const handleDeleteUser = (req, res) => {
     const userId = req.params.id;
 
+    // Provjera: korisnik može obrisati samo svoj račun
+    if (!req.user || String(req.user.id) !== String(userId)) {
+        return res.status(403).json({ success: false, error_code: 'FORBIDDEN', message: 'Možete obrisati samo svoj račun.' });
+    }
+
     try {
         const clientDb = new Database(clientDbPath);
         const authDb = new Database(authDbPath);

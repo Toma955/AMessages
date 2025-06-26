@@ -6,36 +6,37 @@ const success = require("../../constants/success.json");
 const loginLogDbPath = path.resolve(__dirname, "../../database/data/login.db");
 
 const handleLogoutUser = (req, res) => {
-    const { userId } = req.body;
+    // Koristi userId iz JWT tokena (req.user.id) umjesto iz bodyja
+    const userId = req.user && req.user.id;
     const ip = req.ip;
+    console.log('Logout attempt:', { userId, ip });
 
-    // Provjera je li userId poslan
     if (!userId) {
         return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
     }
 
     const loginDb = new Database(loginLogDbPath);
 
-    // Dohvaća se najnovija aktivna sesija za korisnika s istom IP adresom
+    // Dohvaća se najnovija aktivna sesija za korisnika (bez obzira na IP adresu)
     const activeSession = loginDb
         .prepare(
             `
-        SELECT id FROM sessions
-        WHERE user_id = ? AND ip_address = ? AND status = 'active'
+        SELECT id, user_id, username, ip_address, login_time, logout_time, status FROM sessions
+        WHERE user_id = ? AND status = 'active'
         ORDER BY login_time DESC
         LIMIT 1
     `
         )
-        .get(userId, ip);
+        .get(userId);
+    console.log('Found active session:', activeSession);
 
-    // Ako aktivna sesija ne postoji, vrati grešku
     if (!activeSession) {
         loginDb.close();
+        console.log('No active session found for logout.');
         return res.status(404).json({ success: false, error_code: errors.SESSION_NOT_FOUND });
     }
 
-    // Zatvara se aktivna sesija
-    loginDb
+    const updateResult = loginDb
         .prepare(
             `
         UPDATE sessions
@@ -44,10 +45,10 @@ const handleLogoutUser = (req, res) => {
     `
         )
         .run(activeSession.id);
+    console.log('Logout update result:', updateResult);
 
     loginDb.close();
 
-    // Vraća se uspješan odgovor
     return res.status(200).json({ success: true, message_code: success.LOGOUT_SUCCESS });
 };
 

@@ -37,10 +37,16 @@ export default function SettingsWidget({ isVisible, onActivate }) {
             return;
         }
         try {
-            const res = await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+            const token = localStorage.getItem('token');
+            const res = await fetch(`/api/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                }
+            });
             if (res.ok) {
                 // Ovdje možeš dodati logout ili redirect logiku
-                window.location.href = '/signup';
+                window.location.href = '/login';
             } else {
                 alert('Greška pri brisanju računa.');
             }
@@ -98,6 +104,7 @@ export default function SettingsWidget({ isVisible, onActivate }) {
                 onClose={handleCloseModal}
                 onConfirm={handleConfirmDelete}
                 language={language === 'HR' ? 'hr' : 'en'}
+                message={language === 'HR' ? 'Želite li izbrisati account?' : 'Do you want to delete your account?'}
             />
         </div>
     );
