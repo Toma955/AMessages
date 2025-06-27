@@ -88,7 +88,8 @@ function CreateUser({
         CREATE TABLE IF NOT EXISTS userlist (
             id INTEGER PRIMARY KEY,
             username TEXT NOT NULL,
-            unread_messages INTEGER DEFAULT 0
+            unread_messages INTEGER DEFAULT 0,
+            last_message_at TEXT
         );
     `).run();
     userlistDb.close();

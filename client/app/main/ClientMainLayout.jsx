@@ -19,6 +19,8 @@ import '@/app/styles/chatListItem.css';
 import '@/app/styles/chatWindow.css';
 import styles from '@/app/styles/RecordPlayer.module.css';
 import RadioListWidget from '@/components/RadioListWidget';
+import EndToEndMessenger from '@/components/EndToEndMessenger/EndToEndMessenger';
+import { createPortal } from 'react-dom';
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -110,6 +112,12 @@ export default function ClientMainLayout({ children }) {
     const [showRadioList, setShowRadioList] = useState(false);
     const [radioWidgetAnim, setRadioWidgetAnim] = useState('');
     const [radioListAnim, setRadioListAnim] = useState('');
+
+    // Add state for delete area
+    const [showDeleteArea, setShowDeleteArea] = useState(false);
+    const [deleteAreaActive, setDeleteAreaActive] = useState(false);
+    const [deleteAnimationCount, setDeleteAnimationCount] = useState(0);
+    const [deleteAnimationKey, setDeleteAnimationKey] = useState(0);
 
     const updateHighlightPosition = (buttonElement) => {
         if (!buttonElement) return;
@@ -464,8 +472,73 @@ export default function ClientMainLayout({ children }) {
         }
     };
 
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        const draggingElement = document.querySelector('.dragging');
+        if (draggingElement) {
+            draggingElement.classList.add('drag-over');
+        }
+        // Check if over delete area
+        const chatArea = document.querySelector('.chat-area.panel-border');
+        const deleteArea = document.getElementById('delete-area');
+        if (deleteArea && chatArea) {
+            const deleteRect = deleteArea.getBoundingClientRect();
+            const mouseY = e.clientY;
+            if (mouseY > deleteRect.top) {
+                setDeleteAreaActive(true);
+            } else {
+                setDeleteAreaActive(false);
+            }
+        }
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        try {
+            const droppedChat = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const draggingElement = document.querySelector('.dragging');
+            if (draggingElement) {
+                draggingElement.classList.remove('drag-over');
+            }
+
+            const dropTarget = e.target.closest('.chat-list-item');
+            if (!dropTarget) return;
+
+            const draggedIndex = chats.findIndex(chat => chat.id === droppedChat.id);
+            const dropIndex = Array.from(dropTarget.parentNode.children).indexOf(dropTarget);
+
+            if (draggedIndex === dropIndex) return;
+
+            setChats(prevChats => {
+                const newChats = [...prevChats];
+                const [removed] = newChats.splice(draggedIndex, 1);
+                newChats.splice(dropIndex, 0, removed);
+                return newChats;
+            });
+        } catch (error) {
+            console.error('Error handling drop:', error);
+        }
+    };
+
     const handleChatDrop = (e) => {
         e.preventDefault();
+        const deleteArea = document.getElementById('delete-area');
+        if (deleteArea) {
+            const deleteRect = deleteArea.getBoundingClientRect();
+            if (e.clientY > deleteRect.top) {
+                // Drop on delete area: remove chat
+                try {
+                    const data = e.dataTransfer.getData('text/plain');
+                    let droppedChat = JSON.parse(data);
+                    setChats(prevChats => prevChats.filter(c => c.id !== droppedChat.id));
+                    setActiveChats(prev => prev.filter(c => c.id !== droppedChat.id));
+                } catch {}
+                setShowDeleteArea(false);
+                setDeleteAreaActive(false);
+                return;
+            }
+        }
+        // ... existing code for normal drop ...
         try {
             const data = e.dataTransfer.getData('text/plain');
             let droppedChat;
@@ -475,15 +548,12 @@ export default function ClientMainLayout({ children }) {
                 console.error('Invalid drop data:', data);
                 return;
             }
-            
             if (activeChats.some(chat => chat.id === droppedChat.id)) {
                 return;
             }
-
             if (activeChats.length >= 3) {
                 return;
             }
-
             const newChat = { ...droppedChat };
             setActiveChats(prev => {
                 const newChats = [...prev, newChat];
@@ -508,6 +578,8 @@ export default function ClientMainLayout({ children }) {
         } catch (error) {
             console.error('Error handling chat drop:', error);
         }
+        setShowDeleteArea(false);
+        setDeleteAreaActive(false);
     };
 
     const handleCloseChat = (chatId) => {
@@ -575,42 +647,6 @@ export default function ClientMainLayout({ children }) {
 
     const handleDeleteChat = (chat) => {
         setChats(prevChats => prevChats.filter(c => c.id !== chat.id));
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        const draggingElement = document.querySelector('.dragging');
-        if (draggingElement) {
-            draggingElement.classList.add('drag-over');
-        }
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        try {
-            const droppedChat = JSON.parse(e.dataTransfer.getData('text/plain'));
-            const draggingElement = document.querySelector('.dragging');
-            if (draggingElement) {
-                draggingElement.classList.remove('drag-over');
-            }
-
-            const dropTarget = e.target.closest('.chat-list-item');
-            if (!dropTarget) return;
-
-            const draggedIndex = chats.findIndex(chat => chat.id === droppedChat.id);
-            const dropIndex = Array.from(dropTarget.parentNode.children).indexOf(dropTarget);
-
-            if (draggedIndex === dropIndex) return;
-
-            setChats(prevChats => {
-                const newChats = [...prevChats];
-                const [removed] = newChats.splice(draggedIndex, 1);
-                newChats.splice(dropIndex, 0, removed);
-                return newChats;
-            });
-        } catch (error) {
-            console.error('Error handling drop:', error);
-        }
     };
 
     const handleSwapChats = () => {
@@ -860,13 +896,14 @@ export default function ClientMainLayout({ children }) {
                     }
                 });
                 const data = await res.json();
-                if (data.success && Array.isArray(data.users)) {
+                if (data.success && Array.isArray(data.userlist)) {
                     // Pretvori u chat objekte s avatarom
-                    const chatList = data.users.map(u => ({
+                    const chatList = data.userlist.map(u => ({
                         id: u.id,
                         username: u.username,
                         avatar: `/avatars/default.png`, // ili koristi info iz baze ako imaš
-                        unread_messages: u.unread_messages
+                        unread_messages: u.unread_messages,
+                        last_message_at: u.last_message_at
                     }));
                     setChats(chatList);
                 }
@@ -919,201 +956,302 @@ export default function ClientMainLayout({ children }) {
         );
     };
 
+    // Show delete area on drag start, hide on drag end
+    useEffect(() => {
+        const handleDragStart = () => {
+            setShowDeleteArea(true);
+            setDeleteAnimationCount(3);
+            setDeleteAnimationKey(Math.random());
+        };
+        const handleDragEnd = () => {
+            setShowDeleteArea(false);
+            setDeleteAreaActive(false);
+        };
+        window.addEventListener('dragstart', handleDragStart);
+        window.addEventListener('dragend', handleDragEnd);
+        return () => {
+            window.removeEventListener('dragstart', handleDragStart);
+            window.removeEventListener('dragend', handleDragEnd);
+        };
+    }, []);
+
+    // Handler for animation end
+    const handleDeleteAnimationEnd = () => {
+        if (deleteAnimationCount > 1) {
+            setDeleteAnimationCount(c => c - 1);
+            setDeleteAnimationKey(Math.random());
+        }
+    };
+
     return (
-        <div className="main-container" data-theme={currentTheme}>
-            <CanvasBackground currentTheme={currentTheme} />
-            <RecordPlayer 
-                isVisible={isRecordPlayerVisible}
-                onMenuClick={handleRecordPlayerMenuClick}
-                currentSong={currentSong}
-                setCurrentSong={setCurrentSong}
-                songs={songs}
-                playerVolume={playerVolume}
-            />
-            <RadioPlayer
-                ref={radioPlayerRef}
-                isVisible={isRadioPlayerVisible}
-                currentTheme={currentTheme}
-                onMenuClick={() => setIsRadioListVisible(!isRadioListVisible)}
-                isMenuActive={isRadioListVisible}
-                currentStation={currentStation}
-            />
-            <PianoWidget 
-                isVisible={isPianoVisible}
-                onActivate={handlePianoActivate}
-                isActive={isPianoActive}
-            />
-            <SettingsWidget
-                isVisible={isSettingsVisible}
-                onActivate={handleSettingsActivate}
-                isActive={isSettingsActive}
-            />
-            <div className="content-container">
-                <div 
-                    className={contactsPanelClass}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                >
-                    <div className="panel-content">
-                        {isRadioListVisible ? (
-                            <RadioListWidget
-                                isVisible={isRadioListVisible}
-                                onClose={() => setIsRadioListVisible(false)}
-                                onStationSelect={handleStationSelect}
-                                currentStation={currentStation}
-                            />
-                        ) : (
-                            (panelState === 'contacts' || panelState === 'animating-to-radio' || panelState === 'animating-to-contacts') && (
-                                <div className={`contacts-list${contactsAnim ? ' ' + contactsAnim : ''}`}> 
-                                    {isSongListActive ? (
-                                        <div className={`song-list${activePanel === 'radio' ? ' ' + styles.radioBgPanel : ''}`}>
-                                            {isSongListLoading ? (
-                                                <p>Loading songs...</p>
-                                            ) : songs.length > 0 ? (
-                                                <ul>
-                                                    {songs.map((song, index) => (
-                                                        <li
-                                                            key={index}
-                                                            onClick={() => handleSongSelect(song)}
-                                                            className={song === currentSong ? styles.frostedSongListItem : ''}
-                                                        >
-                                                            {song.replace(/\.mp3$|\.wav$|\.waw$/,'')}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            ) : (
-                                                <p>No songs found.</p>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        chats.map((chat, index) => (
-                                            <ChatListItem
-                                                key={chat.id}
-                                                chat={chat}
-                                                onDelete={handleDeleteChat}
-                                                onChat={handleChatClick}
-                                                onInfo={handleInfoClick}
-                                            />
-                                        ))
-                                    )}
-                                </div>
-                            )
-                        )}
-                    </div>
-                </div>
-                
-                <div 
-                    className="chat-area panel-border"
-                    onDragOver={handleDragOver}
-                    onDrop={handleChatDrop}
-                >
-                    {activeChats.length === 0 && (
-                        <div className="drop-chat-hint">
-                            Drag a chat here or click the chat button to start a conversation
+        <>
+            <div className="main-container" data-theme={currentTheme}>
+                <CanvasBackground currentTheme={currentTheme} />
+                <RecordPlayer 
+                    isVisible={isRecordPlayerVisible}
+                    onMenuClick={handleRecordPlayerMenuClick}
+                    currentSong={currentSong}
+                    setCurrentSong={setCurrentSong}
+                    songs={songs}
+                    playerVolume={playerVolume}
+                />
+                <RadioPlayer
+                    ref={radioPlayerRef}
+                    isVisible={isRadioPlayerVisible}
+                    currentTheme={currentTheme}
+                    onMenuClick={() => setIsRadioListVisible(!isRadioListVisible)}
+                    isMenuActive={isRadioListVisible}
+                    currentStation={currentStation}
+                />
+                <PianoWidget 
+                    isVisible={isPianoVisible}
+                    onActivate={handlePianoActivate}
+                    isActive={isPianoActive}
+                />
+                <SettingsWidget
+                    isVisible={isSettingsVisible}
+                    onActivate={handleSettingsActivate}
+                    isActive={isSettingsActive}
+                />
+                <div className="content-container">
+                    <div 
+                        className={contactsPanelClass}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                    >
+                        <div className="panel-content">
+                            {isRadioListVisible ? (
+                                <RadioListWidget
+                                    isVisible={isRadioListVisible}
+                                    onClose={() => setIsRadioListVisible(false)}
+                                    onStationSelect={handleStationSelect}
+                                    currentStation={currentStation}
+                                />
+                            ) : (
+                                (panelState === 'contacts' || panelState === 'animating-to-radio' || panelState === 'animating-to-contacts') && (
+                                    <div className={`contacts-list${contactsAnim ? ' ' + contactsAnim : ''}`}> 
+                                        {isSongListActive ? (
+                                            <div className={`song-list${activePanel === 'radio' ? ' ' + styles.radioBgPanel : ''}`}>
+                                                {isSongListLoading ? (
+                                                    <p>Loading songs...</p>
+                                                ) : songs.length > 0 ? (
+                                                    <ul>
+                                                        {songs.map((song, index) => (
+                                                            <li
+                                                                key={index}
+                                                                onClick={() => handleSongSelect(song)}
+                                                                className={song === currentSong ? styles.frostedSongListItem : ''}
+                                                            >
+                                                                {song.replace(/\.mp3$|\.wav$|\.waw$/,'')}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                ) : (
+                                                    <p>No songs found.</p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            chats.map((chat, index) => (
+                                                <ChatListItem
+                                                    key={chat.id}
+                                                    chat={chat}
+                                                    onDelete={handleDeleteChat}
+                                                    onChat={handleChatClick}
+                                                    onInfo={handleInfoClick}
+                                                    onMessages={handleChatClick}
+                                                />
+                                            ))
+                                        )}
+                                    </div>
+                                )
+                            )}
                         </div>
-                    )}
-                    <div className="active-chats-container">
-                        {activeChats.map((chat, index) => (
-                            <ChatWindow
-                                key={chat.id}
-                                chat={chat}
-                                width={chatWidths[chat.id]}
-                                onClose={() => handleCloseChat(chat.id)}
-                                data-chat-id={chat.id}
+                    </div>
+                    
+                    <div className="chat-area panel-border" onDragOver={handleDragOver} onDrop={handleChatDrop}>
+                        {activeChats.length === 0 && (
+                            <div className="drop-chat-hint">
+                                Drag a chat here or click the chat button to start a conversation
+                            </div>
+                        )}
+                        {activeChats.length === 1 && (
+                            <EndToEndMessenger
+                                key={activeChats[0].id}
+                                chat={activeChats[0]}
+                                width={'100%'}
+                                onClose={() => handleCloseChat(activeChats[0].id)}
+                                data-chat-id={activeChats[0].id}
+                                isSingle={true}
                             />
-                        ))}
+                        )}
                         {activeChats.length >= 2 && (
-                            <div className="chat-vertical-controls">
-                                <div className="vertical-line"></div>
-                                <div className="controls-square">
-                                    <button
-                                        onClick={handleSwapChats}
-                                        title="Swap chat positions"
-                                    >
-                                        <Image
-                                            src="/icons/Swap.png"
-                                            alt="Swap"
-                                            width={24}
-                                            height={24}
-                                        />
-                                    </button>
-                                    <button
-                                        onClick={handleSlideLeft}
-                                        title="Slide left chat out"
-                                        className="slide-left-btn"
-                                    >
-                                        <Image
-                                            src="/icons/Slide.png"
-                                            alt="Slide left"
-                                            width={24}
-                                            height={24}
-                                        />
-                                    </button>
-                                    <button
-                                        onClick={handleSlideRight}
-                                        title="Slide right chat out"
-                                        className="slide-right-btn"
-                                    >
-                                        <Image
-                                            src="/icons/Slide.png"
-                                            alt="Slide right"
-                                            width={24}
-                                            height={24}
-                                            style={{ transform: 'rotate(180deg)' }}
-                                        />
-                                    </button>
-                                </div>
+                            <div className="active-chats-container">
+                                {activeChats.map((chat, index) => (
+                                    <EndToEndMessenger
+                                        key={chat.id}
+                                        chat={chat}
+                                        width={chatWidths[chat.id]}
+                                        onClose={() => handleCloseChat(chat.id)}
+                                        data-chat-id={chat.id}
+                                        isSingle={false}
+                                    />
+                                ))}
+                                <>
+                                    <div className="vertical-line"></div>
+                                    <div className="controls-square">
+                                        <button
+                                            onClick={handleSwapChats}
+                                            title="Swap chat positions"
+                                        >
+                                            <Image
+                                                src="/icons/Swap.png"
+                                                alt="Swap"
+                                                width={24}
+                                                height={24}
+                                            />
+                                        </button>
+                                        <button
+                                            onClick={handleSlideLeft}
+                                            title="Slide left chat out"
+                                            className="slide-left-btn"
+                                        >
+                                            <Image
+                                                src="/icons/Slide.png"
+                                                alt="Slide left"
+                                                width={24}
+                                                height={24}
+                                            />
+                                        </button>
+                                        <button
+                                            onClick={handleSlideRight}
+                                            title="Slide right chat out"
+                                            className="slide-right-btn"
+                                        >
+                                            <Image
+                                                src="/icons/Slide.png"
+                                                alt="Slide right"
+                                                width={24}
+                                                height={24}
+                                            />
+                                        </button>
+                                    </div>
+                                </>
                             </div>
                         )}
                     </div>
-                </div>
 
-                <div className="details-panel panel-border" ref={detailsPanelRef}>
-                    <div className="icon-container">
-                        <div 
-                            className="theme-highlight"
-                            style={highlightStyle}
-                        />
-                        {!isMixerView ? (
-                            currentIcons.map((icon, index) => (
-                                <div key={icon.name} className="icon-wrapper">
-                                    <button 
-                                        data-name={icon.name}
-                                        className={`icon-button ${
-                                            icon.name === "Arrow" ? 
-                                            (isThemeView ? 'submenu-view' : 'menu-view') : ''
-                                        }`}
-                                        onClick={(e) => handleIconClick(icon.name, e)}
-                                        onDoubleClick={(e) => handleDoubleClick(icon.name, e)}
-                                        disabled={isTransitioning}
-                                    >
-                                        <img 
-                                            src={`/icons/${icon.name}.png`}
-                                            alt={icon.alt}
-                                            width={48}
-                                            height={48}
-                                        />
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            renderMixerControls()
-                        )}
+                    <div className="details-panel panel-border" ref={detailsPanelRef}>
+                        <div className="icon-container">
+                            <div 
+                                className="theme-highlight"
+                                style={highlightStyle}
+                            />
+                            {!isMixerView ? (
+                                currentIcons.map((icon, index) => (
+                                    <div key={icon.name} className="icon-wrapper">
+                                        <button 
+                                            data-name={icon.name}
+                                            className={`icon-button ${
+                                                icon.name === "Arrow" ? 
+                                                (isThemeView ? 'submenu-view' : 'menu-view') : ''
+                                            }`}
+                                            onClick={(e) => handleIconClick(icon.name, e)}
+                                            onDoubleClick={(e) => handleDoubleClick(icon.name, e)}
+                                            disabled={isTransitioning}
+                                        >
+                                            <img 
+                                                src={`/icons/${icon.name}.png`}
+                                                alt={icon.alt}
+                                                width={48}
+                                                height={48}
+                                            />
+                                        </button>
+                                    </div>
+                                ))
+                            ) : (
+                                renderMixerControls()
+                            )}
+                        </div>
                     </div>
                 </div>
+                
+                {/* Search Widget */}
+                {showSearch && (
+                    <SearchWidget onClose={handleCloseSearch} onAddChat={handleAddChat} />
+                )}
+                {/* Logout Modal */}
+                <LogoutModal
+                    isOpen={isLogoutModalOpen}
+                    onClose={() => setIsLogoutModalOpen(false)}
+                    onConfirm={handleLogout}
+                    language="hr"
+                />
             </div>
-            
-            {/* Search Widget */}
-            {showSearch && (
-                <SearchWidget onClose={handleCloseSearch} onAddChat={handleAddChat} />
+            {/* PORTAL za overlay i delete ikonu */}
+            {typeof window !== 'undefined' && createPortal(
+                <>
+                    {showDeleteArea && deleteAreaActive && (
+                        <div 
+                            style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                width: '100vw',
+                                height: '100vh',
+                                background: 'rgba(0,0,0,0.45)',
+                                backdropFilter: 'blur(4px)',
+                                zIndex: 9998,
+                                pointerEvents: 'none',
+                                transition: 'opacity 0.18s',
+                            }}
+                        />
+                    )}
+                    {showDeleteArea && (
+                        <div 
+                            id="delete-area" 
+                            key={deleteAnimationKey}
+                            style={{
+                                position: 'fixed',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                bottom: 40,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'flex-end',
+                                zIndex: 9999,
+                                pointerEvents: 'none',
+                                animation: deleteAnimationCount > 0 ? 'fadeInDelete 0.18s' : 'none',
+                                opacity: 1,
+                            }}
+                            onAnimationEnd={handleDeleteAnimationEnd}
+                        >
+                            <div style={{
+                                pointerEvents: 'auto',
+                                transition: 'transform 0.18s',
+                                transform: deleteAreaActive ? 'scale(1.6)' : 'scale(1)',
+                                display: 'flex',
+                                alignItems: 'flex-end',
+                                justifyContent: 'center',
+                            }}>
+                                <Image 
+                                    src="/icons/Delete.png" 
+                                    alt="Delete" 
+                                    width={128} 
+                                    height={128} 
+                                    style={{ 
+                                        filter: deleteAreaActive 
+                                            ? 'drop-shadow(0 0 64px red) drop-shadow(0 0 32px red)' 
+                                            : 'none',
+                                        transition: 'filter 0.18s',
+                                        objectFit: 'contain',
+                                    }} 
+                                />
+                            </div>
+                        </div>
+                    )}
+                </>,
+                document.body
             )}
-            {/* Logout Modal */}
-            <LogoutModal
-                isOpen={isLogoutModalOpen}
-                onClose={() => setIsLogoutModalOpen(false)}
-                onConfirm={handleLogout}
-                language="hr"
-            />
-        </div>
+        </>
     );
 }

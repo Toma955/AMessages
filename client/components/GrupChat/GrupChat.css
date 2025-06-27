@@ -1,0 +1,15 @@
+.grup-chat {
+    padding: 24px;
+    background: #f0f4ff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    max-width: 500px;
+    margin: 32px auto;
+}
+
+.grup-chat h2 {
+    margin-bottom: 16px;
+    color: #2a2a2a;
+    font-size: 1.5rem;
+    text-align: center;
+} 

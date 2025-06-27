@@ -43,7 +43,24 @@ const sendMessage = (req, res) => {
 
     for (const dbPath of paths) {
       if (!fs.existsSync(dbPath)) {
-        throw new Error(`Missing hot.db for path: ${dbPath}`);
+        // Ako baza ne postoji, kreiraj je i tablicu 'messages'
+        const dbDir = path.dirname(dbPath);
+        if (!fs.existsSync(dbDir)) {
+          fs.mkdirSync(dbDir, { recursive: true });
+        }
+        const db = new Database(dbPath);
+        db.prepare(`
+          CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender_id INTEGER NOT NULL,
+            receiver_id INTEGER NOT NULL,
+            message TEXT NOT NULL,
+            sent_at TEXT NOT NULL,
+            status TEXT NOT NULL,
+            direction TEXT NOT NULL
+          );
+        `).run();
+        db.close();
       }
 
       const db = new Database(dbPath);
@@ -59,6 +76,27 @@ const sendMessage = (req, res) => {
         payload.direction
       );
       db.close();
+
+      // Ažuriraj Userlist.db za primatelja (samo ako je ovo baza primatelja)
+      if (dbPath.includes(`/users/${receiverId}/`)) {
+        const userlistDbPath = path.resolve(__dirname, `../../database/users/${receiverId}/Userlist.db`);
+        const userlistDb = new Database(userlistDbPath);
+        // Provjeri postoji li već pošiljatelj
+        const existing = userlistDb.prepare('SELECT * FROM userlist WHERE id = ?').get(senderId);
+        if (existing) {
+          userlistDb.prepare('UPDATE userlist SET unread_messages = unread_messages + 1, last_message_at = ? WHERE id = ?')
+            .run(payload.sent_at, senderId);
+        } else {
+          // Dohvati username pošiljatelja (iz baze podataka)
+          const clientDbPath = path.resolve(__dirname, '../../database/data/client_info.db');
+          const clientDb = new Database(clientDbPath);
+          const sender = clientDb.prepare('SELECT username FROM clients WHERE id = ?').get(senderId);
+          clientDb.close();
+          userlistDb.prepare('INSERT INTO userlist (id, username, unread_messages, last_message_at) VALUES (?, ?, 1, ?)')
+            .run(senderId, sender?.username || 'Unknown', payload.sent_at);
+        }
+        userlistDb.close();
+      }
     }
 
     return res.status(201).json({

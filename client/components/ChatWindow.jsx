@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
+import * as Sentry from "@sentry/nextjs";
 
 export default function ChatWindow({ chat, onClose, width = '100%' }) {
     const [message, setMessage] = useState('');
@@ -16,22 +17,92 @@ export default function ChatWindow({ chat, onClose, width = '100%' }) {
         scrollToBottom();
     }, [messages]);
 
-    const handleSubmit = (e) => {
+    // Funkcija za slanje poruke na backend
+    async function sendMessageToUser(receiverId, message) {
+        const token = localStorage.getItem('token');
+        const url = 'http://localhost:5000/api/messages/send';
+        console.log('Sending message to:', url, 'with token:', token);
+        
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                    receiverId,
+                    message
+                })
+            });
+            const data = await res.json();
+            
+            // Track successful message sending
+            Sentry.addBreadcrumb({
+                category: 'message',
+                message: 'Message sent successfully',
+                level: 'info',
+                data: {
+                    receiverId,
+                    messageLength: message.length,
+                    responseStatus: res.status
+                }
+            });
+            
+            return data;
+        } catch (error) {
+            // Capture error in Sentry
+            Sentry.captureException(error, {
+                tags: {
+                    component: 'ChatWindow',
+                    action: 'sendMessage'
+                },
+                extra: {
+                    receiverId,
+                    messageLength: message.length,
+                    url
+                }
+            });
+            throw error;
+        }
+    }
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!message.trim()) return;
 
-        // Add new message to the list
-        setMessages(prev => [...prev, {
-            id: Date.now(),
-            text: message,
-            sender: 'me',
-            timestamp: new Date().toISOString()
-        }]);
-
-        // Clear input
-        setMessage('');
-
-        // TODO: Send message to backend
+        try {
+            // Pošalji poruku na backend
+            const response = await sendMessageToUser(chat.id, message);
+            if (response.success) {
+                // Dodaj novu poruku u lokalni state
+                setMessages(prev => [...prev, {
+                    id: Date.now(),
+                    text: message,
+                    sender: 'me',
+                    timestamp: new Date().toISOString()
+                }]);
+                setMessage('');
+            } else {
+                // Track failed message sending
+                Sentry.captureMessage('Failed to send message', {
+                    level: 'error',
+                    tags: {
+                        component: 'ChatWindow',
+                        action: 'handleSubmit'
+                    },
+                    extra: {
+                        response,
+                        receiverId: chat.id,
+                        messageLength: message.length
+                    }
+                });
+                alert('Greška pri slanju poruke!');
+            }
+        } catch (error) {
+            console.error('Error sending message:', error);
+            alert('Greška pri slanju poruke!');
+        }
     };
 
     const handleClearMessage = () => {
@@ -88,45 +159,43 @@ export default function ChatWindow({ chat, onClose, width = '100%' }) {
                 <div ref={messagesEndRef} />
             </div>
 
-            {messages.length > 0 && (
-                <form onSubmit={handleSubmit} className="message-input-container">
-                    <input
-                        type="text"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Type a message..."
-                        className="message-input"
-                    />
-                    <div className="message-actions">
-                        <button 
-                            type="button" 
-                            className="action-button"
-                            onClick={handleClearMessage}
-                            title="Clear message"
-                        >
-                            <Image
-                                src="/icons/Delete.png"
-                                alt="Clear"
-                                width={20}
-                                height={20}
-                            />
-                        </button>
-                        <button 
-                            type="submit" 
-                            className="send-button"
-                            disabled={!message.trim()}
-                            title="Send message"
-                        >
-                            <Image
-                                src="/icons/Send.png"
-                                alt="Send"
-                                width={20}
-                                height={20}
-                            />
-                        </button>
-                    </div>
-                </form>
-            )}
+            <form onSubmit={handleSubmit} className="message-input-container">
+                <input
+                    type="text"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Type a message..."
+                    className="message-input"
+                />
+                <div className="message-actions">
+                    <button 
+                        type="button" 
+                        className="action-button"
+                        onClick={handleClearMessage}
+                        title="Clear message"
+                    >
+                        <Image
+                            src="/icons/Delete.png"
+                            alt="Clear"
+                            width={20}
+                            height={20}
+                        />
+                    </button>
+                    <button 
+                        type="submit" 
+                        className="send-button"
+                        disabled={!message.trim()}
+                        title="Send message"
+                    >
+                        <Image
+                            src="/icons/Send.png"
+                            alt="Send"
+                            width={20}
+                            height={20}
+                        />
+                    </button>
+                </div>
+            </form>
         </div>
     );
 } 

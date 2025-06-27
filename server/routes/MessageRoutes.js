@@ -11,15 +11,17 @@ const {
 } = require("../controllers/MessageController");
 
 const jwtMiddleware = require("../middlewares/jwtMiddleware");
+const markMessagesAsRead = require("../controllers/conversations/markMessagesAsRead");
 
-router.get("/messages", jwtMiddleware, getAllMessages);
-router.post("/messages/start", jwtMiddleware, startConversation);
-router.post("/messages/send", jwtMiddleware, sendMessage);
-router.get("/messages/:userId", jwtMiddleware, receiveMessages);
-router.post("/messages/archive/:userId", jwtMiddleware, (req, res) => {
+router.get("/", jwtMiddleware, getAllMessages);
+router.post("/start", jwtMiddleware, startConversation);
+router.post("/send", jwtMiddleware, sendMessage);
+router.get("/:userId", jwtMiddleware, receiveMessages);
+router.post("/archive/:userId", jwtMiddleware, (req, res) => {
     archiveMessages(req.user.id, req.params.userId);
     res.status(200).json({ success: true });
 });
-router.delete("/messages/:userId", jwtMiddleware, deleteConversation);
+router.delete("/:userId", jwtMiddleware, deleteConversation);
+router.post("/read", jwtMiddleware, markMessagesAsRead);
 
 module.exports = router;

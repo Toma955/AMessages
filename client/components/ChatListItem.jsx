@@ -45,7 +45,11 @@ export default function ChatListItem({ chat, onDelete, onChat, onInfo }) {
             <div className="chat-list-content">
                 <div className="chat-list-avatar">
                     <Image
-                        src={chat.avatar}
+                        src={
+                            chat.gender === 'male'
+                                ? '/icons/Man.png'
+                                : '/icons/Woman.png'
+                        }
                         alt={chat.username}
                         width={64}
                         height={64}

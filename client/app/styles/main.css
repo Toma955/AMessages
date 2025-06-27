@@ -128,6 +128,23 @@
     z-index: 2;
 }
 
+.content-container.single-chat {
+    gap: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.chat-area.panel-border.single-chat {
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: var(--border-radius);
+    box-sizing: border-box;
+}
+
 .panel-border {
     position: relative;
     background: var(--panel-bg);

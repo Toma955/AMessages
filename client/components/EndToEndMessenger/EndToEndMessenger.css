@@ -1,0 +1,229 @@
+.end-to-end-messenger {
+    padding: 24px;
+    background: #f7f7fa;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    max-width: 500px;
+    margin: 32px auto;
+}
+
+.end-to-end-messenger h2 {
+    margin-bottom: 16px;
+    color: #333;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+/* Migrated from chatWindow.css for EndToEndMessenger */
+.end2end-window {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--panel-bg);
+    position: relative;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    overflow: hidden;
+    transition: width 0.2s ease;
+}
+
+.end2end-window:hover {
+    border-color: var(--theme-primary);
+}
+
+.end2end-window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--panel-bg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    border-radius: 22px 22px 0 0;
+}
+
+.end2end-user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.end2end-avatar {
+    border-radius: 50%;
+}
+
+.end2end-username {
+    font-weight: 500;
+    color: var(--text);
+    text-align: center;
+}
+
+.end2end-close-chat {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    z-index: 1;
+}
+
+.end2end-close-chat:hover {
+    background: rgba(255, 0, 0, 0.1);
+}
+
+.end2end-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--panel-bg);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.end2end-message {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+    margin-bottom: 8px;
+}
+
+.end2end-message.sent {
+    align-self: flex-end;
+    background: var(--theme-primary);
+    color: #fff;
+    border-radius: 16px 16px 4px 16px;
+    padding: 8px 14px;
+}
+
+.end2end-message.received {
+    align-self: flex-start;
+    background: #fff;
+    color: var(--text);
+    border-radius: 16px 16px 16px 4px;
+    padding: 8px 14px;
+}
+
+.end2end-message-content {
+    font-size: 1rem;
+    word-break: break-word;
+}
+
+.end2end-message-timestamp {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 2px;
+    text-align: right;
+}
+
+.end2end-message-input-container {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--panel-bg);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 0 22px 22px;
+    gap: 8px;
+}
+
+.end2end-message-input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 16px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    outline: none;
+    background: #fff;
+    color: var(--text);
+    transition: border 0.2s;
+}
+
+.end2end-message-input:focus {
+    border-color: var(--theme-primary);
+}
+
+.end2end-send-button {
+    background: var(--theme-primary);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.end2end-send-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.end2end-send-button:not(:disabled):hover {
+    background: #0056b3;
+}
+
+.end2end-action-button {
+    background: none;
+    border: none;
+    padding: 6px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.end2end-action-button:hover {
+    background: rgba(0,0,0,0.07);
+}
+
+.end2end-message-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.enter-to-send-active {
+    background: #2ecc40 !important;
+    color: #fff;
+    box-shadow: 0 0 0 2px #2ecc4033;
+}
+
+.chat-area.panel-border.single-chat .end2end-window {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 24px;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.chat-area.panel-border.single-chat .active-chats-container {
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.chat-area.panel-border > .end2end-window:only-child {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+} 

@@ -3,7 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const helmet = require("helmet");
 const Sentry = require("@sentry/node");
-const { handleNodeRequest, handleNodeError } = require("@sentry/node");
+// const { Express: SentryExpress } = require("@sentry/integrations"); // više nije potrebno
 const startupChecks = require("./utils/startupChecks");
 const path = require('path');
 const passport = require('./config/passport');
@@ -48,19 +48,15 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
 
 console.log(`Admin credentials loaded: ${ADMIN_USERNAME}`);
 
-Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    tracesSampleRate: 1.0
-});
-
 const app = express();
 
-/*
-app.use((req, res, next) => {
-    handleNodeRequest(req, res);
-    next();
+// Initialize Sentry
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: 1.0,
+    environment: process.env.NODE_ENV || 'development',
+    profilesSampleRate: 1.0,
 });
-*/
 
 // Enable CORS for frontend
 app.use(cors({
@@ -97,7 +93,7 @@ app.get("/metrics", async (req, res) => {
     res.end(await client.register.metrics());
 });
 
-require("./routes")(app);
+// require("./routes")(app);
 app.use("/api/auth", require("./routes/AuthRoutes"));
 app.use("/api/auth", require("./routes/GoogleAuthRoutes"));
 app.use("/api/group", require("./routes/GroupRoutes"));
@@ -113,6 +109,10 @@ app.get("/test", (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
+    
+    // Capture error in Sentry
+    Sentry.captureException(err);
+    
     res.status(500).json({ 
         success: false, 
         error_code: 'INTERNAL_SERVER_ERROR',
@@ -133,6 +133,7 @@ async function startServer() {
         });
     } catch (err) {
         console.error("Startup failed:", err.message);
+        Sentry.captureException(err);
         process.exit(1);
     }
 }
