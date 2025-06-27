@@ -3,7 +3,7 @@ import Image from 'next/image';
 import * as Sentry from "@sentry/nextjs";
 import './EndToEndMessenger.css';
 
-export default function EndToEndMessenger({ chat, onClose, width = '100%', isSingle = false }) {
+export default function EndToEndMessenger({ chat, onClose, width = '100%', isSingle = false, style = {} }) {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const [enterToSend, setEnterToSend] = useState(false);
@@ -114,7 +114,7 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     };
 
     return (
-        <div className="end2end-window" style={{ width: isSingle ? '100%' : width, height: isSingle ? '100%' : 'auto' }}>
+        <div className="end2end-window" style={isSingle ? { height: 'auto', ...style } : { width, ...style }}>
             <div className="end2end-window-header">
                 <div className="end2end-user-info">
                     <Image
