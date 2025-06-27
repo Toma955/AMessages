@@ -1013,7 +1013,7 @@ export default function ClientMainLayout({ children }) {
                     onActivate={handleSettingsActivate}
                     isActive={isSettingsActive}
                 />
-                <div className="content-container">
+                <div className={`content-container${activeChats.length === 1 ? ' single-chat' : ''}`}>
                     <div 
                         className={contactsPanelClass}
                         onDragOver={handleDragOver}
@@ -1069,75 +1069,49 @@ export default function ClientMainLayout({ children }) {
                     </div>
                     
                     <div className="chat-area panel-border" onDragOver={handleDragOver} onDrop={handleChatDrop}>
-                        {activeChats.length === 0 && (
-                            <div className="drop-chat-hint">
-                                Drag a chat here or click the chat button to start a conversation
-                            </div>
-                        )}
-                        {activeChats.length === 1 && (
-                            <EndToEndMessenger
-                                key={activeChats[0].id}
-                                chat={activeChats[0]}
-                                width={'100%'}
-                                onClose={() => handleCloseChat(activeChats[0].id)}
-                                data-chat-id={activeChats[0].id}
-                                isSingle={true}
-                            />
-                        )}
-                        {activeChats.length >= 2 && (
-                            <div className="active-chats-container">
-                                {activeChats.map((chat, index) => (
-                                    <EndToEndMessenger
-                                        key={chat.id}
-                                        chat={chat}
-                                        width={chatWidths[chat.id]}
-                                        onClose={() => handleCloseChat(chat.id)}
-                                        data-chat-id={chat.id}
-                                        isSingle={false}
-                                    />
-                                ))}
-                                <>
-                                    <div className="vertical-line"></div>
-                                    <div className="controls-square">
-                                        <button
-                                            onClick={handleSwapChats}
-                                            title="Swap chat positions"
-                                        >
-                                            <Image
-                                                src="/icons/Swap.png"
-                                                alt="Swap"
-                                                width={24}
-                                                height={24}
-                                            />
-                                        </button>
-                                        <button
-                                            onClick={handleSlideLeft}
-                                            title="Slide left chat out"
-                                            className="slide-left-btn"
-                                        >
-                                            <Image
-                                                src="/icons/Slide.png"
-                                                alt="Slide left"
-                                                width={24}
-                                                height={24}
-                                            />
-                                        </button>
-                                        <button
-                                            onClick={handleSlideRight}
-                                            title="Slide right chat out"
-                                            className="slide-right-btn"
-                                        >
-                                            <Image
-                                                src="/icons/Slide.png"
-                                                alt="Slide right"
-                                                width={24}
-                                                height={24}
-                                            />
-                                        </button>
+                        <div
+                            className="active-chats-container"
+                            style={{
+                                display: 'flex',
+                                alignItems: 'stretch',
+                                justifyContent: 'center',
+                                width: '100%',
+                                height: '100%',
+                                gap: activeChats.length > 1 ? '2%' : 0,
+                                paddingLeft: activeChats.length > 1 ? '0.5%' : 0,
+                                paddingRight: activeChats.length > 1 ? '0.5%' : 0,
+                                position: 'relative',
+                            }}
+                        >
+                            {activeChats.map((chat, idx) => (
+                                <EndToEndMessenger
+                                    key={chat.id}
+                                    chat={chat}
+                                    style={activeChats.length > 1 ? { width: '49%' } : { width: '100%' }}
+                                    onClose={() => handleCloseChat(chat.id)}
+                                    data-chat-id={chat.id}
+                                    isSingle={activeChats.length === 1}
+                                />
+                            ))}
+                            {activeChats.length === 2 && (
+                                <div style={{ position: 'relative', width: 0, flexShrink: 0 }}>
+                                    <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <div className="vertical-line"></div>
+                                        <div className="controls-square">
+                                            <button onClick={handleSwapChats} title="Swap chat positions">
+                                                <Image src="/icons/Swap.png" alt="Swap" width={24} height={24} />
+                                            </button>
+                                            <button onClick={handleSlideLeft} title="Slide left chat out" className="slide-left-btn">
+                                                <Image src="/icons/Slide.png" alt="Slide left" width={24} height={24} />
+                                            </button>
+                                            <button onClick={handleSlideRight} title="Slide right chat out" className="slide-right-btn">
+                                                <Image src="/icons/Slide.png" alt="Slide right" width={24} height={24} />
+                                            </button>
+                                        </div>
                                     </div>
-                                </>
-                            </div>
-                        )}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     <div className="details-panel panel-border" ref={detailsPanelRef}>

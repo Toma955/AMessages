@@ -138,11 +138,18 @@
 
 .chat-area.panel-border.single-chat {
     width: 100% !important;
-    height: 100% !important;
+    height: 90% !important;
     margin: 0 !important;
     padding: 0 !important;
     border-radius: var(--border-radius);
     box-sizing: border-box;
+}
+
+.chat-area.panel-border.single-chat {
+    /* Formula: početni(32) + widget(240) + razmak(32) + dodatno(50) - smanjenje(140) */
+    margin-top: calc(32px + 240px + 32px + 50px - 140px);
+    height: calc(100% - (32px + 240px + 32px + 50px - 140px));
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .panel-border {
@@ -155,23 +162,7 @@
 }
 
 .panel-border::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: var(--border-radius);
-    padding: var(--border-width);
-    background: linear-gradient(45deg, #E97451, #ff9977, #E97451);
-    -webkit-mask: 
-        linear-gradient(#fff 0 0) content-box, 
-        linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: gradientBorder var(--gradient-animation-duration) linear infinite;
-    pointer-events: none;
-    transition: all 1.5s ease;
+    display: none !important;
 }
 
 /* Green theme border animation */
@@ -1183,13 +1174,11 @@
 
 .active-chats-container {
     display: flex;
-    flex-wrap: wrap;
+    align-items: stretch;
     justify-content: center;
-    align-items: flex-start;
-    gap: 20px;
-    padding: 20px;
     height: 100%;
     overflow-y: auto;
+    /* Layout za dva chata (width, gap, padding) kontrolira se inline stilovima iz Reacta */
 }
 
 .drop-chat-hint {
@@ -1386,5 +1375,18 @@
 .contacts-list.song-list p {
     text-align: center;
     padding: 20px;
+}
+
+.active-chats-container:empty {
+    overflow-y: hidden !important;
+}
+
+.chat-area.panel-border:has(.active-chats-container:empty)::before {
+    display: none !important;
+}
+
+.contacts-panel.panel-border::before,
+.details-panel.panel-border::before {
+    display: none !important;
 }
 
