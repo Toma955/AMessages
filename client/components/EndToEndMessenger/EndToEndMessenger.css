@@ -20,7 +20,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background: var(--panel-bg);
+    background: rgba(0,0,0,0.7);
     position: relative;
     border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 24px;
@@ -34,7 +34,7 @@
 
 .end2end-window-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     padding: 12px 16px;
     background: var(--panel-bg);
@@ -47,9 +47,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
 }
 
 .end2end-avatar {
@@ -226,4 +223,33 @@
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+}
+
+.end2end-window-header-centered {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 16px;
+    background: var(--panel-bg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    border-radius: 22px 22px 0 0;
+}
+
+.chat-header-actions-centered {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.end2end-header-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
 } 

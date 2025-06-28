@@ -119,6 +119,17 @@ export default function ClientMainLayout({ children }) {
     const [deleteAnimationCount, setDeleteAnimationCount] = useState(0);
     const [deleteAnimationKey, setDeleteAnimationKey] = useState(0);
 
+    const [isHoveringResize, setIsHoveringResize] = useState(false);
+    const lastChatWidths = useRef({});
+
+    // Dodaj state za poziciju controls-between-chats
+    const [controlsLeft, setControlsLeft] = useState('50%');
+
+    const [hoveredChatId, setHoveredChatId] = useState(null);
+    const [draggedChatId, setDraggedChatId] = useState(null);
+
+    const [removingChatId, setRemovingChatId] = useState(null);
+
     const updateHighlightPosition = (buttonElement) => {
         if (!buttonElement) return;
         
@@ -667,29 +678,13 @@ export default function ClientMainLayout({ children }) {
     const handleSlideLeft = () => {
         if (activeChats.length !== 2) return;
         const [first] = activeChats;
-        const firstEl = document.querySelector(`[data-chat-id="${first.id}"]`);
-        
-        if (firstEl) {
-            firstEl.classList.add('sliding-left');
-            setTimeout(() => {
-                handleCloseChat(first.id);
-                firstEl.classList.remove('sliding-left');
-            }, 300);
-        }
+        handleCloseChat(first.id);
     };
 
     const handleSlideRight = () => {
         if (activeChats.length !== 2) return;
         const [, second] = activeChats;
-        const secondEl = document.querySelector(`[data-chat-id="${second.id}"]`);
-        
-        if (secondEl) {
-            secondEl.classList.add('sliding-right');
-            setTimeout(() => {
-                handleCloseChat(second.id);
-                secondEl.classList.remove('sliding-right');
-            }, 300);
-        }
+        handleCloseChat(second.id);
     };
 
     const handleResizeStart = (e) => {
@@ -725,23 +720,10 @@ export default function ClientMainLayout({ children }) {
             const newFirstWidth = baseWidth + adjustedDelta;
             const newSecondWidth = baseWidth - adjustedDelta;
             
-            const firstChat = document.querySelector(`[data-chat-id="${first.id}"]`);
-            const secondChat = document.querySelector(`[data-chat-id="${second.id}"]`);
-            
-            if (firstChat && secondChat) {
-                firstChat.style.width = `${newFirstWidth}%`;
-                secondChat.style.width = `${newSecondWidth}%`;
-                
-                setChatWidths({
-                    [first.id]: `${newFirstWidth}%`,
-                    [second.id]: `${newSecondWidth}%`
-                });
-            }
-
-            const controlsSquare = document.querySelector('.controls-square');
-            if (controlsSquare) {
-                controlsSquare.style.transform = `translate(calc(-50% + ${deltaX}px), -50%)`;
-            }
+            setChatWidths({
+                [first.id]: `${newFirstWidth}%`,
+                [second.id]: `${newSecondWidth}%`
+            });
         };
 
         const handleMouseUp = () => {
@@ -751,13 +733,9 @@ export default function ClientMainLayout({ children }) {
             dragStartX.current = null;
 
             const container = document.querySelector('.active-chats-container');
-            const controlsSquare = document.querySelector('.controls-square');
             if (container) {
                 container.classList.remove('resizing');
                 container.style.userSelect = '';
-            }
-            if (controlsSquare) {
-                controlsSquare.style.transform = 'translate(-50%, -50%)';
             }
         };
 
@@ -897,14 +875,19 @@ export default function ClientMainLayout({ children }) {
                 });
                 const data = await res.json();
                 if (data.success && Array.isArray(data.userlist)) {
-                    // Pretvori u chat objekte s avatarom
-                    const chatList = data.userlist.map(u => ({
-                        id: u.id,
-                        username: u.username,
-                        avatar: `/avatars/default.png`, // ili koristi info iz baze ako imaš
-                        unread_messages: u.unread_messages,
-                        last_message_at: u.last_message_at
-                    }));
+                    // Pretvori u chat objekte s avatarom i ažuriraj unread_messages
+                    const chatList = data.userlist.map(u => {
+                        let unread = u.unread_messages;
+                        if (typeof unread !== 'number' || unread < 1) unread = 0;
+                        else if (unread > 9) unread = '+9';
+                        return {
+                            id: u.id,
+                            username: u.username,
+                            avatar: `/avatars/default.png`, // ili koristi info iz baze ako imaš
+                            unread_messages: unread,
+                            last_message_at: u.last_message_at
+                        };
+                    });
                     setChats(chatList);
                 }
             } catch (e) {
@@ -983,6 +966,81 @@ export default function ClientMainLayout({ children }) {
         }
     };
 
+    // Hover resize mousemove handler
+    useEffect(() => {
+        if (!isHoveringResize) return;
+        const handleHoverResize = (e) => {
+            const container = document.querySelector('.active-chats-container');
+            if (!container || activeChats.length !== 2) return;
+            const rect = container.getBoundingClientRect();
+            // Ako miš izađe izvan containera, ugasi hover-resize i resetiraj širine
+            if (
+                e.clientX < rect.left ||
+                e.clientX > rect.right ||
+                e.clientY < rect.top ||
+                e.clientY > rect.bottom
+            ) {
+                setIsHoveringResize(false);
+                setChatWidths(lastChatWidths.current);
+                return;
+            }
+            const mouseX = e.clientX - rect.left;
+            const containerWidth = rect.width;
+            const percent = Math.max(30, Math.min(70, (mouseX / containerWidth) * 100));
+            const [first, second] = activeChats;
+            setChatWidths({
+                [first.id]: `${percent}%`,
+                [second.id]: `${100 - percent}%`
+            });
+        };
+        window.addEventListener('mousemove', handleHoverResize);
+        return () => {
+            window.removeEventListener('mousemove', handleHoverResize);
+        };
+    }, [isHoveringResize, activeChats]);
+
+    useEffect(() => {
+        if (!isHoveringResize) return;
+        const container = document.querySelector('.active-chats-container');
+        const handleContainerLeave = () => {
+            setIsHoveringResize(false);
+        };
+        container?.addEventListener('mouseleave', handleContainerLeave);
+        return () => {
+            container?.removeEventListener('mouseleave', handleContainerLeave);
+        };
+    }, [isHoveringResize, activeChats]);
+
+    // Funkcija za izračun pozicije granice
+    const updateControlsLeft = () => {
+        if (activeChats.length !== 2) return setControlsLeft('50%');
+        const container = document.querySelector('.active-chats-container');
+        if (!container) return setControlsLeft('50%');
+        const containerWidth = container.offsetWidth;
+        const leftPercent = parseFloat(chatWidths[activeChats[0].id] || '50');
+        const leftPx = (containerWidth * leftPercent) / 100;
+        setControlsLeft(`${leftPx}px`);
+    };
+
+    // Pozivaj updateControlsLeft kad god se chatWidths ili activeChats promijene
+    useEffect(() => {
+        updateControlsLeft();
+    }, [chatWidths, activeChats]);
+
+    const handleDragRemoveChat = (chat) => {
+        setDraggedChatId(chat.id);
+    };
+    const handleDragRestoreChat = () => setDraggedChatId(null);
+
+    const handleRemoveChat = (chat) => {
+        setRemovingChatId(chat.id);
+    };
+
+    const handleRemoveAnimationEnd = (chatId) => {
+        setChats(prev => prev.filter(c => c.id !== chatId));
+        setRemovingChatId(null);
+    };
+
     return (
         <>
             <div className="main-container" data-theme={currentTheme}>
@@ -1059,6 +1117,11 @@ export default function ClientMainLayout({ children }) {
                                                     onChat={handleChatClick}
                                                     onInfo={handleInfoClick}
                                                     onMessages={handleChatClick}
+                                                    onDragRemove={() => handleDragRemoveChat(chat)}
+                                                    onDragRestore={handleDragRestoreChat}
+                                                    removing={removingChatId === chat.id}
+                                                    onRemoveAnimationEnd={() => handleRemoveAnimationEnd(chat.id)}
+                                                    onRemove={() => handleRemoveChat(chat)}
                                                 />
                                             ))
                                         )}
@@ -1087,27 +1150,35 @@ export default function ClientMainLayout({ children }) {
                                 <EndToEndMessenger
                                     key={chat.id}
                                     chat={chat}
-                                    style={activeChats.length > 1 ? { width: '49%' } : { width: '100%' }}
+                                    style={activeChats.length > 1 ? { width: chatWidths[chat.id] || '49%' } : { width: '100%' }}
                                     onClose={() => handleCloseChat(chat.id)}
                                     data-chat-id={chat.id}
                                     isSingle={activeChats.length === 1}
                                 />
                             ))}
                             {activeChats.length === 2 && (
-                                <div style={{ position: 'relative', width: 0, flexShrink: 0 }}>
-                                    <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                        <div className="vertical-line"></div>
-                                        <div className="controls-square">
-                                            <button onClick={handleSwapChats} title="Swap chat positions">
-                                                <Image src="/icons/Swap.png" alt="Swap" width={24} height={24} />
-                                            </button>
-                                            <button onClick={handleSlideLeft} title="Slide left chat out" className="slide-left-btn">
-                                                <Image src="/icons/Slide.png" alt="Slide left" width={24} height={24} />
-                                            </button>
-                                            <button onClick={handleSlideRight} title="Slide right chat out" className="slide-right-btn">
-                                                <Image src="/icons/Slide.png" alt="Slide right" width={24} height={24} />
-                                            </button>
-                                        </div>
+                                <div className="controls-between-chats" style={{ left: controlsLeft, transform: 'translateX(-50%)' }}>
+                                    <div className="vertical-line"></div>
+                                    <div className="controls-square">
+                                        <button onClick={handleSwapChats} title="Swap chat positions">
+                                            <Image src="/icons/Swap.png" alt="Swap" width={24} height={24} />
+                                        </button>
+                                        <button
+                                            onMouseDown={handleResizeStart}
+                                            onMouseEnter={() => {
+                                                lastChatWidths.current = { ...chatWidths };
+                                                setIsHoveringResize(true);
+                                            }}
+                                            title="Resize chats"
+                                        >
+                                            <Image src="/icons/Resize.png" alt="Resize" width={24} height={24} />
+                                        </button>
+                                        <button onClick={handleSlideLeft} title="Slide left chat out" className="slide-left-btn">
+                                            <Image src="/icons/Slide.png" alt="Slide left" width={24} height={24} />
+                                        </button>
+                                        <button onClick={handleSlideRight} title="Slide right chat out" className="slide-right-btn">
+                                            <Image src="/icons/Slide.png" alt="Slide right rotated" width={24} height={24} style={{ transform: 'rotate(180deg)' }} />
+                                        </button>
                                     </div>
                                 </div>
                             )}

@@ -10,6 +10,63 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
 
+    useEffect(() => {
+        async function fetchMessages() {
+            const token = localStorage.getItem('token');
+            console.log('🔍 Frontend: Fetching messages for chat.id:', chat.id);
+            console.log('🔍 Frontend: Token:', token ? 'Present' : 'Missing');
+            console.log('🔍 Frontend: Chat object:', chat);
+            
+            if (!token) {
+                console.error('❌ Frontend: No token found in localStorage');
+                return;
+            }
+            
+            try {
+                const url = `http://localhost:5000/api/messages/${chat.id}`;
+                console.log('🔍 Frontend: Fetching from URL:', url);
+                console.log('🔍 Frontend: Authorization header:', `Bearer ${token.substring(0, 20)}...`);
+                
+                const res = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('🔍 Frontend: Response status:', res.status);
+                console.log('🔍 Frontend: Response headers:', Object.fromEntries(res.headers.entries()));
+                
+                const data = await res.json();
+                console.log('🔍 Frontend: Response data:', data);
+                
+                if (data.success && Array.isArray(data.data)) {
+                    const msgs = data.data.map(msg => ({
+                        id: msg.id,
+                        text: msg.message,
+                        sender: msg.sender_id === chat.id ? 'them' : 'me',
+                        timestamp: msg.sent_at
+                    }));
+                    setMessages(msgs);
+                    console.log('✅ Frontend: Poruke za chat', chat.id, msgs);
+                } else {
+                    console.log('❌ Frontend: Invalid response format:', data);
+                    if (data.message) {
+                        console.log('❌ Frontend: Error message:', data.message);
+                    }
+                }
+            } catch (err) {
+                console.error('❌ Frontend: Greška pri dohvaćanju poruka:', err);
+                console.error('❌ Frontend: Error details:', {
+                    name: err.name,
+                    message: err.message,
+                    stack: err.stack
+                });
+            }
+        }
+        if (chat?.id) fetchMessages();
+    }, [chat?.id]);
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -114,9 +171,9 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     };
 
     return (
-        <div className="end2end-window" style={isSingle ? { height: 'auto', ...style } : { width, ...style }}>
+        <div className="end2end-window" style={{ ...style }}>
             <div className="end2end-window-header">
-                <div className="end2end-user-info">
+                <div className="end2end-header-center">
                     <Image
                         src={
                             chat.gender === 'male'
@@ -129,21 +186,6 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                         className="end2end-avatar"
                     />
                     <span className="end2end-username">{chat.username}</span>
-                </div>
-                <div className="chat-header-actions">
-                    <button
-                        className={`end2end-action-button${enterToSend ? ' enter-to-send-active' : ''}`}
-                        title="Press Enter to send"
-                        onClick={handleEnterToSendToggle}
-                        type="button"
-                    >
-                        <Image
-                            src="/icons/Enter.png"
-                            alt="Enter to send"
-                            width={20}
-                            height={20}
-                        />
-                    </button>
                     <button className="end2end-close-chat" onClick={onClose}>
                         <Image
                             src="/icons/Close.png"

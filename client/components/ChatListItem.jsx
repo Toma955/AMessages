@@ -1,10 +1,15 @@
 "use client";
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function ChatListItem({ chat, onDelete, onChat, onInfo }) {
+export default function ChatListItem({ chat, onDelete, onChat, onInfo, onDragRemove, onDragRestore, removing, onRemoveAnimationEnd, onRemove }) {
     const [isDragging, setIsDragging] = useState(false);
+
+    // Debug: ispiši chat JSON samo pri prvom mountanju komponente
+    useEffect(() => {
+        console.log('ChatListItem chat JSON:', JSON.stringify(chat));
+    }, []);
 
     const handleDragStart = (e) => {
         setIsDragging(true);
@@ -37,10 +42,11 @@ export default function ChatListItem({ chat, onDelete, onChat, onInfo }) {
 
     return (
         <div 
-            className={`chat-list-item ${isDragging ? 'dragging' : ''}`}
+            className={`chat-list-item${isDragging ? ' dragging' : ''}${removing ? ' removing' : ''}`}
             draggable="true"
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
+            onDragStart={e => { handleDragStart(e); onDragRemove && onDragRemove(); }}
+            onDragEnd={e => { handleDragEnd(e); onDragRestore && onDragRestore(); }}
+            onTransitionEnd={removing ? onRemoveAnimationEnd : undefined}
         >
             <div className="chat-list-content">
                 <div className="chat-list-avatar">
@@ -58,52 +64,19 @@ export default function ChatListItem({ chat, onDelete, onChat, onInfo }) {
                 <div className="chat-list-info">
                     <div className="chat-list-username">{chat.username}</div>
                     <div className="chat-list-actions">
-                        <button 
-                            className="action-button delete-button"
-                            onClick={() => onDelete(chat)}
-                            title="Delete"
-                        >
-                            <Image
-                                src="/icons/Delete.png"
-                                alt="Delete"
-                                width={24}
-                                height={24}
-                            />
-                        </button>
-                        <button 
-                            className="action-button chat-button"
+                        <button
+                            className="unread-bubble"
                             onClick={() => onChat(chat)}
-                            title="Chat"
+                            title="Otvori chat"
                         >
-                            <Image
-                                src="/icons/Chat.png"
-                                alt="Chat"
-                                width={24}
-                                height={24}
-                            />
+                            {chat.unread_messages ?? 0}
                         </button>
-                        <button 
-                            className="action-button info-button"
-                            onClick={() => onInfo(chat)}
-                            title="Info"
-                        >
-                            <Image
-                                src="/icons/Info.png"
-                                alt="Info"
-                                width={24}
-                                height={24}
-                            />
+                        {/*
+                        <button onClick={() => onRemove && onRemove()} title="Remove chat" style={{marginLeft: 8}}>
+                            🗑️
                         </button>
+                        */}
                     </div>
-                </div>
-                <div className="chat-list-messages">
-                    <Image
-                        src="/icons/Messages.png"
-                        alt="Messages"
-                        width={20}
-                        height={20}
-                    />
-                    <span className="message-count">0</span>
                 </div>
             </div>
         </div>
