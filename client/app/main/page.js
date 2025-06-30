@@ -7,13 +7,9 @@ export default function MainPage() {
 
     useEffect(() => {
         const adminStatus = localStorage.getItem('isAdmin');
-        const token = localStorage.getItem('token');
-        const userId = localStorage.getItem('userId');
         
         console.log('Main page - localStorage check:');
         console.log('  adminStatus:', adminStatus);
-        console.log('  token:', token ? 'exists' : 'missing');
-        console.log('  userId:', userId);
         
         if (adminStatus === 'true') {
             console.log('Setting admin mode to true');

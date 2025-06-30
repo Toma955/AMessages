@@ -7,6 +7,9 @@ const Sentry = require("@sentry/node");
 const startupChecks = require("./utils/startupChecks");
 const path = require('path');
 const passport = require('./config/passport');
+const { createServer } = require('http');
+const { Server } = require('socket.io');
+const jwt = require('jsonwebtoken');
 
 // Prometheus monitoring
 const client = require("prom-client");
@@ -49,6 +52,89 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
 console.log(`Admin credentials loaded: ${ADMIN_USERNAME}`);
 
 const app = express();
+const server = createServer(app);
+
+// Initialize Socket.IO
+const io = new Server(server, {
+    cors: {
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
+
+// Store connected users
+const connectedUsers = new Map();
+
+// Socket.IO authentication middleware
+io.use((socket, next) => {
+    const token = socket.handshake.auth.token;
+    console.log('🔍 Socket.IO Auth: Token provided:', !!token);
+    console.log('🔍 Socket.IO Auth: JWT_SECRET exists:', !!process.env.JWT_SECRET);
+    
+    if (!token) {
+        console.log('❌ Socket.IO Auth: No token provided');
+        return next(new Error('Authentication error'));
+    }
+
+    try {
+        console.log('🔍 Socket.IO Auth: Attempting to verify token...');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        console.log('✅ Socket.IO Auth: Token verified successfully');
+        console.log('🔍 Socket.IO Auth: Decoded token:', { id: decoded.id, username: decoded.username });
+        socket.userId = decoded.id;
+        socket.username = decoded.username;
+        next();
+    } catch (err) {
+        console.log('❌ Socket.IO Auth: Token verification failed:', err.message);
+        next(new Error('Authentication error'));
+    }
+});
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+    console.log(`🔌 User ${socket.username} (ID: ${socket.userId}) connected`);
+    
+    // Add user to connected users map
+    connectedUsers.set(socket.userId, {
+        socketId: socket.id,
+        username: socket.username,
+        connectedAt: new Date()
+    });
+
+    // Join user to their personal room
+    socket.join(`user_${socket.userId}`);
+
+    // Handle typing events
+    socket.on('typing', (data) => {
+        const { receiverId, isTyping } = data;
+        socket.to(`user_${receiverId}`).emit('user_typing', {
+            userId: socket.userId,
+            username: socket.username,
+            isTyping
+        });
+    });
+
+    // Handle message read receipts
+    socket.on('message_read', (data) => {
+        const { messageId, senderId } = data;
+        socket.to(`user_${senderId}`).emit('message_read_receipt', {
+            messageId,
+            readBy: socket.userId,
+            readAt: new Date()
+        });
+    });
+
+    // Handle disconnect
+    socket.on('disconnect', () => {
+        console.log(`🔌 User ${socket.username} (ID: ${socket.userId}) disconnected`);
+        connectedUsers.delete(socket.userId);
+    });
+});
+
+// Make io available globally
+global.io = io;
+global.connectedUsers = connectedUsers;
 
 // Initialize Sentry
 Sentry.init({
@@ -127,9 +213,10 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
     try {
         await startupChecks();
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             const now = new Date().toISOString().replace("T", " ").slice(0, 19);
-            console.log(`Server started at ${now} on port ${PORT}`);
+            console.log(`🚀 Server started at ${now} on port ${PORT}`);
+            console.log(`🔌 Socket.IO server is running`);
         });
     } catch (err) {
         console.error("Startup failed:", err.message);

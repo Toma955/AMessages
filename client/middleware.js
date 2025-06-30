@@ -9,6 +9,10 @@ export function middleware(request) {
         return NextResponse.next();
     }
 
+    // Commenting out authentication checks since components handle this
+    // and middleware conflicts with localStorage-based auth
+    
+    /*
     // Public paths that don't require authentication
     const publicPaths = ['/login', '/register', '/'];
     const protectedPaths = ['/main', '/admin'];
@@ -33,6 +37,7 @@ export function middleware(request) {
         loginUrl.searchParams.set('from', request.nextUrl.pathname);
         return NextResponse.redirect(loginUrl);
     }
+    */
 
     // Za sve ostale slučajeve (uključujući nepostojeće stranice), Next.js preuzima
     return NextResponse.next();

@@ -12,7 +12,9 @@ import LogoutModal from '@/components/LogoutModal.jsx';
 import SearchWidget from '@/components/SearchWidget';
 import ChatListItem from '@/components/ChatListItem';
 import ChatWindow from '@/components/ChatWindow';
-import SettingsWidget from "@/components/SettingsWidget.jsx";
+import SettingsWidget from "@/components/SettingsWidget/SettingsWidget";
+import SettingsDashboard from "@/components/SettingsWidget/SettingsDashboard";
+import socketService from "@/services/socketService";
 import "@/app/styles/main.css";
 import '@/app/styles/searchWidget.css';
 import '@/app/styles/chatListItem.css';
@@ -21,6 +23,7 @@ import styles from '@/app/styles/RecordPlayer.module.css';
 import RadioListWidget from '@/components/RadioListWidget';
 import EndToEndMessenger from '@/components/EndToEndMessenger/EndToEndMessenger';
 import { createPortal } from 'react-dom';
+import DocumentReader from "@/components/DocumentReader/DocumentReader";
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -92,8 +95,9 @@ export default function ClientMainLayout({ children }) {
     });
     const radioPlayerRef = useRef(null);
     const [isSettingsVisible, setIsSettingsVisible] = useState(false);
-    const [isSettingsActive, setIsSettingsActive] = useState(false);
+    const [isDashboardInPanelVisible, setIsDashboardInPanelVisible] = useState(false);
     const [prevMixerValues, setPrevMixerValues] = useState({});
+    const [currentUser, setCurrentUser] = useState({ username: '', gender: 'default' });
 
     // Record Player State
     const [songs, setSongs] = useState([]);
@@ -129,6 +133,84 @@ export default function ClientMainLayout({ children }) {
     const [draggedChatId, setDraggedChatId] = useState(null);
 
     const [removingChatId, setRemovingChatId] = useState(null);
+
+    const [isDocumentOpen, setIsDocumentOpen] = useState(false);
+
+    // Provjera autentifikacije na početku
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        
+        console.log('🔍 ClientMainLayout: Checking authentication...');
+        console.log('🔍 ClientMainLayout: Token exists:', !!token);
+        console.log('🔍 ClientMainLayout: UserId exists:', !!userId);
+        
+        // Ako nema tokena ili userId, preusmjeri na login
+        if (!token || !userId) {
+            console.log('❌ ClientMainLayout: No token or userId found, redirecting to login');
+            router.push('/login');
+            return;
+        }
+        
+        // Provjeri da li je token istekao
+        try {
+            const tokenData = JSON.parse(atob(token.split('.')[1]));
+            const currentTime = Math.floor(Date.now() / 1000);
+            
+            if (tokenData.exp && tokenData.exp < currentTime) {
+                console.log('❌ ClientMainLayout: Token expired, clearing localStorage and redirecting to login');
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('username');
+                localStorage.removeItem('isAdmin');
+                router.push('/login?error=token_expired');
+                return;
+            }
+        } catch (error) {
+            console.log('❌ ClientMainLayout: Invalid token format, clearing localStorage and redirecting to login');
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('username');
+            localStorage.removeItem('isAdmin');
+            router.push('/login?error=invalid_token');
+            return;
+        }
+        
+        console.log('✅ ClientMainLayout: Authentication valid, continuing...');
+    }, [router]);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                // Pretpostavljam da ovaj endpoint postoji i vraća { success: true, user: { ... } }
+                const response = await fetch('/api/me', {
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                if (data.success && data.user) {
+                    setCurrentUser({
+                        username: data.user.username,
+                        gender: data.user.gender || 'default'
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to fetch user data:", error);
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     const updateHighlightPosition = (buttonElement) => {
         if (!buttonElement) return;
@@ -298,16 +380,16 @@ export default function ClientMainLayout({ children }) {
         try {
             const token = localStorage.getItem('token');
             if (token) {
-                await fetch('http://localhost:5000/api/auth/logout', {
+                await fetch('/api/auth/logout', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
                 });
             }
-        } catch (e) {
-            console.error('Logout error:', e);
+        } catch (error) {
+            console.error('Logout error:', error);
         }
         // Briši token i preusmjeri tek nakon što je fetch završen
         localStorage.removeItem('token');
@@ -315,7 +397,7 @@ export default function ClientMainLayout({ children }) {
         localStorage.removeItem('isAdmin');
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
-        window.location.href = '/login';
+        router.push('/login');
     };
 
     const handleIconClick = (name, event) => {
@@ -336,7 +418,7 @@ export default function ClientMainLayout({ children }) {
             setHighlightStyle({ opacity: 0 });
             handleIconTransition(false, true);
         } else if (name === "Record") {
-            setIsRecordPlayerVisible(true);
+            setIsRecordPlayerVisible(!isRecordPlayerVisible);
             setIsRadioPlayerVisible(false);
             setIsPianoVisible(false);
             switchPanel('record');
@@ -347,7 +429,7 @@ export default function ClientMainLayout({ children }) {
             // Pauziraj piano (ako imaš funkciju)
             // ...
         } else if (name === "Radio") {
-            setIsRadioPlayerVisible(true);
+            setIsRadioPlayerVisible(!isRadioPlayerVisible);
             setIsRecordPlayerVisible(false);
             setIsPianoVisible(false);
             switchPanel('radio');
@@ -357,48 +439,19 @@ export default function ClientMainLayout({ children }) {
             // Pauziraj piano (ako imaš funkciju)
             // ...
         } else if (name === "Piano") {
-            setIsPianoVisible(true);
-            setIsRecordPlayerVisible(false);
-            setIsRadioPlayerVisible(false);
-            switchPanel('piano');
-            // Pauziraj record
-            const audio = document.querySelector('audio');
-            if (audio) audio.pause();
-            // Pauziraj radio
-            if (radioPlayerRef.current && radioPlayerRef.current.pause) {
-                radioPlayerRef.current.pause();
-            }
+            setIsPianoVisible(!isPianoVisible);
         } else if (name === "Magnifying_glass") {
             setShowSearch(true);
             event.currentTarget.classList.toggle('active-icon');
         } else if (name === "Cogwheel") {
-            if (isRadioPlayerVisible) {
-                setIsRadioPlayerVisible(false);
-                const radioIcon = detailsPanelRef.current?.querySelector('[data-name="Radio"]');
-                if (radioIcon) {
-                    radioIcon.classList.remove('active-icon');
-                }
-            }
-            if (isRecordPlayerVisible) {
-                setIsRecordPlayerVisible(false);
-                const recordIcon = detailsPanelRef.current?.querySelector('[data-name="Record"]');
-                if (recordIcon) {
-                    recordIcon.classList.remove('active-icon');
-                }
-            }
-            if (isPianoVisible) {
-                setIsPianoVisible(false);
-                const pianoIcon = detailsPanelRef.current?.querySelector('[data-name="Piano"]');
-                if (pianoIcon) {
-                    pianoIcon.classList.remove('active-icon');
-                }
-            }
+            // This button's only job is to toggle the floating widget.
+            // If we're closing it, also close the dashboard panel as a cleanup.
+            const isClosing = isSettingsVisible;
             setIsSettingsVisible(!isSettingsVisible);
-            if (!isSettingsVisible) {
-                event.currentTarget.classList.add('active-icon');
-            } else {
-                event.currentTarget.classList.remove('active-icon');
+            if (isClosing) {
+                setIsDashboardInPanelVisible(false);
             }
+            return;
         } else if (isThemeView && name !== "Arrow") {
             setSelectedTheme(name);
             updateHighlightPosition(event.currentTarget);
@@ -793,15 +846,11 @@ export default function ClientMainLayout({ children }) {
     };
 
     const contactsPanelClass = `contacts-panel panel-border ${
-        isRecordPlayerVisible || isRadioPlayerVisible || isPianoVisible || isSettingsVisible ? 'panel-shrink' : ''
-    } ${isRadioListVisible ? 'radio-list-active' : ''} ${isPianoActive ? 'piano-active' : ''} ${isSettingsActive ? 'settings-active' : ''}`;
+        isRecordPlayerVisible || isRadioPlayerVisible || isPianoVisible || isDashboardInPanelVisible || isSettingsVisible ? 'panel-shrink' : ''
+    } ${isRadioListVisible ? 'radio-list-active' : ''} ${isPianoActive ? 'piano-active' : ''}`;
 
     const handlePianoActivate = () => {
         setIsPianoActive(!isPianoActive);
-    };
-
-    const handleSettingsActivate = () => {
-        setIsSettingsActive(!isSettingsActive);
     };
 
     const handleRecordPlayerMenuClick = async () => {
@@ -896,6 +945,114 @@ export default function ClientMainLayout({ children }) {
         };
         fetchUserlist();
     }, []);
+
+    // Socket.IO initialization and real-time messaging
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.log('❌ No token found, redirecting to login');
+            router.push('/login');
+            return;
+        }
+
+        console.log('🔍 ClientMainLayout: Socket.IO connection attempt');
+        console.log('🔍 ClientMainLayout: Token length:', token.length);
+        console.log('🔍 ClientMainLayout: Token preview:', token.substring(0, 20) + '...');
+
+        try {
+            // Connect to Socket.IO with error handling
+            const socket = socketService.connect(token);
+            console.log('✅ ClientMainLayout: Socket.IO connection successful');
+
+            // Listen for new messages
+            socketService.on('new_message', (messageData) => {
+                console.log('🔌 Received new message:', messageData);
+                
+                // Update chat list with new message
+                setChats(prevChats => {
+                    const updatedChats = prevChats.map(chat => {
+                        if (chat.id === messageData.sender_id) {
+                            return {
+                                ...chat,
+                                unread_messages: (chat.unread_messages || 0) + 1,
+                                last_message_at: messageData.sent_at
+                            };
+                        }
+                        return chat;
+                    });
+                    return updatedChats;
+                });
+
+                // If the chat is currently open, update the messages
+                if (activeChats.some(chat => chat.id === messageData.sender_id)) {
+                    // This will be handled by the EndToEndMessenger component
+                    // We'll emit a custom event to notify the component
+                    window.dispatchEvent(new CustomEvent('new_message_received', {
+                        detail: messageData
+                    }));
+                }
+            });
+
+            // Listen for message sent confirmation
+            socketService.on('message_sent', (messageData) => {
+                console.log('🔌 Message sent confirmation:', messageData);
+                
+                // If the chat is currently open, update the messages
+                if (activeChats.some(chat => chat.id === messageData.receiver_id)) {
+                    // This will be handled by the EndToEndMessenger component
+                    window.dispatchEvent(new CustomEvent('message_sent_confirmation', {
+                        detail: messageData
+                    }));
+                }
+            });
+
+            // Listen for typing indicators
+            socketService.on('user_typing', (typingData) => {
+                console.log('🔌 User typing:', typingData);
+                
+                // If the chat is currently open, show typing indicator
+                if (activeChats.some(chat => chat.id === typingData.userId)) {
+                    window.dispatchEvent(new CustomEvent('user_typing', {
+                        detail: typingData
+                    }));
+                }
+            });
+
+            // Listen for message read receipts
+            socketService.on('message_read_receipt', (readData) => {
+                console.log('🔌 Message read receipt:', readData);
+                
+                // If the chat is currently open, update message status
+                if (activeChats.some(chat => chat.id === readData.readBy)) {
+                    window.dispatchEvent(new CustomEvent('message_read_receipt', {
+                        detail: readData
+                    }));
+                }
+            });
+
+        } catch (error) {
+            console.error('❌ Socket connection error:', error);
+            
+            // Handle authentication errors
+            if (error.message.includes('Authentication') || error.message.includes('token')) {
+                console.error('❌ Authentication error detected, clearing localStorage and redirecting');
+                localStorage.removeItem('token');
+                localStorage.removeItem('userId');
+                localStorage.removeItem('username');
+                localStorage.removeItem('isAdmin');
+                router.push('/login?error=authentication_failed');
+                return;
+            }
+            
+            // For other errors, show a user-friendly message
+            console.error('❌ Socket connection failed:', error.message);
+        }
+
+        // Cleanup on unmount
+        return () => {
+            socketService.disconnect();
+        };
+    }, [activeChats, router]);
 
     const renderMixerControls = () => {
         return (
@@ -1068,8 +1225,11 @@ export default function ClientMainLayout({ children }) {
                 />
                 <SettingsWidget
                     isVisible={isSettingsVisible}
-                    onActivate={handleSettingsActivate}
-                    isActive={isSettingsActive}
+                    username={currentUser.username}
+                    avatar={`/avatars/${currentUser.gender}.png`}
+                    onAvatarClick={() => {
+                        setIsDashboardInPanelVisible(!isDashboardInPanelVisible);
+                    }}
                 />
                 <div className={`content-container${activeChats.length === 1 ? ' single-chat' : ''}`}>
                     <div 
@@ -1078,7 +1238,9 @@ export default function ClientMainLayout({ children }) {
                         onDrop={handleDrop}
                     >
                         <div className="panel-content">
-                            {isRadioListVisible ? (
+                            {isDashboardInPanelVisible ? (
+                                <SettingsDashboard onOpenDocument={() => setIsDocumentOpen(true)} />
+                            ) : isRadioListVisible ? (
                                 <RadioListWidget
                                     isVisible={isRadioListVisible}
                                     onClose={() => setIsRadioListVisible(false)}
@@ -1089,7 +1251,7 @@ export default function ClientMainLayout({ children }) {
                                 (panelState === 'contacts' || panelState === 'animating-to-radio' || panelState === 'animating-to-contacts') && (
                                     <div className={`contacts-list${contactsAnim ? ' ' + contactsAnim : ''}`}> 
                                         {isSongListActive ? (
-                                            <div className={`song-list${activePanel === 'radio' ? ' ' + styles.radioBgPanel : ''}`}>
+                                            <div className={`song-list${activePanel === 'radio' ? ' ' + styles.radioBgPanel : ''}`}> 
                                                 {isSongListLoading ? (
                                                     <p>Loading songs...</p>
                                                 ) : songs.length > 0 ? (
@@ -1132,6 +1294,9 @@ export default function ClientMainLayout({ children }) {
                     </div>
                     
                     <div className="chat-area panel-border" onDragOver={handleDragOver} onDrop={handleChatDrop}>
+                        {isDocumentOpen ? (
+                            <DocumentReader src="/documents/Upute.md" onClose={() => setIsDocumentOpen(false)} />
+                        ) : (
                         <div
                             className="active-chats-container"
                             style={{
@@ -1183,6 +1348,7 @@ export default function ClientMainLayout({ children }) {
                                 </div>
                             )}
                         </div>
+                        )}
                     </div>
 
                     <div className="details-panel panel-border" ref={detailsPanelRef}>

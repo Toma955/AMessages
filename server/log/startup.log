@@ -246,3 +246,38 @@
 {"level":30,"time":1751095446097,"pid":28420,"hostname":"TomPC","msg":"Database system.db exists."}
 {"level":30,"time":1751095446098,"pid":28420,"hostname":"TomPC","msg":"Database usernames.db exists."}
 {"level":30,"time":1751095446099,"pid":28420,"hostname":"TomPC","msg":"[2025-06-28 07:24:06] Startup checks passed. All critical files are present."}
+{"level":30,"time":1751123310854,"pid":22884,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1751123310864,"pid":22884,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1751123310865,"pid":22884,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1751123310868,"pid":22884,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1751123310869,"pid":22884,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1751123310869,"pid":22884,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1751123310870,"pid":22884,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1751123310871,"pid":22884,"hostname":"TomPC","msg":"[2025-06-28 15:08:30] Startup checks passed. All critical files are present."}
+{"level":30,"time":1751125913964,"pid":26580,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1751125913965,"pid":26580,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1751125913966,"pid":26580,"hostname":"TomPC","msg":"JWT_SECRET is properly configured."}
+{"level":30,"time":1751125913966,"pid":26580,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1751125913968,"pid":26580,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1751125913968,"pid":26580,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1751125913969,"pid":26580,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1751125913969,"pid":26580,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1751125913970,"pid":26580,"hostname":"TomPC","msg":"[2025-06-28 15:51:53] Startup checks passed. All critical files are present."}
+{"level":30,"time":1751131776978,"pid":31436,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1751131777007,"pid":31436,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1751131777007,"pid":31436,"hostname":"TomPC","msg":"JWT_SECRET is properly configured."}
+{"level":30,"time":1751131777008,"pid":31436,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1751131777012,"pid":31436,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1751131777012,"pid":31436,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1751131777013,"pid":31436,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1751131777013,"pid":31436,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1751131777026,"pid":31436,"hostname":"TomPC","msg":"[2025-06-28 17:29:37] Startup checks passed. All critical files are present."}
+{"level":30,"time":1751267298791,"pid":41324,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1751267298792,"pid":41324,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1751267298792,"pid":41324,"hostname":"TomPC","msg":"JWT_SECRET is properly configured."}
+{"level":30,"time":1751267298793,"pid":41324,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1751267298795,"pid":41324,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1751267298795,"pid":41324,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1751267298796,"pid":41324,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1751267298796,"pid":41324,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1751267298797,"pid":41324,"hostname":"TomPC","msg":"[2025-06-30 07:08:18] Startup checks passed. All critical files are present."}

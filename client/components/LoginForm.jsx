@@ -92,7 +92,19 @@ export default function LoginForm({
         }
         
         if (error) {
-            setError('Google authentication failed. Please try again.');
+            if (error === 'authentication_failed') {
+                setError('Your session has expired. Please login again.');
+            } else if (error === 'invalid_token') {
+                setError('Invalid authentication token. Please login again.');
+            } else if (error === 'token_expired') {
+                setError('Your session has expired. Please login again.');
+            } else if (error === 'oauth_failed') {
+                setError('Google authentication failed. Please try again.');
+            } else if (error === 'oauth_not_configured') {
+                setError('Google authentication is not configured. Please use regular login.');
+            } else {
+                setError('Authentication failed. Please try again.');
+            }
             // Clean URL
             window.history.replaceState({}, document.title, window.location.pathname);
         }

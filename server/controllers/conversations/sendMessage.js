@@ -115,6 +115,38 @@ const sendMessage = (req, res) => {
       }
     }
 
+    // Emit real-time message to receiver
+    if (global.io && global.connectedUsers.has(receiverId)) {
+      const messageData = {
+        id: Date.now(), // Temporary ID, will be replaced with actual DB ID
+        sender_id: senderId,
+        receiver_id: receiverId,
+        message: message,
+        sent_at: timestamp,
+        status: "sent",
+        direction: "incoming"
+      };
+      
+      global.io.to(`user_${receiverId}`).emit('new_message', messageData);
+      console.log(`🔌 Real-time message sent to user ${receiverId}`);
+    }
+
+    // Emit message sent confirmation to sender
+    if (global.io && global.connectedUsers.has(senderId)) {
+      const messageData = {
+        id: Date.now(), // Temporary ID, will be replaced with actual DB ID
+        sender_id: senderId,
+        receiver_id: receiverId,
+        message: message,
+        sent_at: timestamp,
+        status: "sent",
+        direction: "outgoing"
+      };
+      
+      global.io.to(`user_${senderId}`).emit('message_sent', messageData);
+      console.log(`🔌 Message sent confirmation to user ${senderId}`);
+    }
+
     console.log("✅ Message sent successfully");
     return res.status(201).json({
       success: true,

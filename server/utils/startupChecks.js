@@ -40,11 +40,23 @@ function checkEnvFile() {
     }
 }
 
+function checkJWTSecret() {
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret || jwtSecret === 'your-super-secret-jwt-key-change-this-in-production') {
+        logger.error('JWT_SECRET is not properly configured');
+        throw new Error('JWT_SECRET must be set to a secure value in .env file');
+    } else {
+        console.log("JWT_SECRET check: configured.");
+        logger.info("JWT_SECRET is properly configured.");
+    }
+}
+
 async function startupChecks() {
     console.log(" Starting pre-launch system checks...");
     logger.info("Startup check initiated.");
 
     checkEnvFile();
+    checkJWTSecret();
 
     
     await checkAndInitDatabase("auth.db", initAuthDb);
