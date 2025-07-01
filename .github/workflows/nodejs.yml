@@ -20,10 +20,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install build-essential and python3
+        run: sudo apt-get update && sudo apt-get install -y build-essential python3
+
       - name: Use Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Clean node_modules and npm cache
+        run: rm -rf node_modules ~/.npm
+
+      - name: Ensure prebuild-install is available
+        run: npm install -g prebuild-install
 
       - name: Cache npm dependencies
         uses: actions/cache@v4
