@@ -28,14 +28,6 @@ const handleResponse = async (response) => {
     }
     
     if (!response.ok) {
-        // Safe console logging
-        if (typeof console !== 'undefined' && console.error) {
-            console.error('API Error:', {
-                status: response.status,
-                statusText: response.statusText,
-                data: data
-            });
-        }
         throw new Error(data.error_code || data.message || `HTTP ${response.status}: ${response.statusText}`);
     }
     
@@ -48,16 +40,11 @@ const api = {
         try {
             const token = getAuthToken();
             const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-            console.log('API GET - URL:', fullUrl);
-            console.log('API GET - Token exists:', !!token);
-            console.log('API GET - Token:', token ? token.substring(0, 20) + '...' : 'none');
             
             const headers = {
                 'Content-Type': 'application/json',
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             };
-            console.log('API GET - Headers:', headers);
-            console.log('API GET - Request time:', new Date(startTime).toISOString());
             
             const response = await fetch(fullUrl, {
                 method: 'GET',
@@ -65,25 +52,7 @@ const api = {
             });
             const endTime = Date.now();
             const duration = endTime - startTime;
-            console.log('API GET - Response status:', response.status);
-            console.log('API GET - Response ok:', response.ok);
-            console.log('API GET - Response time:', new Date(endTime).toISOString());
-            console.log('API GET - Duration (ms):', duration);
-            // Log response headers
-            const responseHeaders = {};
-            response.headers.forEach((value, key) => {
-                responseHeaders[key] = value;
-            });
-            console.log('API GET - Response headers:', responseHeaders);
-            // Peek at response body (clone)
-            let responseBody = null;
-            try {
-                const cloned = response.clone();
-                responseBody = await cloned.text();
-                console.log('API GET - Response body:', responseBody);
-            } catch (e) {
-                console.log('API GET - Could not read response body');
-            }
+            
             return handleResponse(response);
         } catch (error) {
             if (typeof console !== 'undefined' && console.error) {

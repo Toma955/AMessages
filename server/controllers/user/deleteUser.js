@@ -1,8 +1,12 @@
-const path = require("path");
-const fs = require("fs");
-const Database = require("better-sqlite3");
-const errors = require("../../constants/errors.json");
-const success = require("../../constants/success.json");
+import path from "path";
+import { fileURLToPath } from 'url';
+import fs from "fs";
+import Database from "better-sqlite3";
+import errors from "../../constants/errors.json" assert { type: "json" };
+import success from "../../constants/success.json" assert { type: "json" };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const clientDbPath = path.resolve(__dirname, "../../database/data/client_info.db");
 const authDbPath = path.resolve(__dirname, "../../database/data/auth.db");
@@ -12,8 +16,8 @@ const loginDbPath = path.resolve(__dirname, "../../database/data/login.db");
 const handleDeleteUser = (req, res) => {
     const userId = req.params.id;
 
-    // Provjera: korisnik može obrisati samo svoj račun
-    if (!req.user || String(req.user.id) !== String(userId)) {
+    // Provjera: korisnik može obrisati samo svoj račun, osim ako je admin
+    if (!req.user || (req.user.role !== 'admin' && String(req.user.id) !== String(userId))) {
         return res.status(403).json({ success: false, error_code: 'FORBIDDEN', message: 'Možete obrisati samo svoj račun.' });
     }
 
@@ -64,4 +68,4 @@ const handleDeleteUser = (req, res) => {
     }
 };
 
-module.exports = handleDeleteUser;
+export default handleDeleteUser;

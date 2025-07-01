@@ -1,9 +1,9 @@
 import "@/app/styles/global.css";
-import ClientLayout from "@/components/ClientLayout";
-import LogRocketInitializer from "@/components/LogRocketInitializer";
-import CanvasBackground from "@/components/CanvasBackground";
-import ErrorBoundary from "@/components/ErrorBoundary";
-import SentryErrorBoundary from "@/components/SentryErrorBoundary";
+import ClientLayout from "@/components/ClientLayout/ClientLayout";
+import LogRocketInitializer from "@/components/LogRocketInitalizer/LogRocketInitializer";
+import CanvasBackground from "@/components/CanvasBackground/CanvasBackground";
+import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary";
+import SentryErrorBoundary from "@/components/SentryErrorBoundary/SentryErrorBoundary";
 
 export const metadata = {
     title: "AMessages"

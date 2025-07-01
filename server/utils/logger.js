@@ -1,6 +1,10 @@
-const path = require("path");
-const fs = require("fs");
-const pino = require("pino");
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "fs";
+import pino from "pino";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Folder za logove
 const logDir = path.resolve(__dirname, "../log");
@@ -45,10 +49,8 @@ function createLogger(filePath, level = "info") {
     });
 }
 
-module.exports = {
-    error: createLogger(destinations.error, "error"),
-    startup: createLogger(destinations.startup, "info"),
-    auth: createLogger(destinations.auth, "info"),
-    user: createLogger(destinations.user, "info"),
-    requests: createLogger(destinations.requests, "info")
-};
+export const error = createLogger(destinations.error, "error");
+export const startup = createLogger(destinations.startup, "info");
+export const auth = createLogger(destinations.auth, "info");
+export const user = createLogger(destinations.user, "info");
+export const requests = createLogger(destinations.requests, "info");

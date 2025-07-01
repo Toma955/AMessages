@@ -12,7 +12,7 @@ function AuthSuccessContent() {
         const error = searchParams.get('error');
         
         if (token) {
-            // Store token and user data
+            
             localStorage.setItem('token', token);
             
             try {
@@ -25,17 +25,17 @@ function AuthSuccessContent() {
                     localStorage.setItem('isGoogleUser', 'true');
                 }
                 
-                // Redirect to main page
+               
                 router.push('/main');
             } catch (error) {
                 console.error('Error parsing token:', error);
                 router.push('/login?error=invalid_token');
             }
         } else if (error) {
-            // Handle error
+           
             router.push(`/login?error=${error}`);
         } else {
-            // No token or error, redirect to login
+            
             router.push('/login');
         }
     }, [router, searchParams]);

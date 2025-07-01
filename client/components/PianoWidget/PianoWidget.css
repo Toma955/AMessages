@@ -1,0 +1,66 @@
+/* Osnovni stilovi za PianoWidget */
+.piano-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 20px 28px;
+  min-width: 320px;
+  min-height: 120px;
+}
+
+.piano-keys {
+  display: flex;
+  gap: 2px;
+  margin-top: 12px;
+}
+
+.piano-key {
+  width: 28px;
+  height: 90px;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.piano-key.active {
+  background: #1976d2;
+  box-shadow: 0 2px 8px rgba(25,118,210,0.12);
+  color: #fff;
+}
+
+.piano-label {
+  margin-top: 8px;
+  font-size: 1.1rem;
+  color: #1976d2;
+  font-weight: 600;
+}
+
+.pianoWidgetContainer {
+    position: fixed;
+    top: 32px;
+    left: -400px;
+    width: 240px;
+    height: 240px;
+    transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.5);
+    border: 2px solid white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.pianoWidgetContainer.visible {
+    left: 32px;
+} 

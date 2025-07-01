@@ -1,9 +1,13 @@
-const path = require("path");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const Database = require("better-sqlite3");
-const errors = require("../../constants/errors.json");
-const success = require("../../constants/success.json");
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import path from "path";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import Database from "better-sqlite3";
+import errors from "../../constants/errors.json" assert { type: "json" };
+import success from "../../constants/success.json" assert { type: "json" };
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const authDbPath = path.resolve(__dirname, "../../database/data/auth.db");
 const clientDbPath = path.resolve(__dirname, "../../database/data/client_info.db");
@@ -125,5 +129,5 @@ const handleLoginUser = async (req, res) => {
     }
 };
 
-module.exports = handleLoginUser;
-module.exports.ipAttempts = ipAttempts;
+export default handleLoginUser;
+export { ipAttempts };

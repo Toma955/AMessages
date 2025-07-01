@@ -1,7 +1,7 @@
-const CreateUser = require("../models/CreateUser");
-const fs = require("fs");
-const path = require("path");
-const checkDiskSpace = require("check-disk-space").default;
+import CreateUser from "../models/CreateUser.js";
+import fs from "fs";
+import path from "path";
+import checkDiskSpace from "check-disk-space";
 
 async function createNewUser(userData) {
     try {
@@ -47,6 +47,4 @@ async function createNewUser(userData) {
     }
 }
 
-module.exports = {
-    createNewUser
-};
+export { createNewUser };

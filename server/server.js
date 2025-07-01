@@ -1,18 +1,22 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const helmet = require("helmet");
-const Sentry = require("@sentry/node");
-// const { Express: SentryExpress } = require("@sentry/integrations"); // više nije potrebno
-const startupChecks = require("./utils/startupChecks");
-const path = require('path');
-const passport = require('./config/passport');
-const { createServer } = require('http');
-const { Server } = require('socket.io');
-const jwt = require('jsonwebtoken');
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import helmet from "helmet";
+import * as Sentry from "@sentry/node";
+import { fileURLToPath } from 'url';
+import path from "path";
+import passport from "./config/passport.js";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
+import client from "prom-client";
+import "./backup.js";
+import startupChecks from "./utils/startupChecks.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Prometheus monitoring
-const client = require("prom-client");
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
 
@@ -54,7 +58,7 @@ console.log(`Admin credentials loaded: ${ADMIN_USERNAME}`);
 const app = express();
 const server = createServer(app);
 
-// Initialize Socket.IO
+//  Socket.IO
 const io = new Server(server, {
     cors: {
         origin: "http://localhost:3000",
@@ -63,7 +67,7 @@ const io = new Server(server, {
     }
 });
 
-// Store connected users
+
 const connectedUsers = new Map();
 
 // Socket.IO authentication middleware
@@ -91,18 +95,18 @@ io.use((socket, next) => {
     }
 });
 
-// Socket.IO connection handling
+// Socket.IO connection
 io.on('connection', (socket) => {
     console.log(`🔌 User ${socket.username} (ID: ${socket.userId}) connected`);
     
-    // Add user to connected users map
+    
     connectedUsers.set(socket.userId, {
         socketId: socket.id,
         username: socket.username,
         connectedAt: new Date()
     });
 
-    // Join user to their personal room
+    // Join user to room
     socket.join(`user_${socket.userId}`);
 
     // Handle typing events
@@ -115,7 +119,7 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Handle message read receipts
+    // Handle messages read
     socket.on('message_read', (data) => {
         const { messageId, senderId } = data;
         socket.to(`user_${senderId}`).emit('message_read_receipt', {
@@ -132,11 +136,10 @@ io.on('connection', (socket) => {
     });
 });
 
-// Make io available globally
 global.io = io;
 global.connectedUsers = connectedUsers;
 
-// Initialize Sentry
+// Sentry
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
     tracesSampleRate: 1.0,
@@ -144,9 +147,9 @@ Sentry.init({
     profilesSampleRate: 1.0,
 });
 
-// Enable CORS for frontend
+//CORS for frontend
 app.use(cors({
-    origin: 'http://localhost:3000', // Frontend URL
+    origin: 'http://localhost:3000', 
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -156,10 +159,9 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Passport inicijalizacija
+// Passport 
 app.use(passport.initialize());
 
-// Static files za pjesme
 app.use('/songs', express.static(path.join(__dirname, 'songs')));
 
 app.use((req, res, next) => {
@@ -173,30 +175,38 @@ app.use((req, res, next) => {
     next();
 });
 
-// Prometheus metrics endpoint
+// Prometheus 
 app.get("/metrics", async (req, res) => {
     res.set("Content-Type", client.register.contentType);
     res.end(await client.register.metrics());
 });
 
-// require("./routes")(app);
-app.use("/api/auth", require("./routes/AuthRoutes"));
-app.use("/api/auth", require("./routes/GoogleAuthRoutes"));
-app.use("/api/group", require("./routes/GroupRoutes"));
-app.use("/api/messages", require("./routes/MessageRoutes"));
-app.use("/api/search", require("./routes/SearchRoutes"));
-app.use("/api", require("./routes/UserRoutes"));
-app.use('/api/media', require('./routes/media'));
+
+import AuthRoutes from "./routes/AuthRoutes.js";
+import GoogleAuthRoutes from "./routes/GoogleAuthRoutes.js";
+import GroupRoutes from "./routes/GroupRoutes.js";
+import MessageRoutes from "./routes/MessageRoutes.js";
+import SearchRoutes from "./routes/SearchRoutes.js";
+import UserRoutes from "./routes/UserRoutes.js";
+import mediaRoutes from "./routes/media.js";
+
+app.use("/api/auth", AuthRoutes);
+app.use("/api/auth", GoogleAuthRoutes);
+app.use("/api/group", GroupRoutes);
+app.use("/api/messages", MessageRoutes);
+app.use("/api/search", SearchRoutes);
+app.use("/api", UserRoutes);
+app.use('/api/media', mediaRoutes);
 
 app.get("/test", (req, res) => {
     res.send("Server is up");
 });
 
-// Error handling middleware
+
 app.use((err, req, res, next) => {
     console.error(err.stack);
     
-    // Capture error in Sentry
+ 
     Sentry.captureException(err);
     
     res.status(500).json({ 
@@ -206,8 +216,6 @@ app.use((err, req, res, next) => {
     });
 });
 
-require("./backup");
-
 const PORT = process.env.PORT || 5000;
 
 async function startServer() {
@@ -215,8 +223,8 @@ async function startServer() {
         await startupChecks();
         server.listen(PORT, () => {
             const now = new Date().toISOString().replace("T", " ").slice(0, 19);
-            console.log(`🚀 Server started at ${now} on port ${PORT}`);
-            console.log(`🔌 Socket.IO server is running`);
+            console.log(` Server started at ${now} on port ${PORT}`);
+            console.log(` Socket.IO server is running`);
         });
     } catch (err) {
         console.error("Startup failed:", err.message);

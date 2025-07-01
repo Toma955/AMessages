@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
 
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
@@ -42,7 +42,7 @@ const adminMiddleware = (req, res, next) => {
     }
 };
 
-// Middleware to verify admin token
+
 const verifyAdminToken = (req, res, next) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');
@@ -103,4 +103,4 @@ const checkAdminRedirect = (req, res, next) => {
     }
 };
 
-module.exports = { adminMiddleware, verifyAdminToken, checkAdminRedirect }; 
+export { adminMiddleware, verifyAdminToken, checkAdminRedirect }; 

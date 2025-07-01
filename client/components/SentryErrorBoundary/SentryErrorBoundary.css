@@ -1,0 +1,42 @@
+/* Osnovni stilovi za SentryErrorBoundary */
+.sentry-error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  background: #fff3f3;
+  border: 1px solid #ffbdbd;
+  border-radius: 8px;
+  padding: 32px 24px;
+  margin: 32px auto;
+  box-shadow: 0 2px 8px rgba(255,0,0,0.04);
+}
+
+.sentry-error-boundary h1 {
+  color: #d32f2f;
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.sentry-error-boundary p {
+  color: #b71c1c;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.sentry-error-boundary button {
+  margin-top: 18px;
+  padding: 8px 20px;
+  background: #d32f2f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sentry-error-boundary button:hover {
+  background: #b71c1c;
+} 

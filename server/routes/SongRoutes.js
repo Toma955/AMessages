@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import fs from 'fs';
+import path from 'path';
+
 const router = express.Router();
-const fs = require('fs');
-const path = require('path');
 
 router.get('/songs', (req, res) => {
     const songsDirectory = path.join(__dirname, '../songs');
@@ -20,4 +21,4 @@ router.get('/songs', (req, res) => {
     });
 });
 
-module.exports = router; 
+export default router; 

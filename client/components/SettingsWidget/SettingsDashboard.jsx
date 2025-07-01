@@ -1,20 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styles from './SettingsDashboard.module.css';
 import Image from 'next/image';
+import { api } from '@/services/api'; // Pretpostavka da postoji api servis
 
 export default function SettingsDashboard(props) {
+    const { avatar, gender } = props;
     const [language, setLanguage] = useState('hrv');
+    const [avatarSrc, setAvatarSrc] = useState(avatar);
+    const fileInputRef = useRef(null);
 
     const handleLanguageToggle = () => {
         setLanguage(prev => prev === 'hrv' ? 'eng' : 'hrv');
     };
 
+    const handleAvatarClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('profilePicture', file);
+
+        try {
+            // Ovdje treba aktivirati rutu na serveru
+            // const response = await api.post('/users/me/profile-picture', formData, {
+            //     headers: { 'Content-Type': 'multipart/form-data' }
+            // });
+            // if (response.data.success) {
+            // Privremeno, dok se ne implementira upload
+            const newAvatarSrc = URL.createObjectURL(file);
+            setAvatarSrc(newAvatarSrc);
+            // }
+        } catch (error) {
+            console.error("Error uploading profile picture:", error);
+            // Vratiti na stari avatar ako upload ne uspije
+            setAvatarSrc(avatar);
+        }
+    };
+    
+    const handleImageError = () => {
+        setAvatarSrc(`/avatars/${gender}.png`);
+    };
+
     return (
         <div className={styles.dashboardContainer}>
-            <div className={styles.avatarSquare}>
-                <Image src="/icons/Plus.png" alt="" width={48} height={48} />
+            <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                style={{ display: 'none' }}
+                accept="image/*"
+            />
+            <div className={styles.avatarSquare} onClick={handleAvatarClick}>
+                <Image 
+                    src={avatarSrc} 
+                    alt="User Avatar" 
+                    width={48} 
+                    height={48}
+                    onError={handleImageError}
+                />
             </div>
-            <button className={styles.changePictureMainButton}>
+            <button className={styles.changePictureMainButton} onClick={handleAvatarClick}>
                 Promijeni sliku
             </button>
 
@@ -35,7 +84,7 @@ export default function SettingsDashboard(props) {
                 <Image src="/icons/Doc.png" alt="" width={24} height={24} />
                 <span>Upute za rad</span>
             </button>
-            <button className={styles.actionButton}>
+            <button className={styles.actionButton} onClick={props.onOpenAiChat}>
                 <Image src="/icons/Ai.png" alt="" width={24} height={24} />
                 <span>Pričaj sa AI</span>
             </button>

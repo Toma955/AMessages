@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
-const errors = require("../../constants/errors.json");
-const success = require("../../constants/success.json");
+import fs from "fs";
+import path from "path";
+import errors from "../../constants/errors.json" assert { type: "json" };
+import success from "../../constants/success.json" assert { type: "json" };
 
 const deleteConversation = (req, res) => {
   const userId = req.user?.id;
@@ -35,4 +35,4 @@ const deleteConversation = (req, res) => {
   }
 };
 
-module.exports = deleteConversation;
+export default deleteConversation;

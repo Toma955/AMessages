@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -18,7 +18,4 @@ function verifyToken(token) {
   }
 }
 
-module.exports = {
-  signToken,
-  verifyToken
-};
+export { signToken, verifyToken };

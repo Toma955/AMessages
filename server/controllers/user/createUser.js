@@ -1,9 +1,13 @@
-const path = require("path");
-const bcrypt = require("bcryptjs");
-const Database = require("better-sqlite3");
-const errors = require("../../constants/errors.json");
-const success = require("../../constants/success.json");
-const CreateUser = require("../../models/CreateUser");
+import path from "path";
+import { fileURLToPath } from 'url';
+import bcrypt from "bcryptjs";
+import Database from "better-sqlite3";
+import errors from "../../constants/errors.json" assert { type: "json" };
+import success from "../../constants/success.json" assert { type: "json" };
+import CreateUser from "../../models/CreateUser.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const clientDbPath = path.resolve(__dirname, "../../database/data/client_info.db");
 const authDbPath = path.resolve(__dirname, "../../database/data/auth.db");
@@ -49,4 +53,4 @@ const handleCreateUser = (req, res) => {
     }
 };
 
-module.exports = handleCreateUser;
+export default handleCreateUser;

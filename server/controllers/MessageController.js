@@ -1,15 +1,15 @@
+import startConversation from "./conversations/createConversation.js";
+import createConversation from "./conversations/createConversation.js";
+import sendMessage from "./conversations/sendMessage.js";
+import receiveMessages from "./conversations/receiveMessages.js";
+import archiveMessages from "./conversations/archiveMessages.js";
+import deleteConversation from "./conversations/deleteConversation.js";
+
 const getAllMessages = (req, res) => {
     return res.status(200).json({ success: true, message: "Message controller ready." });
 };
 
-const startConversation = require("./conversations/createConversation");
-const createConversation = require("./conversations/createConversation");
-const sendMessage = require("./conversations/sendMessage");
-const receiveMessages = require("./conversations/receiveMessages");
-const archiveMessages = require("./conversations/archiveMessages");
-const deleteConversation = require("./conversations/deleteConversation");
-
-module.exports = {
+export {
     getAllMessages,
     startConversation,
     createConversation,

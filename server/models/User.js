@@ -1,12 +1,16 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import sqlite3 from 'sqlite3';
+import path from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 class User {
     constructor() {
         this.dbPath = path.join(__dirname, '../database/client_info.db');
     }
 
-    // Create user table if not exists
+   
     async initTable() {
         return new Promise((resolve, reject) => {
             const db = new sqlite3.Database(this.dbPath);
@@ -31,7 +35,7 @@ class User {
         });
     }
 
-    // Create new user
+ 
     async create(userData) {
         await this.initTable();
         return new Promise((resolve, reject) => {
@@ -72,7 +76,7 @@ class User {
         });
     }
 
-    // Find user by ID
+    
     async findById(id) {
         await this.initTable();
         return new Promise((resolve, reject) => {
@@ -85,7 +89,7 @@ class User {
         });
     }
 
-    // Find user by email
+  
     async findByEmail(email) {
         await this.initTable();
         return new Promise((resolve, reject) => {
@@ -98,7 +102,7 @@ class User {
         });
     }
 
-    // Find user by username
+   
     async findByUsername(username) {
         await this.initTable();
         return new Promise((resolve, reject) => {
@@ -111,7 +115,7 @@ class User {
         });
     }
 
-    // Get all users
+   
     async findAll() {
         await this.initTable();
         return new Promise((resolve, reject) => {
@@ -124,7 +128,7 @@ class User {
         });
     }
 
-    // Update user
+    
     async update(id, updateData) {
         await this.initTable();
         return new Promise((resolve, reject) => {
@@ -141,7 +145,7 @@ class User {
         });
     }
 
-    // Delete user
+    
     async delete(id) {
         await this.initTable();
         return new Promise((resolve, reject) => {
@@ -155,4 +159,5 @@ class User {
     }
 }
 
-module.exports = new User();
+const userInstance = new User();
+export default userInstance;

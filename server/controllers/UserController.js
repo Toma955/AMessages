@@ -1,11 +1,15 @@
-const handleCreateUser = require("./user/createUser");
-const handleDeleteUser = require("./user/deleteUser");
-const handleGetUser = require("./user/getUser");
-const handleUpdateUser = require("./user/updateUser");
-const handleGetAllUsers = require("./user/getAllUsers");
-const path = require("path");
-const Database = require("better-sqlite3");
-const fs = require("fs");
+import handleCreateUser from "./user/createUser.js";
+import handleDeleteUser from "./user/deleteUser.js";
+import handleGetUser from "./user/getUser.js";
+import handleUpdateUser from "./user/updateUser.js";
+import handleGetAllUsers from "./user/getAllUsers.js";
+import path from "path";
+import Database from "better-sqlite3";
+import fs from "fs";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const addUserToUserlist = (req, res) => {
     const userId = req.user && req.user.id;
@@ -26,6 +30,24 @@ const addUserToUserlist = (req, res) => {
         console.error("Greška u addUserToUserlist:", err);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
+};
+
+const handleGetProfilePicture = (req, res) => {
+    const { id } = req.params;
+    const userMediaDir = path.resolve(__dirname, `../database/users/${id}/media`);
+
+    if (fs.existsSync(userMediaDir)) {
+        const files = fs.readdirSync(userMediaDir);
+        const imageFile = files.find(file => /\.(jpg|jpeg|png|gif)$/i.test(file));
+
+        if (imageFile) {
+            const imagePath = path.join(userMediaDir, imageFile);
+            return res.sendFile(imagePath);
+        }
+    }
+    
+    // If no custom picture, send 404, client will use default
+    return res.status(404).json({ success: false, message: "No profile picture found." });
 };
 
 async function syncUserlistFromChats(userId) {
@@ -121,7 +143,7 @@ const getUserlist = async (req, res) => {
     }
 };
 
-module.exports = {
+export {
   handleCreateUser,
   handleDeleteUser,
   handleGetUser,
@@ -129,4 +151,5 @@ module.exports = {
   handleGetAllUsers,
   addUserToUserlist,
   getUserlist,
+  handleGetProfilePicture
 };

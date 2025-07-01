@@ -1,9 +1,9 @@
 "use client";
 
-import LoginForm from "@/components/LoginForm";
+import LoginForm from "@/components/LoginForm/LoginForm.jsx";
 import "@/app/styles/login.css";
 
-// Import images
+
 import backIcon from "../../public/icons/Back.png";
 import googleIcon from "../../public/icons/Google.png";
 import magnifyingGlassIcon from "../../public/icons/Magnifying_glass.png";

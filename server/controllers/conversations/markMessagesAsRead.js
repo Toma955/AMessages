@@ -1,6 +1,6 @@
-const fs = require("fs");
-const path = require("path");
-const Database = require("better-sqlite3");
+import fs from "fs";
+import path from "path";
+import Database from "better-sqlite3";
 
 function getHotDbPath(userId, otherId) {
   return path.resolve(__dirname, `../../database/users/${userId}/chat/${otherId}/hot.db`);
@@ -36,4 +36,4 @@ const markMessagesAsRead = (req, res) => {
   }
 };
 
-module.exports = markMessagesAsRead; 
+export default markMessagesAsRead; 

@@ -1,8 +1,5 @@
-
 function initConversationModel() {
   return true;
 }
 
-module.exports = {
-  initConversationModel
-};
+export { initConversationModel };

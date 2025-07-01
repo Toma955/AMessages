@@ -1,6 +1,6 @@
-const createConversation = require("./createConversation");
-const errors = require("../../constants/errors.json");
-const success = require("../../constants/success.json");
+import errors from "../../constants/errors.json" assert { type: "json" };
+import success from "../../constants/success.json" assert { type: "json" };
+import createConversation from "./createConversation.js";
 
 const startConversation = (req, res) => {
   const senderId = req.user?.id;
@@ -22,4 +22,4 @@ const startConversation = (req, res) => {
   });
 };
 
-module.exports = startConversation;
+export default startConversation;

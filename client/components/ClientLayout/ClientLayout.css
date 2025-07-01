@@ -1,0 +1,34 @@
+/* Osnovni stilovi za ClientLayout */
+.client-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f0f2f5;
+}
+
+.client-layout-main {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  padding: 24px;
+  gap: 24px;
+}
+
+.client-layout-header {
+  background: #1976d2;
+  color: #fff;
+  padding: 16px 32px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.client-layout-footer {
+  background: #222;
+  color: #fff;
+  padding: 12px 32px;
+  text-align: center;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+} 

@@ -1,5 +1,9 @@
-const path = require("path");
-const Database = require("better-sqlite3");
+import path from "path";
+import { fileURLToPath } from 'url';
+import Database from "better-sqlite3";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const clientDbPath = path.resolve(__dirname, "../../database/data/client_info.db");
 
@@ -10,4 +14,4 @@ const handleGetAllUsers = (req, res) => {
   res.status(200).json({ success: true, users });
 };
 
-module.exports = handleGetAllUsers; 
+export default handleGetAllUsers; 

@@ -1,8 +1,8 @@
-const fs = require("fs");
-const path = require("path");
-const Database = require("better-sqlite3");
-const messageCache = require("../../utils/messageCache");
-const errors = require("../../constants/errors.json");
+import fs from "fs";
+import path from "path";
+import Database from "better-sqlite3";
+import messageCache from "../../utils/messageCache.js";
+import errors from "../../constants/errors.json" assert { type: "json" };
 
 function getHotDbPath(userId, otherId) {
   return path.resolve(__dirname, `../../database/users/${userId}/chat/${otherId}/hot.db`);
@@ -65,4 +65,4 @@ const receiveMessages = (req, res) => {
   }
 };
 
-module.exports = receiveMessages;
+export default receiveMessages;

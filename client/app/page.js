@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import LoadingCounter from "@/components/LoadingCounter";
+import LoadingCounter from "@/components/LoadingCounter/LoadingCounter";
 
 export default function Home() {
     const [serverStatus, setServerStatus] = useState('checking');
@@ -32,7 +32,6 @@ export default function Home() {
                 return await retryServerTest();
             }
         } catch (error) {
-            console.log('Server timeout ili greška, pokušavam ponovo...');
             return await retryServerTest();
         }
     };

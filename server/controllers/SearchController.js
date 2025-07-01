@@ -1,3 +1,2 @@
-module.exports = {
-  searchUsers: require("./search/searchUsers")
-};
+import searchUsers from "./search/searchUsers.js";
+export { searchUsers };

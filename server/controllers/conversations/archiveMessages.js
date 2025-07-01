@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
-const Database = require("better-sqlite3");
-const messageCache = require("../../utils/messageCache");
+import fs from "fs";
+import path from "path";
+import Database from "better-sqlite3";
+import messageCache from "../../utils/messageCache.js";
 
 function getHotDbPath(userId, otherId) {
   return path.resolve(__dirname, `../../database/users/${userId}/chat/${otherId}/hot.db`);
@@ -42,4 +42,4 @@ const archiveMessages = (userId, otherId) => {
   console.log(`Archived ${messages.length} messages from RAM → hot.db`);
 };
 
-module.exports = archiveMessages;
+export default archiveMessages;

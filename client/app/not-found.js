@@ -1,7 +1,7 @@
 'use client';
 
 import './styles/not-found.css';
-import CanvasBackground from '@/components/CanvasBackground';
+import CanvasBackground from '@/components/CanvasBackground/CanvasBackground';
 
 export default function NotFound() {
   return (

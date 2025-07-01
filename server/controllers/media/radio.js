@@ -1,5 +1,9 @@
-const path = require('path');
-const fs = require('fs/promises');
+import path from 'path';
+import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const RADIO_JSON_PATH = path.join(__dirname, '../../media/radio/radiostations.json');
 
@@ -30,4 +34,4 @@ async function updateRadioStations(req, res) {
     }
 }
 
-module.exports = { getRadioStations, updateRadioStations };
+export { getRadioStations, updateRadioStations };

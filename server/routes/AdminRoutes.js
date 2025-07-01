@@ -1,14 +1,17 @@
-const express = require('express');
-const router = express.Router();
-const AdminController = require('../controllers/AdminController');
-const { adminMiddleware, verifyAdminToken } = require('../middlewares/adminMiddleware');
-const fs = require("fs");
-const path = require("path");
+import express from 'express';
+import AdminController from '../controllers/AdminController.js';
+import { adminMiddleware, verifyAdminToken } from '../middlewares/adminMiddleware.js';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
 
-// Admin login (uses adminMiddleware for authentication)
+const router = express.Router();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 router.post('/login', adminMiddleware, AdminController.login);
 
-// Protected admin routes (require admin token)
 router.get('/dashboard/stats', verifyAdminToken, AdminController.getDashboardStats);
 router.get('/users', verifyAdminToken, AdminController.getAllUsers);
 router.delete('/users/:userId', verifyAdminToken, AdminController.deleteUser);
@@ -25,4 +28,4 @@ router.get("/logs/startup", (req, res) => {
     });
 });
 
-module.exports = router; 
+export default router; 

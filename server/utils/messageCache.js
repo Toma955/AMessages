@@ -1,3 +1,3 @@
 const messageCache = new Map();
 
-module.exports = messageCache;
+export default messageCache;

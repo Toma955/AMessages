@@ -388,9 +388,10 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
 
     return (
         <div 
-            className={`end2end-window ${isDragging ? 'dragging' : ''}`} 
-            style={{ ...style }}
-            ref={windowRef}
+            ref={windowRef} 
+            className={`end2end-window${isSingle ? ' single-chat' : ''}${isDragging ? ' dragging' : ''}`} 
+            style={style}
+            data-chat-id={chat.id}
         >
             <div 
                 className={`end2end-window-header ${isDragging ? 'dragging' : ''}`}

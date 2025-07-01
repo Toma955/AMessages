@@ -1,16 +1,22 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Lista ekstenzija koje prepoznajemo kao glazbene
 const AUDIO_EXTENSIONS = ['.mp3', '.wma', '.wav', '.flac', '.aac', '.ogg', '.m4a'];
 
-exports.getSongs = (req, res) => {
+const getSongs = (req, res) => {
     const songsDir = path.join(__dirname, '../media/songs');
+    console.log('DEBUG songsDir:', songsDir);
     fs.readdir(songsDir, (err, files) => {
         if (err) {
             console.error('Greška pri čitanju direktorija:', err);
             return res.status(500).json({ error: 'Failed to load songs directory. Please check server console for details.', errorMessage: err.message });
         }
+        console.log('DEBUG files found:', files);
         const songs = files.filter(file =>
             AUDIO_EXTENSIONS.includes(path.extname(file).toLowerCase())
         );
@@ -18,7 +24,7 @@ exports.getSongs = (req, res) => {
     });
 };
 
-exports.streamSong = (req, res) => {
+const streamSong = (req, res) => {
     const fileName = req.params.filename;
     const filePath = path.join(__dirname, '../media/songs', fileName);
 
@@ -53,4 +59,9 @@ exports.streamSong = (req, res) => {
             fileStream.pipe(res);
         }
     });
+};
+
+export default {
+    getSongs,
+    streamSong
 }; 

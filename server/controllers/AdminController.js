@@ -1,4 +1,4 @@
-const { adminMiddleware, verifyAdminToken } = require('../middlewares/adminMiddleware');
+import { adminMiddleware, verifyAdminToken } from '../middlewares/adminMiddleware.js';
 
 class AdminController {
     // Admin login
@@ -98,7 +98,7 @@ class AdminController {
     static async resetIpAttempts(req, res) {
         try {
             // Import the ipAttempts map from loginUser
-            const loginUser = require('./auth/loginUser');
+            const loginUser = await import('./auth/loginUser.js');
             
             if (loginUser.ipAttempts) {
                 loginUser.ipAttempts.clear();
@@ -139,4 +139,4 @@ class AdminController {
     }
 }
 
-module.exports = AdminController; 
+export default AdminController; 

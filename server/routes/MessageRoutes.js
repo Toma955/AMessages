@@ -1,17 +1,16 @@
-const express = require("express");
-const router = express.Router();
-
-const {
+import express from "express";
+import {
     getAllMessages,
     startConversation,
     sendMessage,
     receiveMessages,
     archiveMessages,
     deleteConversation
-} = require("../controllers/MessageController");
+} from "../controllers/MessageController.js";
+import jwtMiddleware from "../middlewares/jwtMiddleware.js";
+import markMessagesAsRead from "../controllers/conversations/markMessagesAsRead.js";
 
-const jwtMiddleware = require("../middlewares/jwtMiddleware");
-const markMessagesAsRead = require("../controllers/conversations/markMessagesAsRead");
+const router = express.Router();
 
 router.get("/", jwtMiddleware, getAllMessages);
 router.post("/start", jwtMiddleware, startConversation);
@@ -24,4 +23,4 @@ router.post("/archive/:userId", jwtMiddleware, (req, res) => {
 router.delete("/:userId", jwtMiddleware, deleteConversation);
 router.post("/read", jwtMiddleware, markMessagesAsRead);
 
-module.exports = router;
+export default router;

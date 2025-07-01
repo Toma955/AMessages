@@ -1,7 +1,4 @@
-const handleLoginUser = require("./auth/loginUser");
-const handleLogoutUser = require("./auth/logoutUser");
+import handleLoginUser from "./auth/loginUser.js";
+import handleLogoutUser from "./auth/logoutUser.js";
 
-module.exports = {
-    handleLoginUser,
-    handleLogoutUser
-};
+export { handleLoginUser, handleLogoutUser };

@@ -8,14 +8,9 @@ export default function MainPage() {
     useEffect(() => {
         const adminStatus = localStorage.getItem('isAdmin');
         
-        console.log('Main page - localStorage check:');
-        console.log('  adminStatus:', adminStatus);
-        
         if (adminStatus === 'true') {
-            console.log('Setting admin mode to true');
             setIsAdmin(true);
         } else {
-            console.log('Admin mode is false');
             setIsAdmin(false);
         }
     }, []);

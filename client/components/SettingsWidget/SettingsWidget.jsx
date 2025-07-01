@@ -2,24 +2,36 @@
 
 import React from 'react';
 import Image from 'next/image';
-import styles from './SettingsWidget.module.css';
+import './SettingsWidget.css';
 
-export default function SettingsWidget({ avatar, username, isVisible, onAvatarClick }) {
+export default function SettingsWidget({ avatar, username, isVisible, onAvatarClick, gender }) {
+    
+    const [avatarSrc, setAvatarSrc] = React.useState(avatar);
+
+    React.useEffect(() => {
+        setAvatarSrc(avatar);
+    }, [avatar]);
+    
+    const handleError = () => {
+        setAvatarSrc(`/avatars/${gender}.png`);
+    };
+    
     return (
-        <div className={`${styles.settingsWidgetContainer} ${isVisible ? styles.visible : ''}`}>
-            <div className={styles.userInfoContainer}>
-                <div className={styles.avatarWrapper}>
-                    <button onClick={onAvatarClick} className={styles.avatarButton}>
+        <div className={`settingsWidgetContainer ${isVisible ? 'visible' : ''}`}>
+            <div className="userInfoContainer">
+                <div className="avatarWrapper">
+                    <button onClick={onAvatarClick} className="avatarButton">
                         <Image
-                            src={avatar || '/avatars/default.png'}
+                            src={avatarSrc || `/avatars/${gender}.png`}
                             alt="Profile avatar"
                             width={80}
                             height={80}
-                            className={styles.avatar}
+                            className="avatar"
+                            onError={handleError}
                         />
                     </button>
                 </div>
-                <div className={styles.username}>{username}</div>
+                <div className="username">{username}</div>
             </div>
         </div>
     );

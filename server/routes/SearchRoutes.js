@@ -1,9 +1,9 @@
-const express = require("express");
-const { searchUsers } = require("../controllers/SearchController");
-const jwtMiddleware = require("../middlewares/jwtMiddleware");
+import express from "express";
+import { searchUsers } from "../controllers/SearchController.js";
+import jwtMiddleware from "../middlewares/jwtMiddleware.js";
 
 const router = express.Router();
 
 router.get("/users/search", jwtMiddleware, searchUsers);
 
-module.exports = router;
+export default router;

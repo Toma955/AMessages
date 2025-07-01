@@ -1,19 +1,16 @@
-const express = require('express');
-const router = express.Router();
-const mediaController = require('../controllers/media');
-const { getRadioStations, updateRadioStations } = require('../controllers/media/radio');
-const { verifyAdminToken } = require('../middlewares/adminMiddleware');
+import express from 'express';
+import mediaController from '../controllers/media.js';
+import { getRadioStations, updateRadioStations } from '../controllers/media/radio.js';
+import { verifyAdminToken } from '../middlewares/adminMiddleware.js';
 
-// Dohvati popis pjesama
+const router = express.Router();
+
 router.get('/songs', mediaController.getSongs);
 
-// Streamaj pojedinu pjesmu
 router.get('/stream/:filename', mediaController.streamSong);
 
-// GET radio stations
 router.get('/radio/stations', getRadioStations);
 
-// PUT radio stations (admin only)
 router.put('/radio/stations', verifyAdminToken, updateRadioStations);
 
-module.exports = router; 
+export default router; 

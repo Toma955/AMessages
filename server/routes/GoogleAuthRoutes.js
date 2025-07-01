@@ -1,11 +1,11 @@
-const express = require('express');
-const passport = require('passport');
-const jwt = require('jsonwebtoken');
+import express from 'express';
+import passport from 'passport';
+import jwt from 'jsonwebtoken';
 const router = express.Router();
 
-// Check if Google OAuth is configured
+
 const isGoogleOAuthConfigured = () => {
-    // Hardcoded credentials for now
+    
     const GOOGLE_CLIENT_ID = '27094931648-hvjgmve0irldebe6d6u897m72cf4h610.apps.googleusercontent.com';
     const GOOGLE_CLIENT_SECRET = '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';
     const FRONTEND_URL = 'http://localhost:3000';
@@ -18,7 +18,7 @@ const isGoogleOAuthConfigured = () => {
     return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET;
 };
 
-// Google OAuth login route
+
 router.get('/google', (req, res) => {
     if (!isGoogleOAuthConfigured()) {
         return res.status(503).json({ 
@@ -30,7 +30,7 @@ router.get('/google', (req, res) => {
     })(req, res);
 });
 
-// Google OAuth callback route
+
 router.get('/google/callback', (req, res, next) => {
     if (!isGoogleOAuthConfigured()) {
         return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth-success?error=oauth_not_configured`);
@@ -42,7 +42,7 @@ router.get('/google/callback', (req, res, next) => {
     })(req, res, next);
 }, async (req, res) => {
     try {
-        // Generate JWT token
+       
         const token = jwt.sign(
             { 
                 userId: req.user.id,
@@ -54,7 +54,7 @@ router.get('/google/callback', (req, res, next) => {
             { expiresIn: '24h' }
         );
 
-        // Redirect to frontend with token
+        
         res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth-success?token=${token}`);
     } catch (error) {
         console.error('Google OAuth callback error:', error);
@@ -62,7 +62,7 @@ router.get('/google/callback', (req, res, next) => {
     }
 });
 
-// Check if user is authenticated
+
 router.get('/status', (req, res) => {
     res.json({ 
         authenticated: req.isAuthenticated(),
@@ -70,4 +70,4 @@ router.get('/status', (req, res) => {
     });
 });
 
-module.exports = router; 
+export default router; 

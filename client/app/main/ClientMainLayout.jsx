@@ -3,24 +3,21 @@
 import { useState, useRef, useEffect } from "react";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
-import CanvasBackground from "@/components/CanvasBackground";
-import RecordPlayer from "@/components/RecordPlayer.jsx";
-import RadioPlayer from "@/components/RadioPlayer.jsx";
-import PianoWidget from "@/components/PianoWidget.jsx";
-import RadioStationsList from "@/components/RadioStationsList.jsx";
-import LogoutModal from '@/components/LogoutModal.jsx';
-import SearchWidget from '@/components/SearchWidget';
-import ChatListItem from '@/components/ChatListItem';
-import ChatWindow from '@/components/ChatWindow';
+import CanvasBackground from "@/components/CanvasBackground/CanvasBackground";
+import RecordPlayer from "@/components/RecordPlayer/RecordPlayer.jsx";
+import RadioPlayer from "@/components/RadioPlayer/RadioPlayer.jsx";
+import PianoWidget from "@/components/PianoWidget/PianoWidget.jsx";
+import RadioStationsList from "@/components/RadioPlayer/RadioStationsList.jsx";
+import LogoutModal from '@/components/LogoutModal/LogoutModal.jsx';
+import SearchWidget from '@/components/SearchWidget/SearchWidget.jsx';
+import ChatListItem from '@/components/ChatList/ChatListItem';
+import ChatWindow from '@/components/ChatWindow/ChatWindow';
 import SettingsWidget from "@/components/SettingsWidget/SettingsWidget";
 import SettingsDashboard from "@/components/SettingsWidget/SettingsDashboard";
 import socketService from "@/services/socketService";
 import "@/app/styles/main.css";
-import '@/app/styles/searchWidget.css';
-import '@/app/styles/chatListItem.css';
-import '@/app/styles/chatWindow.css';
-import styles from '@/app/styles/RecordPlayer.module.css';
-import RadioListWidget from '@/components/RadioListWidget';
+import '@/app/styles/main.css';
+import RadioListWidget from '@/components/RadioPlayer/RadioListWidget';
 import EndToEndMessenger from '@/components/EndToEndMessenger/EndToEndMessenger';
 import { createPortal } from 'react-dom';
 import DocumentReader from "@/components/DocumentReader/DocumentReader";
@@ -99,17 +96,17 @@ export default function ClientMainLayout({ children }) {
     const [prevMixerValues, setPrevMixerValues] = useState({});
     const [currentUser, setCurrentUser] = useState({ username: '', gender: 'default' });
 
-    // Record Player State
+    // Record Player 
     const [songs, setSongs] = useState([]);
     const [currentSong, setCurrentSong] = useState(null);
     const [isSongListLoading, setIsSongListLoading] = useState(false);
     const [isSongListActive, setIsSongListActive] = useState(false);
-    const [playerVolume, setPlayerVolume] = useState(0.5); // 0.0 - 1.0
+    const [playerVolume, setPlayerVolume] = useState(0.5); 
 
-    const [activePanel, setActivePanel] = useState('record'); // 'record', 'radio', 'piano'
+    const [activePanel, setActivePanel] = useState('record'); 
     const [panelAnimation, setPanelAnimation] = useState('slideIn');
 
-    const [panelState, setPanelState] = useState('contacts'); // 'contacts' | 'radio' | 'animating-to-radio' | 'animating-to-contacts'
+    const [panelState, setPanelState] = useState('contacts'); 
     const [contactsAnim, setContactsAnim] = useState('');
     const [radioAnim, setRadioAnim] = useState('');
 
@@ -117,7 +114,6 @@ export default function ClientMainLayout({ children }) {
     const [radioWidgetAnim, setRadioWidgetAnim] = useState('');
     const [radioListAnim, setRadioListAnim] = useState('');
 
-    // Add state for delete area
     const [showDeleteArea, setShowDeleteArea] = useState(false);
     const [deleteAreaActive, setDeleteAreaActive] = useState(false);
     const [deleteAnimationCount, setDeleteAnimationCount] = useState(0);
@@ -125,8 +121,6 @@ export default function ClientMainLayout({ children }) {
 
     const [isHoveringResize, setIsHoveringResize] = useState(false);
     const lastChatWidths = useRef({});
-
-    // Dodaj state za poziciju controls-between-chats
     const [controlsLeft, setControlsLeft] = useState('50%');
 
     const [hoveredChatId, setHoveredChatId] = useState(null);
@@ -135,30 +129,27 @@ export default function ClientMainLayout({ children }) {
     const [removingChatId, setRemovingChatId] = useState(null);
 
     const [isDocumentOpen, setIsDocumentOpen] = useState(false);
+    const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
-    // Provjera autentifikacije na početku
+    const [songListError, setSongListError] = useState(null);
+
+    // Autentification
     useEffect(() => {
         const token = localStorage.getItem('token');
         const userId = localStorage.getItem('userId');
         
-        console.log('🔍 ClientMainLayout: Checking authentication...');
-        console.log('🔍 ClientMainLayout: Token exists:', !!token);
-        console.log('🔍 ClientMainLayout: UserId exists:', !!userId);
         
-        // Ako nema tokena ili userId, preusmjeri na login
         if (!token || !userId) {
-            console.log('❌ ClientMainLayout: No token or userId found, redirecting to login');
             router.push('/login');
             return;
         }
         
-        // Provjeri da li je token istekao
+        
         try {
             const tokenData = JSON.parse(atob(token.split('.')[1]));
             const currentTime = Math.floor(Date.now() / 1000);
             
             if (tokenData.exp && tokenData.exp < currentTime) {
-                console.log('❌ ClientMainLayout: Token expired, clearing localStorage and redirecting to login');
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('username');
@@ -167,7 +158,6 @@ export default function ClientMainLayout({ children }) {
                 return;
             }
         } catch (error) {
-            console.log('❌ ClientMainLayout: Invalid token format, clearing localStorage and redirecting to login');
             localStorage.removeItem('token');
             localStorage.removeItem('userId');
             localStorage.removeItem('username');
@@ -175,8 +165,6 @@ export default function ClientMainLayout({ children }) {
             router.push('/login?error=invalid_token');
             return;
         }
-        
-        console.log('✅ ClientMainLayout: Authentication valid, continuing...');
     }, [router]);
 
     useEffect(() => {
@@ -185,7 +173,7 @@ export default function ClientMainLayout({ children }) {
             if (!token) return;
 
             try {
-                // Pretpostavljam da ovaj endpoint postoji i vraća { success: true, user: { ... } }
+               
                 const response = await fetch('/api/me', {
                     headers: { 
                         'Authorization': `Bearer ${token}`,
@@ -230,14 +218,14 @@ export default function ClientMainLayout({ children }) {
     const handleMixerControlChange = (name, newValue) => {
         if (name === "Sound") {
             if (!newValue) {
-                // Spremi sve trenutne vrijednosti slidera
+                
                 const prev = {};
                 mixerSettings.forEach(control => {
                     if (control.type === "slider") prev[control.name] = control.value;
                 });
                 setPrevMixerValues(prev);
 
-                // Postavi sve slider vrijednosti na 0
+              
                 setMixerSettings(prevSettings =>
                     prevSettings.map(control =>
                         control.type === "slider"
@@ -248,9 +236,8 @@ export default function ClientMainLayout({ children }) {
                     )
                 );
                 setPlayerVolume(0);
-                // Dodaj ovdje i settere za radio, piano, group ako ih imaš
             } else {
-                // Vrati vrijednosti iz prevMixerValues
+               
                 setMixerSettings(prevSettings =>
                     prevSettings.map(control =>
                         control.type === "slider"
@@ -261,7 +248,6 @@ export default function ClientMainLayout({ children }) {
                     )
                 );
                 setPlayerVolume((prevMixerValues["Record_player_sound"] ?? 50) / 100);
-                // Dodaj ovdje i settere za radio, piano, group ako ih imaš
             }
             return;
         }
@@ -422,30 +408,25 @@ export default function ClientMainLayout({ children }) {
             setIsRadioPlayerVisible(false);
             setIsPianoVisible(false);
             switchPanel('record');
-            // Pauziraj radio
+          
             if (radioPlayerRef.current && radioPlayerRef.current.pause) {
                 radioPlayerRef.current.pause();
             }
-            // Pauziraj piano (ako imaš funkciju)
-            // ...
         } else if (name === "Radio") {
             setIsRadioPlayerVisible(!isRadioPlayerVisible);
             setIsRecordPlayerVisible(false);
             setIsPianoVisible(false);
             switchPanel('radio');
-            // Pauziraj record
+          
             const audio = document.querySelector('audio');
             if (audio) audio.pause();
-            // Pauziraj piano (ako imaš funkciju)
-            // ...
         } else if (name === "Piano") {
             setIsPianoVisible(!isPianoVisible);
         } else if (name === "Magnifying_glass") {
             setShowSearch(true);
             event.currentTarget.classList.toggle('active-icon');
         } else if (name === "Cogwheel") {
-            // This button's only job is to toggle the floating widget.
-            // If we're closing it, also close the dashboard panel as a cleanup.
+          
             const isClosing = isSettingsVisible;
             setIsSettingsVisible(!isSettingsVisible);
             if (isClosing) {
@@ -502,8 +483,7 @@ export default function ClientMainLayout({ children }) {
             avatar: `/avatars/${user.gender || 'default'}.png`
         };
 
-        // Pushaj korisnika u Userlist.db na backendu
-        try {
+               try {
             const token = localStorage.getItem('token');
             await fetch('/api/users/userlist/add', {
                 method: 'POST',
@@ -542,7 +522,7 @@ export default function ClientMainLayout({ children }) {
         if (draggingElement) {
             draggingElement.classList.add('drag-over');
         }
-        // Check if over delete area
+        
         const chatArea = document.querySelector('.chat-area.panel-border');
         const deleteArea = document.getElementById('delete-area');
         if (deleteArea && chatArea) {
@@ -590,7 +570,7 @@ export default function ClientMainLayout({ children }) {
         if (deleteArea) {
             const deleteRect = deleteArea.getBoundingClientRect();
             if (e.clientY > deleteRect.top) {
-                // Drop on delete area: remove chat
+               
                 try {
                     const data = e.dataTransfer.getData('text/plain');
                     let droppedChat = JSON.parse(data);
@@ -602,7 +582,7 @@ export default function ClientMainLayout({ children }) {
                 return;
             }
         }
-        // ... existing code for normal drop ...
+        
         try {
             const data = e.dataTransfer.getData('text/plain');
             let droppedChat;
@@ -858,18 +838,24 @@ export default function ClientMainLayout({ children }) {
             setIsSongListActive(false);
             return;
         }
-
         setIsSongListActive(true);
-        if (songs.length === 0) {
+        if (songs.length === 0 && !isSongListLoading) {
             setIsSongListLoading(true);
             try {
                 const response = await fetch('/api/media/songs');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    setSongs([]);
+                    setSongListError(errorData.errorMessage || errorData.error || 'Greška pri dohvaćanju pjesama.');
+                    return;
+                }
                 const data = await response.json();
                 if (data.songs) {
                     setSongs(data.songs);
+                    setSongListError(null);
                 }
             } catch (error) {
-                console.error("Failed to fetch songs:", error);
+                setSongListError('Greška pri dohvaćanju pjesama: ' + error.message);
             } finally {
                 setIsSongListLoading(false);
             }
@@ -883,36 +869,35 @@ export default function ClientMainLayout({ children }) {
     const switchPanel = (panel) => {
         if (!isSongListActive) {
             setActivePanel(panel);
-            setPanelAnimation(styles.slideIn);
+            setPanelAnimation(styles.slideIn || 'slideIn');
             return;
         }
-        setPanelAnimation(styles.slideOut);
+        setPanelAnimation(styles.slideOut || 'slideOut');
         setTimeout(() => {
             setActivePanel(panel);
-            setPanelAnimation(styles.slideIn);
+            setPanelAnimation(styles.slideIn || 'slideIn');
         }, 300);
     };
 
-    // Fallback logika: ako defaultni stream ne radi, koristi prvu dostupnu stanicu
+    // Fallback 
     useEffect(() => {
         if (!currentStation || !currentStation.url) return;
         if (window && window.Audio) {
             const testAudio = new window.Audio(currentStation.url);
             testAudio.crossOrigin = 'anonymous';
             testAudio.addEventListener('error', () => {
-                // Ako defaultni stream ne radi, pokušaj prvu iz liste
+             
                 if (radioStations && radioStations.length > 0) {
                     setCurrentStation(radioStations[0]);
                 }
             });
-            // Pokušaj load
+            
             testAudio.load();
         }
-        // eslint-disable-next-line
     }, [currentStation, radioStations]);
 
     useEffect(() => {
-        // Dohvati korisničku listu chatova iz Userlist.db
+       
         const fetchUserlist = async () => {
             const token = localStorage.getItem('token');
             if (!token) return;
@@ -924,7 +909,7 @@ export default function ClientMainLayout({ children }) {
                 });
                 const data = await res.json();
                 if (data.success && Array.isArray(data.userlist)) {
-                    // Pretvori u chat objekte s avatarom i ažuriraj unread_messages
+                    
                     const chatList = data.userlist.map(u => {
                         let unread = u.unread_messages;
                         if (typeof unread !== 'number' || unread < 1) unread = 0;
@@ -932,7 +917,7 @@ export default function ClientMainLayout({ children }) {
                         return {
                             id: u.id,
                             username: u.username,
-                            avatar: `/avatars/default.png`, // ili koristi info iz baze ako imaš
+                            avatar: `/avatars/default.png`, 
                             unread_messages: unread,
                             last_message_at: u.last_message_at
                         };
@@ -946,29 +931,21 @@ export default function ClientMainLayout({ children }) {
         fetchUserlist();
     }, []);
 
-    // Socket.IO initialization and real-time messaging
+   
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
-            console.log('❌ No token found, redirecting to login');
             router.push('/login');
             return;
         }
 
-        console.log('🔍 ClientMainLayout: Socket.IO connection attempt');
-        console.log('🔍 ClientMainLayout: Token length:', token.length);
-        console.log('🔍 ClientMainLayout: Token preview:', token.substring(0, 20) + '...');
-
         try {
-            // Connect to Socket.IO with error handling
+           
             const socket = socketService.connect(token);
-            console.log('✅ ClientMainLayout: Socket.IO connection successful');
 
-            // Listen for new messages
+           
             socketService.on('new_message', (messageData) => {
-                console.log('🔌 Received new message:', messageData);
-                
-                // Update chat list with new message
+              
                 setChats(prevChats => {
                     const updatedChats = prevChats.map(chat => {
                         if (chat.id === messageData.sender_id) {
@@ -983,34 +960,29 @@ export default function ClientMainLayout({ children }) {
                     return updatedChats;
                 });
 
-                // If the chat is currently open, update the messages
+               
                 if (activeChats.some(chat => chat.id === messageData.sender_id)) {
-                    // This will be handled by the EndToEndMessenger component
-                    // We'll emit a custom event to notify the component
+                    
                     window.dispatchEvent(new CustomEvent('new_message_received', {
                         detail: messageData
                     }));
                 }
             });
 
-            // Listen for message sent confirmation
+          
             socketService.on('message_sent', (messageData) => {
-                console.log('🔌 Message sent confirmation:', messageData);
                 
-                // If the chat is currently open, update the messages
                 if (activeChats.some(chat => chat.id === messageData.receiver_id)) {
-                    // This will be handled by the EndToEndMessenger component
+                    
                     window.dispatchEvent(new CustomEvent('message_sent_confirmation', {
                         detail: messageData
                     }));
                 }
             });
 
-            // Listen for typing indicators
+          
             socketService.on('user_typing', (typingData) => {
-                console.log('🔌 User typing:', typingData);
                 
-                // If the chat is currently open, show typing indicator
                 if (activeChats.some(chat => chat.id === typingData.userId)) {
                     window.dispatchEvent(new CustomEvent('user_typing', {
                         detail: typingData
@@ -1018,11 +990,9 @@ export default function ClientMainLayout({ children }) {
                 }
             });
 
-            // Listen for message read receipts
+            
             socketService.on('message_read_receipt', (readData) => {
-                console.log('🔌 Message read receipt:', readData);
-                
-                // If the chat is currently open, update message status
+
                 if (activeChats.some(chat => chat.id === readData.readBy)) {
                     window.dispatchEvent(new CustomEvent('message_read_receipt', {
                         detail: readData
@@ -1031,11 +1001,8 @@ export default function ClientMainLayout({ children }) {
             });
 
         } catch (error) {
-            console.error('❌ Socket connection error:', error);
-            
-            // Handle authentication errors
+            // Handle authentication 
             if (error.message.includes('Authentication') || error.message.includes('token')) {
-                console.error('❌ Authentication error detected, clearing localStorage and redirecting');
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('username');
@@ -1044,11 +1011,11 @@ export default function ClientMainLayout({ children }) {
                 return;
             }
             
-            // For other errors, show a user-friendly message
-            console.error('❌ Socket connection failed:', error.message);
+            
+            console.error('Socket connection failed:', error.message);
         }
 
-        // Cleanup on unmount
+       
         return () => {
             socketService.disconnect();
         };
@@ -1210,14 +1177,16 @@ export default function ClientMainLayout({ children }) {
                     songs={songs}
                     playerVolume={playerVolume}
                 />
-                <RadioPlayer
-                    ref={radioPlayerRef}
-                    isVisible={isRadioPlayerVisible}
-                    currentTheme={currentTheme}
-                    onMenuClick={() => setIsRadioListVisible(!isRadioListVisible)}
-                    isMenuActive={isRadioListVisible}
-                    currentStation={currentStation}
-                />
+                {isRadioPlayerVisible && (
+                    <RadioPlayer
+                        ref={radioPlayerRef}
+                        isVisible={isRadioPlayerVisible}
+                        currentTheme={currentTheme}
+                        onMenuClick={() => setIsRadioListVisible(!isRadioListVisible)}
+                        isMenuActive={isRadioListVisible}
+                        currentStation={currentStation}
+                    />
+                )}
                 <PianoWidget 
                     isVisible={isPianoVisible}
                     onActivate={handlePianoActivate}
@@ -1226,10 +1195,12 @@ export default function ClientMainLayout({ children }) {
                 <SettingsWidget
                     isVisible={isSettingsVisible}
                     username={currentUser.username}
-                    avatar={`/avatars/${currentUser.gender}.png`}
+                    avatar={currentUser.id ? `/api/users/${currentUser.id}/profile-picture` : (currentUser.gender === 'woman' ? '/icons/Woman.png' : '/icons/Man.png')}
+                    gender={currentUser.gender}
                     onAvatarClick={() => {
                         setIsDashboardInPanelVisible(!isDashboardInPanelVisible);
                     }}
+                    onOpenAiChat={() => setIsAiChatOpen(true)}
                 />
                 <div className={`content-container${activeChats.length === 1 ? ' single-chat' : ''}`}>
                     <div 
@@ -1239,7 +1210,12 @@ export default function ClientMainLayout({ children }) {
                     >
                         <div className="panel-content">
                             {isDashboardInPanelVisible ? (
-                                <SettingsDashboard onOpenDocument={() => setIsDocumentOpen(true)} />
+                                <SettingsDashboard 
+                                    avatar={currentUser.id ? `/api/users/${currentUser.id}/profile-picture` : (currentUser.gender === 'woman' ? '/icons/Woman.png' : '/icons/Man.png')}
+                                    gender={currentUser.gender}
+                                    onOpenDocument={() => setIsDocumentOpen(true)}
+                                    onOpenAiChat={() => setIsAiChatOpen(true)}
+                                />
                             ) : isRadioListVisible ? (
                                 <RadioListWidget
                                     isVisible={isRadioListVisible}
@@ -1254,6 +1230,8 @@ export default function ClientMainLayout({ children }) {
                                             <div className={`song-list${activePanel === 'radio' ? ' ' + styles.radioBgPanel : ''}`}> 
                                                 {isSongListLoading ? (
                                                     <p>Loading songs...</p>
+                                                ) : songListError ? (
+                                                    <p style={{ color: 'red' }}>{songListError}</p>
                                                 ) : songs.length > 0 ? (
                                                     <ul>
                                                         {songs.map((song, index) => (
@@ -1296,6 +1274,13 @@ export default function ClientMainLayout({ children }) {
                     <div className="chat-area panel-border" onDragOver={handleDragOver} onDrop={handleChatDrop}>
                         {isDocumentOpen ? (
                             <DocumentReader src="/documents/Upute.md" onClose={() => setIsDocumentOpen(false)} />
+                        ) : isAiChatOpen ? (
+                            <EndToEndMessenger
+                                chat={{ id: 'ai', username: 'AI', avatar: '/avatars/AI.png' }}
+                                isSingle={true}
+                                onClose={() => setIsAiChatOpen(false)}
+                                style={{ width: '100%', height: '100%' }}
+                            />
                         ) : (
                         <div
                             className="active-chats-container"

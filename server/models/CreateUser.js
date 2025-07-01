@@ -1,7 +1,7 @@
-const fs = require("fs");
-const path = require("path");
-const Database = require("better-sqlite3");// SQLite wrapper za sinkronizirani rad s bazom podataka
-const bcrypt = require("bcryptjs");// hash enkripciju lozinki
+import fs from "fs";
+import path from "path";
+import Database from "better-sqlite3";
+import bcrypt from "bcryptjs";
 
 
 function CreateUser({
@@ -17,14 +17,14 @@ function CreateUser({
     const dbPath = path.resolve(__dirname, "../database/data/client_info.db");
     const db = new Database(dbPath);
 
-    // Provjerava postoji li korisničko ime već
+   
     const existing = db.prepare("SELECT * FROM clients WHERE username = ?").get(username);
     if (existing) {
         db.close();
         throw new Error("Username already exists.");
     }
 
-    // Traži sljedeći slobodan ID koji nije zauzet u tablici clients
+ 
     const findNextAvailableId =
         db
             .prepare(
@@ -37,7 +37,7 @@ function CreateUser({
             )
             .get()?.next_id || 1;
 
-    // Unosi osnovne korisničke podatke u centralnu tablicu
+    
     const insert = db.prepare(`
     INSERT INTO clients (id, username, name, surname, gender, date_of_birth, theme, language)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -57,7 +57,7 @@ function CreateUser({
 
     db.close();
 
-    // Kreira strukturu direktorija za korisničke podatke
+  
     const userFolder = path.resolve(__dirname, `../database/users/${userId}`);
     const chatFolder = path.join(userFolder, "chat");
     const mediaFolder = path.join(userFolder, "media");
@@ -66,7 +66,6 @@ function CreateUser({
     if (!fs.existsSync(chatFolder)) fs.mkdirSync(chatFolder);
     if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder);
 
-    // Kreira korisničku bazu podataka: info.db
     const infoDb = new Database(path.join(userFolder, "info.db"));
     infoDb
         .prepare(
@@ -82,7 +81,7 @@ function CreateUser({
         .run();
     infoDb.close();
 
-    // Kreira bazu Userlist.db za popis korisnika i broj nepročitanih poruka
+   
     const userlistDb = new Database(path.join(userFolder, "Userlist.db"));
     userlistDb.prepare(`
         CREATE TABLE IF NOT EXISTS userlist (
@@ -94,7 +93,7 @@ function CreateUser({
     `).run();
     userlistDb.close();
 
-    // Kreira login evidenciju: login.db
+   
     const loginDb = new Database(path.join(userFolder, "login.db"));
     loginDb
         .prepare(
@@ -108,7 +107,7 @@ function CreateUser({
         .run();
     loginDb.close();
 
-    // Kreira grupnu evidenciju: groups.db
+   
     const groupsDb = new Database(path.join(userFolder, "groups.db"));
     groupsDb
         .prepare(
@@ -123,7 +122,7 @@ function CreateUser({
         .run();
     groupsDb.close();
 
-    // Spremanje korisničkih akreditiva u auth.db
+    
     const authDbPath = path.resolve(__dirname, "../database/data/auth.db");
     const authDb = new Database(authDbPath);
 
@@ -140,7 +139,7 @@ function CreateUser({
 
     authDb.close();
 
-    // Spremanje korisničkog imena u usernames.db
+  
     const usernamesDbPath = path.resolve(__dirname, "../database/data/usernames.db");
     const usernamesDb = new Database(usernamesDbPath);
     usernamesDb
@@ -151,4 +150,4 @@ function CreateUser({
     return { userId };
 }
 
-module.exports = CreateUser;
+export default CreateUser;

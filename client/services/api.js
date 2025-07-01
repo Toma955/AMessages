@@ -47,23 +47,16 @@ const api = {
         try {
             const token = getAuthToken();
             const fullUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-            console.log('API GET - URL:', fullUrl);
-            console.log('API GET - Token exists:', !!token);
-            console.log('API GET - Token:', token ? token.substring(0, 20) + '...' : 'none');
             
             const headers = {
                 'Content-Type': 'application/json',
                 ...(token ? { 'Authorization': `Bearer ${token}` } : {})
             };
-            console.log('API GET - Headers:', headers);
             
             const response = await fetch(fullUrl, {
                 method: 'GET',
                 headers: headers
             });
-            
-            console.log('API GET - Response status:', response.status);
-            console.log('API GET - Response ok:', response.ok);
             
             return handleResponse(response);
         } catch (error) {

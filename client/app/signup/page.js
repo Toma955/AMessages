@@ -25,7 +25,7 @@ export default function HomePage() {
         if (prev >= 100) {
           clearInterval(interval);
           setHide(true);
-          setTimeout(() => router.push("/login"), 500); // redirect nakon fade-out
+          setTimeout(() => router.push("/login"), 500); 
           return 100;
         }
         return prev + 1;

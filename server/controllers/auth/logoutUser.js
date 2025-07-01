@@ -1,7 +1,11 @@
-const path = require("path");
-const Database = require("better-sqlite3");
-const errors = require("../../constants/errors.json");
-const success = require("../../constants/success.json");
+import path from "path";
+import { fileURLToPath } from 'url';
+import Database from "better-sqlite3";
+import errors from "../../constants/errors.json" assert { type: "json" };
+import success from "../../constants/success.json" assert { type: "json" };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const loginLogDbPath = path.resolve(__dirname, "../../database/data/login.db");
 
@@ -52,4 +56,4 @@ const handleLogoutUser = (req, res) => {
     return res.status(200).json({ success: true, message_code: success.LOGOUT_SUCCESS });
 };
 
-module.exports = handleLogoutUser;
+export default handleLogoutUser;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import '../styles/not-found.css';
-import CanvasBackground from '@/components/CanvasBackground';
+import CanvasBackground from '@/components/CanvasBackground/CanvasBackground';
 
 export default function ServerDown() {
   const router = useRouter();
