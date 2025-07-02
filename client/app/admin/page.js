@@ -179,20 +179,28 @@ export default function AdminPage() {
             });
     };
 
+    const fetchSystemResources = () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        fetch('http://localhost:5000/api/admin/system/resources', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    setSystemResources({ ram: data.ram, cpu: data.cpu });
+                    console.log(`[ADMIN] RAM: ${data.ram}% | CPU: ${data.cpu}%`);
+                }
+            });
+    };
+
     useEffect(() => {
         // Check if user is admin
         const adminStatus = localStorage.getItem('isAdmin');
         const token = localStorage.getItem('token');
         
-        console.log('Admin page - localStorage check:');
-        console.log('  adminStatus:', adminStatus);
-        console.log('  token:', token ? 'exists' : 'missing');
-        
-        if (!token) {
-            router.push('/login');
-            return;
-        }
-
         if (adminStatus === 'true') {
             setIsAdmin(true);
             setUserData({
@@ -214,6 +222,7 @@ export default function AdminPage() {
 
         fetchUsers(); // koristi novu funkciju
         fetchStartupLog();
+        fetchSystemResources();
 
         return () => window.removeEventListener('resize', checkScreenSize);
     }, [router]);
@@ -253,6 +262,10 @@ export default function AdminPage() {
     };
 
     const handleDeleteUser = async (userId) => {
+        if (localStorage.getItem('isAdmin') !== 'true') {
+            alert('Samo admin može brisati korisnike!');
+            return;
+        }
         if (!window.confirm(`Jeste li sigurni da želite obrisati korisnika s ID: ${userId}?`)) {
             return;
         }
@@ -272,7 +285,14 @@ export default function AdminPage() {
                 }
             });
 
-            const data = await response.json();
+            let data;
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                throw new Error(`Server error: ${text}`);
+            }
 
             if (response.ok && data.success) {
                 alert('Korisnik uspješno obrisan.');

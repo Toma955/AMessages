@@ -14,6 +14,7 @@ const authDbPath = path.resolve(__dirname, "../../database/data/auth.db");
 const usernamesDbPath = path.resolve(__dirname, "../../database/data/usernames.db");
 
 const handleCreateUser = (req, res) => {
+    console.log('[handleCreateUser] req.body:', req.body);
     const {
         username,
         password,

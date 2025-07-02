@@ -4,6 +4,7 @@ import { adminMiddleware, verifyAdminToken } from '../middlewares/adminMiddlewar
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from 'url';
+import os from 'os';
 
 const router = express.Router();
 
@@ -25,6 +26,29 @@ router.get("/logs/startup", (req, res) => {
             return res.status(500).json({ success: false, error: "Log file not found." });
         }
         res.json({ success: true, log: data });
+    });
+});
+
+router.get('/system/resources', verifyAdminToken, async (req, res) => {
+    const memoryUsage = process.memoryUsage();
+    const ram = (memoryUsage.rss / 1024 / 1024).toFixed(2); // MB
+
+    // CPU usage: izračunaj postotak CPU zauzeća procesa u zadnjoj sekundi
+    const startUsage = process.cpuUsage();
+    const startTime = process.hrtime();
+    // Pričekaj 100ms za uzorak
+    await new Promise(resolve => setTimeout(resolve, 100));
+    const elapUsage = process.cpuUsage(startUsage);
+    const elapTime = process.hrtime(startTime);
+    const elapTimeMS = elapTime[0] * 1000 + elapTime[1] / 1e6;
+    // CPU % = 100 * (user + system) / (elapsed time * 1000 * broj jezgri)
+    const numCPUs = os.cpus().length;
+    const cpuPercent = ((elapUsage.user + elapUsage.system) / 1000 / elapTimeMS / numCPUs * 100).toFixed(2);
+
+    res.json({
+        success: true,
+        ram: Number(ram),
+        cpu: Number(cpuPercent)
     });
 });
 

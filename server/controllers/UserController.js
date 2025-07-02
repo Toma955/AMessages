@@ -118,27 +118,31 @@ async function syncUserlistFromChats(userId) {
 
 const getUserlist = async (req, res) => {
     const userId = req.user && req.user.id;
-    console.log('🔍 getUserlist: userId:', userId);
+    console.log('\ud83d\udd0d getUserlist: userId:', userId);
     
     if (!userId) {
-        console.log('❌ getUserlist: Unauthorized - no userId');
+        console.log('\u274c getUserlist: Unauthorized - no userId');
         return res.status(401).json({ success: false, message: "Unauthorized" });
     }
     try {
-        console.log('🔄 getUserlist: Syncing userlist from chats for user:', userId);
+        console.log('\ud83d\udd04 getUserlist: Syncing userlist from chats for user:', userId);
         await syncUserlistFromChats(userId);
         
         const userlistDbPath = path.resolve(__dirname, `../database/users/${userId}/Userlist.db`);
-        console.log('🗄️ getUserlist: Userlist database path:', userlistDbPath);
+        console.log('\ud83d\uddc4\ufe0f getUserlist: Userlist database path:', userlistDbPath);
         
+        if (!fs.existsSync(userlistDbPath)) {
+            // Ako baza ne postoji, vrati prazan userlist
+            return res.status(200).json({ success: true, userlist: [] });
+        }
         const userlistDb = new Database(userlistDbPath);
         const list = userlistDb.prepare('SELECT * FROM userlist ORDER BY last_message_at DESC').all();
-        console.log('📋 getUserlist: Found users in userlist:', list);
+        console.log('\ud83d\udccb getUserlist: Found users in userlist:', list);
         
         userlistDb.close();
         return res.status(200).json({ success: true, userlist: list });
     } catch (err) {
-        console.error("❌ Greška u getUserlist:", err);
+        console.error("\u274c Gre\u0161ka u getUserlist:", err);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };

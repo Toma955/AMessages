@@ -12,6 +12,7 @@ import jwt from "jsonwebtoken";
 import client from "prom-client";
 import "./backup.js";
 import startupChecks from "./utils/startupChecks.js";
+import AdminRoutes from "./routes/AdminRoutes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -197,6 +198,7 @@ app.use("/api/messages", MessageRoutes);
 app.use("/api/search", SearchRoutes);
 app.use("/api", UserRoutes);
 app.use('/api/media', mediaRoutes);
+app.use('/api/admin', AdminRoutes);
 
 app.get("/test", (req, res) => {
     res.send("Server is up");

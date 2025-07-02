@@ -126,13 +126,17 @@ export default function LoginForm({
             console.log('Login response:', data);
            
             localStorage.setItem('token', data.token);
-            console.log('JWT token nakon login-a:', data.token);
             localStorage.setItem('userId', data.userId);
-            if (data.isAdmin) {
-                console.log('Admin login detected, setting admin flag');
-                localStorage.setItem('isAdmin', 'true');
-            } else {
-                console.log('Regular user login');
+            // Provjeri je li korisnik admin prema JWT tokenu
+            try {
+                const payload = JSON.parse(atob(data.token.split('.')[1]));
+                if (payload.role === 'admin') {
+                    localStorage.setItem('isAdmin', 'true');
+                } else {
+                    localStorage.removeItem('isAdmin');
+                }
+            } catch (e) {
+                localStorage.removeItem('isAdmin');
             }
             
             // Backend odlučuje gdje korisnik ide
