@@ -18,6 +18,7 @@ import "@/app/styles/main.css";
 import EndToEndMessenger from '@/components/EndToEndMessenger/EndToEndMessenger';
 import { createPortal } from 'react-dom';
 import DocumentReader from "@/components/DocumentReader/DocumentReader";
+import Preloader from '@/components/Preloader/Preloader';
 
 // Lazy loaded components - only for heavy components
 const SearchWidget = lazy(() => import('@/components/SearchWidget/SearchWidget.jsx'));
@@ -116,6 +117,7 @@ function ClientMainLayout({ children }) {
     const [deleteAnimationKey, setDeleteAnimationKey] = useState(0);
     const [isDocumentOpen, setIsDocumentOpen] = useState(false);
     const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     // Refs
     const router = useRouter();
@@ -149,9 +151,29 @@ function ClientMainLayout({ children }) {
 
     // Prefetch routes
     useEffect(() => {
-        router.prefetch('/login');
-        router.prefetch('/signup');
-        router.prefetch('/admin');
+        async function preload() {
+            // Prefetch rute
+            router.prefetch('/login');
+            router.prefetch('/admin');
+            router.prefetch('/preloader');
+            // Dinamički importi glavnih komponenti
+            await Promise.all([
+                import('@/components/SearchWidget/SearchWidget.jsx'),
+                import('@/components/SettingsWidget/SettingsDashboard.jsx'),
+                import('@/components/ChatWindow/ChatWindow.jsx'),
+                import('@/components/ChatList/ChatListItem.jsx'),
+                import('@/components/EndToEndMessenger/EndToEndMessenger.jsx'),
+                import('@/components/RadioPlayer/RadioPlayer.jsx'),
+                import('@/components/RecordPlayer/RecordPlayer.jsx'),
+                import('@/components/PianoWidget/PianoWidget.jsx'),
+                import('@/components/SettingsWidget/SettingsWidget.jsx'),
+                import('@/components/LogoutModal/LogoutModal.jsx'),
+                import('@/components/DocumentReader/DocumentReader.jsx'),
+                import('@/components/RadioPlayer/RadioListWidget.jsx'),
+            ]);
+            setIsLoaded(true);
+        }
+        preload();
     }, [router]);
 
     // Autentification
@@ -593,6 +615,10 @@ function ClientMainLayout({ children }) {
             container?.removeEventListener('mouseleave', handleContainerLeave);
         };
     }, [isHoveringResize, activeChats]);
+
+    if (!isLoaded) {
+        return <Preloader isLoaded={isLoaded} />;
+    }
 
     return (
         <>

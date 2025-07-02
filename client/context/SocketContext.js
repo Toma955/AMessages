@@ -1,5 +1,7 @@
+"use client";
+
 import React, { createContext, useContext, useEffect, useRef, useCallback } from 'react';
-import { socketService } from '../services/socketService';
+import socketService from '../services/socketService';
 import { useAuth } from './AuthContext';
 
 const SocketContext = createContext();
