@@ -5,6 +5,13 @@ import CanvasBackground from "@/components/CanvasBackground/CanvasBackground";
 import ErrorBoundary from "@/components/ErrorBoundary/ErrorBoundary";
 import SentryErrorBoundary from "@/components/SentryErrorBoundary/SentryErrorBoundary";
 
+// Context providers
+import { ChatProvider } from "@/context/ChatContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { MediaProvider } from "@/context/MediaContext";
+import { AuthProvider } from "@/context/AuthContext";
+import { SocketProvider } from "@/context/SocketContext";
+
 export const metadata = {
     title: "AMessages"
 };
@@ -17,9 +24,19 @@ export default function RootLayout({ children }) {
                 <CanvasBackground currentTheme="orange" />
                 <SentryErrorBoundary>
                     <ErrorBoundary>
-                        <ClientLayout>
-                            {children}
-                        </ClientLayout>
+                        <AuthProvider>
+                            <SocketProvider>
+                                <ChatProvider>
+                                    <ThemeProvider>
+                                        <MediaProvider>
+                                            <ClientLayout>
+                                                {children}
+                                            </ClientLayout>
+                                        </MediaProvider>
+                                    </ThemeProvider>
+                                </ChatProvider>
+                            </SocketProvider>
+                        </AuthProvider>
                     </ErrorBoundary>
                 </SentryErrorBoundary>
             </body>

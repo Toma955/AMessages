@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo, useCallback, memo, lazy, Suspense } from "react";
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
 import CanvasBackground from "@/components/CanvasBackground/CanvasBackground";
@@ -9,18 +9,26 @@ import RadioPlayer from "@/components/RadioPlayer/RadioPlayer.jsx";
 import PianoWidget from "@/components/PianoWidget/PianoWidget.jsx";
 import RadioStationsList from "@/components/RadioPlayer/RadioStationsList.jsx";
 import LogoutModal from '@/components/LogoutModal/LogoutModal.jsx';
-import SearchWidget from '@/components/SearchWidget/SearchWidget.jsx';
 import ChatListItem from '@/components/ChatList/ChatListItem';
 import ChatWindow from '@/components/ChatWindow/ChatWindow';
 import SettingsWidget from "@/components/SettingsWidget/SettingsWidget";
-import SettingsDashboard from "@/components/SettingsWidget/SettingsDashboard";
+import RadioListWidget from '@/components/RadioPlayer/RadioListWidget';
 import socketService from "@/services/socketService";
 import "@/app/styles/main.css";
-import '@/app/styles/main.css';
-import RadioListWidget from '@/components/RadioPlayer/RadioListWidget';
 import EndToEndMessenger from '@/components/EndToEndMessenger/EndToEndMessenger';
 import { createPortal } from 'react-dom';
 import DocumentReader from "@/components/DocumentReader/DocumentReader";
+
+// Lazy loaded components - only for heavy components
+const SearchWidget = lazy(() => import('@/components/SearchWidget/SearchWidget.jsx'));
+const SettingsDashboard = lazy(() => import("@/components/SettingsWidget/SettingsDashboard"));
+
+// Custom hooks
+import { useChat } from "@/hooks/useChat";
+import { useTheme } from "@/hooks/useTheme";
+import { useMedia } from "@/hooks/useMedia";
+
+
 
 const defaultIcons = [
     { name: "Arrow", alt: "Navigate" },
@@ -54,84 +62,97 @@ const mixerControls = [
     { name: "Sound", alt: "Sound", type: "toggle", value: true }
 ];
 
-export default function ClientMainLayout({ children }) {
-    const [currentIcons, setCurrentIcons] = useState(defaultIcons);
-    const [isThemeView, setIsThemeView] = useState(false);
-    const [isMixerView, setIsMixerView] = useState(false);
-    const [mixerSettings, setMixerSettings] = useState(mixerControls);
-    const [selectedTheme, setSelectedTheme] = useState("orange");
-    const [currentTheme, setCurrentTheme] = useState('orange');
-    const [highlightStyle, setHighlightStyle] = useState({});
-    const [isTransitioning, setIsTransitioning] = useState(false);
-    const [isRecordPlayerVisible, setIsRecordPlayerVisible] = useState(false);
-    const [isRadioPlayerVisible, setIsRadioPlayerVisible] = useState(false);
+function ClientMainLayout({ children }) {
+    // Custom hooks
+    const {
+        chats, setChats, selectedChat, setSelectedChat, activeChats, setActiveChats,
+        chatWidths, setChatWidths, isResizing, setIsResizing, isSwapping, setIsSwapping,
+        dragOverIndex, setDragOverIndex, hoveredChatId, setHoveredChatId,
+        draggedChatId, setDraggedChatId, removingChatId, setRemovingChatId,
+        handleAddChat, handleCloseChat, handleChatResize, handleChatClick,
+        handleInfoClick, handleDeleteChat, handleSwapChats, handleSlideLeft,
+        handleSlideRight, handleResizeStart, handleDragOver, handleDrop,
+        handleChatDrop, handleDragRemoveChat, handleDragRestoreChat,
+        handleRemoveChat, handleRemoveAnimationEnd, handleDeleteAnimationEnd,
+        lastChatWidths, resizeStartX, initialWidth,
+        isDraggingResize, setIsDraggingResize, dragStartX, initialWidths,
+        isHoveringResize, setIsHoveringResize, controlsLeft, setControlsLeft
+    } = useChat();
+
+    const {
+        currentIcons, setCurrentIcons, isThemeView, setIsThemeView, isMixerView, setIsMixerView,
+        mixerSettings, setMixerSettings, selectedTheme, setSelectedTheme, currentTheme, setCurrentTheme,
+        highlightStyle, setHighlightStyle, isTransitioning, setIsTransitioning,
+        updateHighlightPosition, handleIconTransition, handleThemeClick, handleThemeDoubleClick,
+        handleMixerControlChange, themeIcons, detailsPanelRef
+    } = useTheme();
+
+    const {
+        isRecordPlayerVisible, isRadioPlayerVisible, isPianoVisible, isPianoActive,
+        radioStations, currentStation, songs, currentSong, setCurrentSong, isSongListLoading, isSongListActive,
+        playerVolume, songListError, activePanel, panelAnimation, radioPlayerRef,
+        setIsRecordPlayerVisible, setIsRadioPlayerVisible, setIsPianoVisible,
+        handleRecordPlayerMenuClick, handleSongSelect, handleStationSelect, handlePianoActivate,
+        switchPanel, toggleRecordPlayer, toggleRadioPlayer, togglePiano, setVolume
+    } = useMedia();
+
+    // Local state (not moved to contexts yet)
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
-    const [chats, setChats] = useState([]);
-    const [selectedChat, setSelectedChat] = useState(null);
-    const detailsPanelRef = useRef(null);
-    const router = useRouter();
-    const [dragOverIndex, setDragOverIndex] = useState(null);
-    const [activeChats, setActiveChats] = useState([]);
-    const [chatWidths, setChatWidths] = useState({});
-    const [isResizing, setIsResizing] = useState(false);
-    const [isSwapping, setIsSwapping] = useState(false);
-    const resizeStartX = useRef(null);
-    const initialWidth = useRef(null);
-    const [isDraggingResize, setIsDraggingResize] = useState(false);
-    const dragStartX = useRef(null);
-    const initialWidths = useRef(null);
-    const [isRadioListVisible, setIsRadioListVisible] = useState(false);
-    const [isPianoVisible, setIsPianoVisible] = useState(false);
-    const [isPianoActive, setIsPianoActive] = useState(false);
-    const [radioStations, setRadioStations] = useState([]);
-    const [currentStation, setCurrentStation] = useState({
-        name: 'NPO Radio 1',
-        url: 'https://icecast.omroep.nl/radio1-bb-mp3',
-        stationuuid: 'npo-radio-1',
-    });
-    const radioPlayerRef = useRef(null);
     const [isSettingsVisible, setIsSettingsVisible] = useState(false);
     const [isDashboardInPanelVisible, setIsDashboardInPanelVisible] = useState(false);
     const [prevMixerValues, setPrevMixerValues] = useState({});
     const [currentUser, setCurrentUser] = useState({ username: '', gender: 'default' });
-
-    // Record Player 
-    const [songs, setSongs] = useState([]);
-    const [currentSong, setCurrentSong] = useState(null);
-    const [isSongListLoading, setIsSongListLoading] = useState(false);
-    const [isSongListActive, setIsSongListActive] = useState(false);
-    const [playerVolume, setPlayerVolume] = useState(0.5); 
-
-    const [activePanel, setActivePanel] = useState('record'); 
-    const [panelAnimation, setPanelAnimation] = useState('slideIn');
-
+    const [isRadioListVisible, setIsRadioListVisible] = useState(false);
     const [panelState, setPanelState] = useState('contacts'); 
     const [contactsAnim, setContactsAnim] = useState('');
     const [radioAnim, setRadioAnim] = useState('');
-
     const [showRadioList, setShowRadioList] = useState(false);
     const [radioWidgetAnim, setRadioWidgetAnim] = useState('');
     const [radioListAnim, setRadioListAnim] = useState('');
-
     const [showDeleteArea, setShowDeleteArea] = useState(false);
     const [deleteAreaActive, setDeleteAreaActive] = useState(false);
     const [deleteAnimationCount, setDeleteAnimationCount] = useState(0);
     const [deleteAnimationKey, setDeleteAnimationKey] = useState(0);
-
-    const [isHoveringResize, setIsHoveringResize] = useState(false);
-    const lastChatWidths = useRef({});
-    const [controlsLeft, setControlsLeft] = useState('50%');
-
-    const [hoveredChatId, setHoveredChatId] = useState(null);
-    const [draggedChatId, setDraggedChatId] = useState(null);
-
-    const [removingChatId, setRemovingChatId] = useState(null);
-
     const [isDocumentOpen, setIsDocumentOpen] = useState(false);
     const [isAiChatOpen, setIsAiChatOpen] = useState(false);
 
-    const [songListError, setSongListError] = useState(null);
+    // Refs
+    const router = useRouter();
+
+    // Memoized computed values - must be called before useEffect hooks
+    const contactsPanelClass = useMemo(() => {
+        return `contacts-panel panel-border ${
+            isRecordPlayerVisible || isRadioPlayerVisible || isPianoVisible || isDashboardInPanelVisible || isSettingsVisible ? 'panel-shrink' : ''
+        } ${isRadioListVisible ? 'radio-list-active' : ''} ${isPianoActive ? 'piano-active' : ''}`;
+    }, [isRecordPlayerVisible, isRadioPlayerVisible, isPianoVisible, isDashboardInPanelVisible, isSettingsVisible, isRadioListVisible, isPianoActive]);
+
+    const contentContainerClass = useMemo(() => {
+        return `content-container${activeChats.length === 1 ? ' single-chat' : ''}`;
+    }, [activeChats.length]);
+
+    const activeChatsContainerStyle = useMemo(() => ({
+        display: 'flex',
+        alignItems: 'stretch',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
+        gap: activeChats.length > 1 ? '2%' : 0,
+        paddingLeft: activeChats.length > 1 ? '0.5%' : 0,
+        paddingRight: activeChats.length > 1 ? '0.5%' : 0,
+        position: 'relative',
+    }), [activeChats.length]);
+
+    const userAvatar = useMemo(() => {
+        return currentUser.id ? `/api/users/${currentUser.id}/profile-picture` : (currentUser.gender === 'woman' ? '/icons/Woman.png' : '/icons/Man.png');
+    }, [currentUser.id, currentUser.gender]);
+
+    // Prefetch routes
+    useEffect(() => {
+        router.prefetch('/login');
+        router.prefetch('/signup');
+        router.prefetch('/admin');
+    }, [router]);
 
     // Autentification
     useEffect(() => {
@@ -200,169 +221,7 @@ export default function ClientMainLayout({ children }) {
         fetchUserData();
     }, []);
 
-    const updateHighlightPosition = (buttonElement) => {
-        if (!buttonElement) return;
-        
-        const rect = buttonElement.getBoundingClientRect();
-        const parentRect = detailsPanelRef.current.getBoundingClientRect();
-        
-        setHighlightStyle({
-            top: rect.top - parentRect.top + 'px',
-            left: rect.left - parentRect.left + 'px',
-            width: rect.width + 'px',
-            height: rect.height + 'px',
-            opacity: 1
-        });
-    };
-
-    const handleMixerControlChange = (name, newValue) => {
-        if (name === "Sound") {
-            if (!newValue) {
-                
-                const prev = {};
-                mixerSettings.forEach(control => {
-                    if (control.type === "slider") prev[control.name] = control.value;
-                });
-                setPrevMixerValues(prev);
-
-              
-                setMixerSettings(prevSettings =>
-                    prevSettings.map(control =>
-                        control.type === "slider"
-                            ? { ...control, value: 0 }
-                            : control.name === "Sound"
-                            ? { ...control, value: false }
-                            : control
-                    )
-                );
-                setPlayerVolume(0);
-            } else {
-               
-                setMixerSettings(prevSettings =>
-                    prevSettings.map(control =>
-                        control.type === "slider"
-                            ? { ...control, value: prevMixerValues[control.name] ?? 50 }
-                            : control.name === "Sound"
-                            ? { ...control, value: true }
-                            : control
-                    )
-                );
-                setPlayerVolume((prevMixerValues["Record_player_sound"] ?? 50) / 100);
-            }
-            return;
-        }
-        if (name === "Record_player_sound") {
-            setPlayerVolume(newValue / 100);
-        }
-        if (name === "Grup_message_sound") {
-            setMixerSettings(prev => {
-                const isSlider = prev.find(c => c.name === name)?.type === "slider";
-                const allSlidersZero = prev
-                    .filter(c => c.type === "slider")
-                    .every(c => (c.name === name ? newValue : c.value) === 0);
-
-                return prev.map(control => 
-                    control.name === name ? { ...control, value: newValue } :
-                    control.name === "Sound" ? { ...control, value: !allSlidersZero } :
-                    control
-                );
-            });
-        } else if (name === "Piano_sound") {
-            setMixerSettings(prev => {
-                const isSlider = prev.find(c => c.name === name)?.type === "slider";
-                const allSlidersZero = prev
-                    .filter(c => c.type === "slider")
-                    .every(c => (c.name === name ? newValue : c.value) === 0);
-
-                return prev.map(control => 
-                    control.name === name ? { ...control, value: newValue } :
-                    control.name === "Sound" ? { ...control, value: !allSlidersZero } :
-                    control
-                );
-            });
-        } else if (name === "Radio_sound") {
-            setMixerSettings(prev => {
-                const isSlider = prev.find(c => c.name === name)?.type === "slider";
-                const allSlidersZero = prev
-                    .filter(c => c.type === "slider")
-                    .every(c => (c.name === name ? newValue : c.value) === 0);
-
-                return prev.map(control => 
-                    control.name === name ? { ...control, value: newValue } :
-                    control.name === "Sound" ? { ...control, value: !allSlidersZero } :
-                    control
-                );
-            });
-        } else if (name === "Notifications") {
-            setMixerSettings(prev => {
-                const isSlider = prev.find(c => c.name === name)?.type === "toggle";
-                const allTogglesZero = prev
-                    .filter(c => c.type === "toggle")
-                    .every(c => (c.name === name ? newValue : c.value) === false);
-
-                return prev.map(control => 
-                    control.name === name ? { ...control, value: newValue } :
-                    control.name === "Sound" ? { ...control, value: !allTogglesZero } :
-                    control
-                );
-            });
-        }
-        setMixerSettings(prev => {
-            const isSlider = prev.find(c => c.name === name)?.type === "slider";
-            const allSlidersZero = prev
-                .filter(c => c.type === "slider")
-                .every(c => (c.name === name ? newValue : c.value) === 0);
-
-            return prev.map(control => 
-                control.name === name ? { ...control, value: newValue } :
-                control.name === "Sound" ? { ...control, value: !allSlidersZero } :
-                control
-            );
-        });
-    };
-
-    const handleIconTransition = (toThemeView, toMixerView = false) => {
-        if (isTransitioning) return;
-        setIsTransitioning(true);
-        
-        const currentButtons = detailsPanelRef.current.querySelectorAll('.icon-button:not([data-name="Arrow"])');
-        currentButtons.forEach(button => {
-            button.classList.add('sliding-out');
-        });
-
-        const arrowButton = detailsPanelRef.current.querySelector('.icon-button[data-name="Arrow"]');
-        if (arrowButton) {
-            if (toThemeView || toMixerView) {
-                arrowButton.classList.remove('menu-view');
-                arrowButton.classList.add('submenu-view');
-            } else {
-                arrowButton.classList.remove('submenu-view');
-                arrowButton.classList.add('menu-view');
-            }
-        }
-
-        setTimeout(() => {
-            setCurrentIcons(toThemeView ? themeIcons : defaultIcons);
-            setIsThemeView(toThemeView);
-            setIsMixerView(toMixerView);
-            
-            requestAnimationFrame(() => {
-                const newButtons = detailsPanelRef.current.querySelectorAll('.icon-button:not([data-name="Arrow"])');
-                newButtons.forEach(button => {
-                    button.classList.add('sliding-in');
-                });
-                
-                setTimeout(() => {
-                    newButtons.forEach(button => {
-                        button.classList.remove('sliding-in', 'sliding-out');
-                    });
-                    setIsTransitioning(false);
-                }, 500);
-            });
-        }, 500);
-    };
-
-    const handleLogout = async () => {
+    const handleLogout = useCallback(async () => {
         try {
             const token = localStorage.getItem('token');
             if (token) {
@@ -384,404 +243,66 @@ export default function ClientMainLayout({ children }) {
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
         router.push('/login');
-    };
+    }, [router]);
 
     const handleIconClick = (name, event) => {
-        if (isTransitioning) return;
+        const additionalHandlers = {
+            "Shutdown": () => setIsLogoutModalOpen(true),
+            "Record": () => {
+                setIsRecordPlayerVisible(!isRecordPlayerVisible);
+                setIsRadioPlayerVisible(false);
+                setIsPianoVisible(false);
+                switchPanel('record');
+                if (radioPlayerRef.current && radioPlayerRef.current.pause) {
+                    radioPlayerRef.current.pause();
+                }
+            },
+            "Radio": () => {
+                setIsRadioPlayerVisible(!isRadioPlayerVisible);
+                setIsRecordPlayerVisible(false);
+                setIsPianoVisible(false);
+                switchPanel('radio');
+                const audio = document.querySelector('audio');
+                if (audio) audio.pause();
+            },
+            "Piano": () => setIsPianoVisible(!isPianoVisible),
+            "Magnifying_glass": () => {
+                setShowSearch(true);
+                event.currentTarget.classList.toggle('active-icon');
+            },
+            "Cogwheel": () => {
+                const isClosing = isSettingsVisible;
+                setIsSettingsVisible(!isSettingsVisible);
+                if (isClosing) {
+                    setIsDashboardInPanelVisible(false);
+                }
+            }
+        };
         
-        if (name === "Shutdown") {
-            setIsLogoutModalOpen(true);
-            return;
-        }
-
-        if (name === "Arrow") {
-            setHighlightStyle({ opacity: 0 });
-            handleIconTransition(false);
-        } else if (name === "Themes") {
-            setHighlightStyle({ opacity: 0 });
-            handleIconTransition(true, false);
-        } else if (name === "Mixer") {
-            setHighlightStyle({ opacity: 0 });
-            handleIconTransition(false, true);
-        } else if (name === "Record") {
-            setIsRecordPlayerVisible(!isRecordPlayerVisible);
-            setIsRadioPlayerVisible(false);
-            setIsPianoVisible(false);
-            switchPanel('record');
-          
-            if (radioPlayerRef.current && radioPlayerRef.current.pause) {
-                radioPlayerRef.current.pause();
-            }
-        } else if (name === "Radio") {
-            setIsRadioPlayerVisible(!isRadioPlayerVisible);
-            setIsRecordPlayerVisible(false);
-            setIsPianoVisible(false);
-            switchPanel('radio');
-          
-            const audio = document.querySelector('audio');
-            if (audio) audio.pause();
-        } else if (name === "Piano") {
-            setIsPianoVisible(!isPianoVisible);
-        } else if (name === "Magnifying_glass") {
-            setShowSearch(true);
-            event.currentTarget.classList.toggle('active-icon');
-        } else if (name === "Cogwheel") {
-          
-            const isClosing = isSettingsVisible;
-            setIsSettingsVisible(!isSettingsVisible);
-            if (isClosing) {
-                setIsDashboardInPanelVisible(false);
-            }
-            return;
-        } else if (isThemeView && name !== "Arrow") {
-            setSelectedTheme(name);
-            updateHighlightPosition(event.currentTarget);
-            
-            const themeIcon = themeIcons.find(icon => icon.name === name);
-            if (themeIcon?.themeKey) {
-                setCurrentTheme(themeIcon.themeKey);
-            }
-        }
+        handleThemeClick(name, event, additionalHandlers);
     };
 
-    const handleDoubleClick = (name, event) => {
-        if (isTransitioning) return;
-        
-        if (isThemeView && name !== "Arrow") {
-            const button = event.currentTarget;
-            button.classList.add('double-click-transition');
-            
-            const themeIcon = themeIcons.find(icon => icon.name === name);
-            if (themeIcon?.themeKey) {
-                setCurrentTheme(themeIcon.themeKey);
-            }
-            
-            setTimeout(() => {
-                button.classList.remove('double-click-transition');
-                setHighlightStyle({ opacity: 0 });
-                handleIconTransition(false);
-            }, 500);
-        }
-    };
+    const handleDoubleClick = useCallback((name, event) => {
+        handleThemeDoubleClick(name, event);
+    }, [handleThemeDoubleClick]);
 
-    const handleSearchClick = () => {
+    const handleSearchClick = useCallback(() => {
         setShowSearch(true);
-    };
+    }, [setShowSearch]);
 
-    const handleCloseSearch = () => {
+    const handleCloseSearch = useCallback(() => {
         setShowSearch(false);
         const searchIcon = detailsPanelRef.current?.querySelector('[data-name="Magnifying_glass"]');
         if (searchIcon) {
             searchIcon.classList.remove('active-icon');
         }
-    };
+    }, [setShowSearch, detailsPanelRef]);
 
-    const handleAddChat = async (user) => {
-        const chat = {
-            id: user.id,
-            username: user.username,
-            avatar: `/avatars/${user.gender || 'default'}.png`
-        };
+    // handleAddChat moved to useChat hook
 
-               try {
-            const token = localStorage.getItem('token');
-            await fetch('/api/users/userlist/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-                },
-                body: JSON.stringify({ id: user.id, username: user.username })
-            });
-        } catch (e) {
-            console.error('Greška pri upisu u Userlist.db:', e);
-        }
+    // handleDragOver, handleDrop, handleChatDrop, handleCloseChat, handleChatResize, handleChatClick moved to useChat hook
 
-        if (!chats.some(c => c.id === user.id)) {
-            setChats(prevChats => [...prevChats, chat]);
-        }
-        
-        if (!activeChats.some(ac => ac.id === user.id)) {
-            if (activeChats.length < 3) {
-                const newActiveChats = [...activeChats, chat];
-                setActiveChats(newActiveChats);
-
-                const newWidth = 100 / newActiveChats.length;
-                const newWidths = {};
-                newActiveChats.forEach(c => {
-                    newWidths[c.id] = `${newWidth}%`;
-                });
-                setChatWidths(newWidths);
-            }
-        }
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        const draggingElement = document.querySelector('.dragging');
-        if (draggingElement) {
-            draggingElement.classList.add('drag-over');
-        }
-        
-        const chatArea = document.querySelector('.chat-area.panel-border');
-        const deleteArea = document.getElementById('delete-area');
-        if (deleteArea && chatArea) {
-            const deleteRect = deleteArea.getBoundingClientRect();
-            const mouseY = e.clientY;
-            if (mouseY > deleteRect.top) {
-                setDeleteAreaActive(true);
-            } else {
-                setDeleteAreaActive(false);
-            }
-        }
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        try {
-            const droppedChat = JSON.parse(e.dataTransfer.getData('text/plain'));
-            const draggingElement = document.querySelector('.dragging');
-            if (draggingElement) {
-                draggingElement.classList.remove('drag-over');
-            }
-
-            const dropTarget = e.target.closest('.chat-list-item');
-            if (!dropTarget) return;
-
-            const draggedIndex = chats.findIndex(chat => chat.id === droppedChat.id);
-            const dropIndex = Array.from(dropTarget.parentNode.children).indexOf(dropTarget);
-
-            if (draggedIndex === dropIndex) return;
-
-            setChats(prevChats => {
-                const newChats = [...prevChats];
-                const [removed] = newChats.splice(draggedIndex, 1);
-                newChats.splice(dropIndex, 0, removed);
-                return newChats;
-            });
-        } catch (error) {
-            console.error('Error handling drop:', error);
-        }
-    };
-
-    const handleChatDrop = (e) => {
-        e.preventDefault();
-        const deleteArea = document.getElementById('delete-area');
-        if (deleteArea) {
-            const deleteRect = deleteArea.getBoundingClientRect();
-            if (e.clientY > deleteRect.top) {
-               
-                try {
-                    const data = e.dataTransfer.getData('text/plain');
-                    let droppedChat = JSON.parse(data);
-                    setChats(prevChats => prevChats.filter(c => c.id !== droppedChat.id));
-                    setActiveChats(prev => prev.filter(c => c.id !== droppedChat.id));
-                } catch {}
-                setShowDeleteArea(false);
-                setDeleteAreaActive(false);
-                return;
-            }
-        }
-        
-        try {
-            const data = e.dataTransfer.getData('text/plain');
-            let droppedChat;
-            try {
-                droppedChat = JSON.parse(data);
-            } catch {
-                console.error('Invalid drop data:', data);
-                return;
-            }
-            if (activeChats.some(chat => chat.id === droppedChat.id)) {
-                return;
-            }
-            if (activeChats.length >= 3) {
-                return;
-            }
-            const newChat = { ...droppedChat };
-            setActiveChats(prev => {
-                const newChats = [...prev, newChat];
-                if (newChats.length === 1) {
-                    setChatWidths({
-                        [newChat.id]: '100%'
-                    });
-                } else if (newChats.length === 2) {
-                    setChatWidths({
-                        [newChats[0].id]: '50%',
-                        [newChats[1].id]: '50%'
-                    });
-                } else if (newChats.length === 3) {
-                    setChatWidths({
-                        [newChats[0].id]: '33.33%',
-                        [newChats[1].id]: '33.33%',
-                        [newChats[2].id]: '33.33%'
-                    });
-                }
-                return newChats;
-            });
-        } catch (error) {
-            console.error('Error handling chat drop:', error);
-        }
-        setShowDeleteArea(false);
-        setDeleteAreaActive(false);
-    };
-
-    const handleCloseChat = (chatId) => {
-        setActiveChats(prev => {
-            const newChats = prev.filter(chat => chat.id !== chatId);
-            if (newChats.length === 1) {
-                setChatWidths({
-                    [newChats[0].id]: '100%'
-                });
-            }
-            return newChats;
-        });
-    };
-
-    const handleChatResize = (chatId, newWidth) => {
-        const width = Math.max(30, Math.min(70, parseInt(newWidth)));
-        
-        setChatWidths(prev => {
-            const otherChat = activeChats.find(chat => chat.id !== chatId);
-            if (otherChat) {
-                return {
-                    [chatId]: `${width}%`,
-                    [otherChat.id]: `${100 - width}%`
-                };
-            }
-            return prev;
-        });
-    };
-
-    const handleChatClick = (chat) => {
-        if (activeChats.some(activeChat => activeChat.id === chat.id)) {
-            return;
-        }
-
-        if (activeChats.length >= 3) {
-            return;
-        }
-
-        const newChat = { ...chat };
-        setActiveChats(prev => {
-            const newChats = [...prev, newChat];
-            if (newChats.length === 1) {
-                setChatWidths({
-                    [newChat.id]: '100%'
-                });
-            } else if (newChats.length === 2) {
-                setChatWidths({
-                    [newChats[0].id]: '50%',
-                    [newChats[1].id]: '50%'
-                });
-            } else if (newChats.length === 3) {
-                setChatWidths({
-                    [newChats[0].id]: '33.33%',
-                    [newChats[1].id]: '33.33%',
-                    [newChats[2].id]: '33.33%'
-                });
-            }
-            return newChats;
-        });
-    };
-
-    const handleInfoClick = (chat) => {
-        console.log('Show info for:', chat);
-    };
-
-    const handleDeleteChat = (chat) => {
-        setChats(prevChats => prevChats.filter(c => c.id !== chat.id));
-    };
-
-    const handleSwapChats = () => {
-        if (activeChats.length !== 2) return;
-        
-        const [first, second] = activeChats;
-        const firstWidth = chatWidths[first.id];
-        const secondWidth = chatWidths[second.id];
-        
-        setActiveChats([second, first]);
-        
-        setChatWidths({
-            [second.id]: firstWidth,
-            [first.id]: secondWidth
-        });
-    };
-
-    const handleSlideLeft = () => {
-        if (activeChats.length !== 2) return;
-        const [first] = activeChats;
-        handleCloseChat(first.id);
-    };
-
-    const handleSlideRight = () => {
-        if (activeChats.length !== 2) return;
-        const [, second] = activeChats;
-        handleCloseChat(second.id);
-    };
-
-    const handleResizeStart = (e) => {
-        if (activeChats.length !== 2) return;
-        
-        dragStartX.current = e.clientX;
-        setIsDraggingResize(true);
-        
-        const container = document.querySelector('.active-chats-container');
-        if (container) {
-            container.classList.add('resizing');
-            container.style.userSelect = 'none';
-        }
-        
-        e.preventDefault();
-        e.stopPropagation();
-    };
-
-    useEffect(() => {
-        const handleMouseMove = (e) => {
-            if (!isDraggingResize || !dragStartX.current) return;
-            
-            const deltaX = e.clientX - dragStartX.current;
-            const containerWidth = document.querySelector('.active-chats-container').offsetWidth;
-            const deltaPercentage = (deltaX / containerWidth) * 100;
-            
-            const [first, second] = activeChats;
-            
-            const baseWidth = 50;
-            const maxDelta = 20;
-            const adjustedDelta = Math.max(-maxDelta, Math.min(maxDelta, deltaPercentage / 2));
-            
-            const newFirstWidth = baseWidth + adjustedDelta;
-            const newSecondWidth = baseWidth - adjustedDelta;
-            
-            setChatWidths({
-                [first.id]: `${newFirstWidth}%`,
-                [second.id]: `${newSecondWidth}%`
-            });
-        };
-
-        const handleMouseUp = () => {
-            if (!isDraggingResize) return;
-            
-            setIsDraggingResize(false);
-            dragStartX.current = null;
-
-            const container = document.querySelector('.active-chats-container');
-            if (container) {
-                container.classList.remove('resizing');
-                container.style.userSelect = '';
-            }
-        };
-
-        if (isDraggingResize) {
-            document.addEventListener('mousemove', handleMouseMove);
-            document.addEventListener('mouseup', handleMouseUp);
-        }
-
-        return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isDraggingResize, activeChats]);
+    // handleInfoClick, handleDeleteChat, handleSwapChats, handleSlideLeft, handleSlideRight, handleResizeStart moved to useChat hook
 
     useEffect(() => {
         const arrowButton = detailsPanelRef.current?.querySelector('.icon-button[data-name="Arrow"]');
@@ -797,7 +318,7 @@ export default function ClientMainLayout({ children }) {
         }
     }, [isThemeView, selectedTheme]);
 
-    const handleMenuClick = () => {
+    const handleMenuClick = useCallback(() => {
         if (panelState === 'contacts') {
             setContactsAnim('slideOutLeft');
             setRadioAnim('slideInRight');
@@ -815,69 +336,11 @@ export default function ClientMainLayout({ children }) {
                 setRadioAnim('');
             }, 300);
         }
-    };
+    }, [panelState, setContactsAnim, setRadioAnim, setPanelState]);
 
-    const handleStationSelect = (station, index) => {
-        setCurrentStation(station);
-        if (radioPlayerRef.current?.selectStation) {
-            radioPlayerRef.current.selectStation(station, index);
-        }
-        setIsRadioListVisible(false);
-    };
 
-    const contactsPanelClass = `contacts-panel panel-border ${
-        isRecordPlayerVisible || isRadioPlayerVisible || isPianoVisible || isDashboardInPanelVisible || isSettingsVisible ? 'panel-shrink' : ''
-    } ${isRadioListVisible ? 'radio-list-active' : ''} ${isPianoActive ? 'piano-active' : ''}`;
 
-    const handlePianoActivate = () => {
-        setIsPianoActive(!isPianoActive);
-    };
-
-    const handleRecordPlayerMenuClick = async () => {
-        if (isSongListActive) {
-            setIsSongListActive(false);
-            return;
-        }
-        setIsSongListActive(true);
-        if (songs.length === 0 && !isSongListLoading) {
-            setIsSongListLoading(true);
-            try {
-                const response = await fetch('/api/media/songs');
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    setSongs([]);
-                    setSongListError(errorData.errorMessage || errorData.error || 'Greška pri dohvaćanju pjesama.');
-                    return;
-                }
-                const data = await response.json();
-                if (data.songs) {
-                    setSongs(data.songs);
-                    setSongListError(null);
-                }
-            } catch (error) {
-                setSongListError('Greška pri dohvaćanju pjesama: ' + error.message);
-            } finally {
-                setIsSongListLoading(false);
-            }
-        }
-    };
-
-    const handleSongSelect = (song) => {
-        setCurrentSong(song);
-    };
-
-    const switchPanel = (panel) => {
-        if (!isSongListActive) {
-            setActivePanel(panel);
-            setPanelAnimation(styles.slideIn || 'slideIn');
-            return;
-        }
-        setPanelAnimation(styles.slideOut || 'slideOut');
-        setTimeout(() => {
-            setActivePanel(panel);
-            setPanelAnimation(styles.slideIn || 'slideIn');
-        }, 300);
-    };
+    // handleRecordPlayerMenuClick, handleSongSelect, switchPanel, updateControlsLeft moved to useMedia/useChat hook
 
     // Fallback 
     useEffect(() => {
@@ -1021,7 +484,7 @@ export default function ClientMainLayout({ children }) {
         };
     }, [activeChats, router]);
 
-    const renderMixerControls = () => {
+    const renderMixerControls = useCallback(() => {
         return (
             <div className="mixer-controls">
                 {mixerSettings.map((control, index) => (
@@ -1061,7 +524,7 @@ export default function ClientMainLayout({ children }) {
                 ))}
             </div>
         );
-    };
+    }, [mixerSettings, handleMixerControlChange]);
 
     // Show delete area on drag start, hide on drag end
     useEffect(() => {
@@ -1082,21 +545,15 @@ export default function ClientMainLayout({ children }) {
         };
     }, []);
 
-    // Handler for animation end
-    const handleDeleteAnimationEnd = () => {
-        if (deleteAnimationCount > 1) {
-            setDeleteAnimationCount(c => c - 1);
-            setDeleteAnimationKey(Math.random());
-        }
-    };
-
     // Hover resize mousemove handler
     useEffect(() => {
         if (!isHoveringResize) return;
+        
         const handleHoverResize = (e) => {
             const container = document.querySelector('.active-chats-container');
             if (!container || activeChats.length !== 2) return;
             const rect = container.getBoundingClientRect();
+            
             // Ako miš izađe izvan containera, ugasi hover-resize i resetiraj širine
             if (
                 e.clientX < rect.left ||
@@ -1108,6 +565,7 @@ export default function ClientMainLayout({ children }) {
                 setChatWidths(lastChatWidths.current);
                 return;
             }
+            
             const mouseX = e.clientX - rect.left;
             const containerWidth = rect.width;
             const percent = Math.max(30, Math.min(70, (mouseX / containerWidth) * 100));
@@ -1117,11 +575,12 @@ export default function ClientMainLayout({ children }) {
                 [second.id]: `${100 - percent}%`
             });
         };
+        
         window.addEventListener('mousemove', handleHoverResize);
         return () => {
             window.removeEventListener('mousemove', handleHoverResize);
         };
-    }, [isHoveringResize, activeChats]);
+    }, [isHoveringResize, activeChats, setIsHoveringResize, setChatWidths, lastChatWidths]);
 
     useEffect(() => {
         if (!isHoveringResize) return;
@@ -1134,36 +593,6 @@ export default function ClientMainLayout({ children }) {
             container?.removeEventListener('mouseleave', handleContainerLeave);
         };
     }, [isHoveringResize, activeChats]);
-
-    // Funkcija za izračun pozicije granice
-    const updateControlsLeft = () => {
-        if (activeChats.length !== 2) return setControlsLeft('50%');
-        const container = document.querySelector('.active-chats-container');
-        if (!container) return setControlsLeft('50%');
-        const containerWidth = container.offsetWidth;
-        const leftPercent = parseFloat(chatWidths[activeChats[0].id] || '50');
-        const leftPx = (containerWidth * leftPercent) / 100;
-        setControlsLeft(`${leftPx}px`);
-    };
-
-    // Pozivaj updateControlsLeft kad god se chatWidths ili activeChats promijene
-    useEffect(() => {
-        updateControlsLeft();
-    }, [chatWidths, activeChats]);
-
-    const handleDragRemoveChat = (chat) => {
-        setDraggedChatId(chat.id);
-    };
-    const handleDragRestoreChat = () => setDraggedChatId(null);
-
-    const handleRemoveChat = (chat) => {
-        setRemovingChatId(chat.id);
-    };
-
-    const handleRemoveAnimationEnd = (chatId) => {
-        setChats(prev => prev.filter(c => c.id !== chatId));
-        setRemovingChatId(null);
-    };
 
     return (
         <>
@@ -1195,14 +624,14 @@ export default function ClientMainLayout({ children }) {
                 <SettingsWidget
                     isVisible={isSettingsVisible}
                     username={currentUser.username}
-                    avatar={currentUser.id ? `/api/users/${currentUser.id}/profile-picture` : (currentUser.gender === 'woman' ? '/icons/Woman.png' : '/icons/Man.png')}
+                    avatar={userAvatar}
                     gender={currentUser.gender}
                     onAvatarClick={() => {
                         setIsDashboardInPanelVisible(!isDashboardInPanelVisible);
                     }}
                     onOpenAiChat={() => setIsAiChatOpen(true)}
                 />
-                <div className={`content-container${activeChats.length === 1 ? ' single-chat' : ''}`}>
+                <div className={contentContainerClass}>
                     <div 
                         className={contactsPanelClass}
                         onDragOver={handleDragOver}
@@ -1210,12 +639,14 @@ export default function ClientMainLayout({ children }) {
                     >
                         <div className="panel-content">
                             {isDashboardInPanelVisible ? (
-                                <SettingsDashboard 
-                                    avatar={currentUser.id ? `/api/users/${currentUser.id}/profile-picture` : (currentUser.gender === 'woman' ? '/icons/Woman.png' : '/icons/Man.png')}
-                                    gender={currentUser.gender}
-                                    onOpenDocument={() => setIsDocumentOpen(true)}
-                                    onOpenAiChat={() => setIsAiChatOpen(true)}
-                                />
+                                <Suspense fallback={<div className="loading-spinner">Loading Dashboard...</div>}>
+                                    <SettingsDashboard 
+                                        avatar={userAvatar}
+                                        gender={currentUser.gender}
+                                        onOpenDocument={() => setIsDocumentOpen(true)}
+                                        onOpenAiChat={() => setIsAiChatOpen(true)}
+                                    />
+                                </Suspense>
                             ) : isRadioListVisible ? (
                                 <RadioListWidget
                                     isVisible={isRadioListVisible}
@@ -1227,7 +658,7 @@ export default function ClientMainLayout({ children }) {
                                 (panelState === 'contacts' || panelState === 'animating-to-radio' || panelState === 'animating-to-contacts') && (
                                     <div className={`contacts-list${contactsAnim ? ' ' + contactsAnim : ''}`}> 
                                         {isSongListActive ? (
-                                            <div className={`song-list${activePanel === 'radio' ? ' ' + styles.radioBgPanel : ''}`}> 
+                                            <div className={`song-list${activePanel === 'radio' ? ' radio-bg-panel' : ''}`}> 
                                                 {isSongListLoading ? (
                                                     <p>Loading songs...</p>
                                                 ) : songListError ? (
@@ -1238,7 +669,7 @@ export default function ClientMainLayout({ children }) {
                                                             <li
                                                                 key={index}
                                                                 onClick={() => handleSongSelect(song)}
-                                                                className={song === currentSong ? styles.frostedSongListItem : ''}
+                                                                className={song === currentSong ? 'frosted-song-list-item' : ''}
                                                             >
                                                                 {song.replace(/\.mp3$|\.wav$|\.waw$/,'')}
                                                             </li>
@@ -1284,17 +715,7 @@ export default function ClientMainLayout({ children }) {
                         ) : (
                         <div
                             className="active-chats-container"
-                            style={{
-                                display: 'flex',
-                                alignItems: 'stretch',
-                                justifyContent: 'center',
-                                width: '100%',
-                                height: '100%',
-                                gap: activeChats.length > 1 ? '2%' : 0,
-                                paddingLeft: activeChats.length > 1 ? '0.5%' : 0,
-                                paddingRight: activeChats.length > 1 ? '0.5%' : 0,
-                                position: 'relative',
-                            }}
+                            style={activeChatsContainerStyle}
                         >
                             {activeChats.map((chat, idx) => (
                                 <EndToEndMessenger
@@ -1373,7 +794,9 @@ export default function ClientMainLayout({ children }) {
                 
                 {/* Search Widget */}
                 {showSearch && (
-                    <SearchWidget onClose={handleCloseSearch} onAddChat={handleAddChat} />
+                    <Suspense fallback={<div className="loading-spinner">Loading Search...</div>}>
+                        <SearchWidget onClose={handleCloseSearch} onAddChat={handleAddChat} />
+                    </Suspense>
                 )}
                 {/* Logout Modal */}
                 <LogoutModal
@@ -1451,3 +874,5 @@ export default function ClientMainLayout({ children }) {
         </>
     );
 }
+
+export default ClientMainLayout;
