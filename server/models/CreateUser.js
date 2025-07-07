@@ -1,7 +1,12 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from 'url';
 import Database from "better-sqlite3";
 import bcrypt from "bcryptjs";
+import { user } from "../utils/logger.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 function CreateUser({
@@ -16,47 +21,78 @@ function CreateUser({
 }) {
     // Pretvori datum iz "DD.MM.YYYY" u "YYYY-MM-DD"
     function formatDate(dateStr) {
-        if (!dateStr) return null;
+        user.info("[CreateUser] formatDate called with:", dateStr);
+        if (!dateStr) {
+            user.info("[CreateUser] formatDate: dateStr is null/undefined");
+            return null;
+        }
         const [day, month, year] = dateStr.split(".");
-        return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        user.info("[CreateUser] formatDate: parsed parts:", { day, month, year });
+        const result = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+        user.info("[CreateUser] formatDate: result:", result);
+        return result;
     }
     const formattedDate = formatDate(date_of_birth);
-    console.log("[CreateUser] Start", { username, name, surname, gender, date_of_birth, formattedDate, theme, language });
+    user.info("[CreateUser] Start - username:", username);
+    user.info("[CreateUser] Start - name:", name);
+    user.info("[CreateUser] Start - surname:", surname);
+    user.info("[CreateUser] Start - gender:", gender);
+    user.info("[CreateUser] Start - date_of_birth:", date_of_birth);
+    user.info("[CreateUser] Start - formattedDate:", formattedDate);
+    user.info("[CreateUser] Start - theme:", theme);
+    user.info("[CreateUser] Start - language:", language);
+    user.info("[CreateUser] __dirname:", __dirname);
+    user.info("[CreateUser] About to resolve database path...");
     const dbPath = path.resolve(__dirname, "../database/data/client_info.db");
+    user.info("[CreateUser] Database path:", dbPath);
     let db;
     try {
         db = new Database(dbPath);
+        user.info("[CreateUser] Database opened successfully");
     } catch (err) {
-        console.error("[CreateUser] Error opening client_info.db:", err);
+        user.error("[CreateUser] Error opening client_info.db:", err);
         throw err;
     }
 
-   
+    // Provjeri da li korisnik već postoji
+    user.info("[CreateUser] Checking if username exists:", username);
     const existing = db.prepare("SELECT * FROM clients WHERE username = ?").get(username);
     if (existing) {
         db.close();
-        console.log("[CreateUser] Username already exists:", username);
+        user.info("[CreateUser] Username already exists:", username);
         throw new Error("Username already exists.");
     }
+    user.info("[CreateUser] Username is available");
 
- 
+    // Pronađi sljedeći dostupni ID
+    user.info("[CreateUser] Finding next available userId...");
     let findNextAvailableId;
     try {
-        findNextAvailableId =
-            db
-                .prepare(
-                    `
-    SELECT MIN(t1.id + 1) AS next_id
-    FROM clients t1
-    LEFT JOIN clients t2 ON t1.id + 1 = t2.id
-    WHERE t2.id IS NULL
-  `
-                )
-                .get()?.next_id || 1;
-        console.log("[CreateUser] Next available userId:", findNextAvailableId);
+        // Prvo provjeri da li postoje korisnici u bazi
+        const userCount = db.prepare("SELECT COUNT(*) as count FROM clients").get();
+        user.info("[CreateUser] Current user count:", userCount.count);
+        
+        if (userCount.count === 0) {
+            // Ako je baza prazna, koristi ID 1
+            findNextAvailableId = 1;
+        } else {
+            // Ako postoje korisnici, pronađi sljedeći dostupni ID
+            findNextAvailableId =
+                db
+                    .prepare(
+                        `
+        SELECT MIN(t1.id + 1) AS next_id
+        FROM clients t1
+        LEFT JOIN clients t2 ON t1.id + 1 = t2.id
+        WHERE t2.id IS NULL
+      `
+                    )
+                    .get()?.next_id || 1;
+        }
+        user.info("[CreateUser] Next available userId:", findNextAvailableId);
     } catch (err) {
         db.close();
-        console.error("[CreateUser] Error finding next available userId:", err);
+        user.error("[CreateUser] Error finding next available userId:", err);
         throw err;
     }
 
@@ -76,10 +112,10 @@ function CreateUser({
             theme,
             language
         );
-        console.log("[CreateUser] Inserted into clients:", username);
+        user.info("[CreateUser] Inserted into clients:", username);
     } catch (err) {
         db.close();
-        console.error("[CreateUser] Error inserting into clients:", err, { username, name, surname, gender, date_of_birth, theme, language });
+        user.error("[CreateUser] Error inserting into clients:", err, { username, name, surname, gender, date_of_birth, theme, language });
         throw err;
     }
     const userId = findNextAvailableId;
@@ -95,9 +131,9 @@ function CreateUser({
         if (!fs.existsSync(userFolder)) fs.mkdirSync(userFolder, { recursive: true });
         if (!fs.existsSync(chatFolder)) fs.mkdirSync(chatFolder);
         if (!fs.existsSync(mediaFolder)) fs.mkdirSync(mediaFolder);
-        console.log("[CreateUser] Created user folders for:", userId);
+        user.info("[CreateUser] Created user folders for:", userId);
     } catch (err) {
-        console.error("[CreateUser] Error creating user folders:", err);
+        user.error("[CreateUser] Error creating user folders:", err);
         throw err;
     }
 
@@ -116,9 +152,9 @@ function CreateUser({
             )
             .run();
         infoDb.close();
-        console.log("[CreateUser] Created info.db for:", userId);
+        user.info("[CreateUser] Created info.db for:", userId);
     } catch (err) {
-        console.error("[CreateUser] Error creating info.db:", err);
+        user.error("[CreateUser] Error creating info.db:", err);
         throw err;
     }
 
@@ -134,9 +170,9 @@ function CreateUser({
         );
     `).run();
         userlistDb.close();
-        console.log("[CreateUser] Created Userlist.db for:", userId);
+        user.info("[CreateUser] Created Userlist.db for:", userId);
     } catch (err) {
-        console.error("[CreateUser] Error creating Userlist.db:", err);
+        user.error("[CreateUser] Error creating Userlist.db:", err);
         throw err;
     }
 
@@ -154,9 +190,9 @@ function CreateUser({
             )
             .run();
         loginDb.close();
-        console.log("[CreateUser] Created login.db for:", userId);
+        user.info("[CreateUser] Created login.db for:", userId);
     } catch (err) {
-        console.error("[CreateUser] Error creating login.db:", err);
+        user.error("[CreateUser] Error creating login.db:", err);
         throw err;
     }
 
@@ -175,9 +211,9 @@ function CreateUser({
             )
             .run();
         groupsDb.close();
-        console.log("[CreateUser] Created groups.db for:", userId);
+        user.info("[CreateUser] Created groups.db for:", userId);
     } catch (err) {
-        console.error("[CreateUser] Error creating groups.db:", err);
+        user.error("[CreateUser] Error creating groups.db:", err);
         throw err;
     }
 
@@ -187,17 +223,17 @@ function CreateUser({
     try {
         authDb = new Database(authDbPath);
     } catch (err) {
-        console.error("[CreateUser] Error opening auth.db:", err);
+        user.error("[CreateUser] Error opening auth.db:", err);
         throw err;
     }
 
     let passwordHash;
     try {
         passwordHash = bcrypt.hashSync(password, 10);
-        console.log("[CreateUser] Password hashed for:", username);
+        user.info("[CreateUser] Password hashed for:", username);
     } catch (err) {
         authDb.close();
-        console.error("[CreateUser] Error hashing password:", err);
+        user.error("[CreateUser] Error hashing password:", err);
         throw err;
     }
 
@@ -211,10 +247,10 @@ function CreateUser({
             )
             .run(username, passwordHash);
         authDb.close();
-        console.log("[CreateUser] Inserted into credentials for:", username);
+        user.info("[CreateUser] Inserted into credentials for:", username);
     } catch (err) {
         authDb.close();
-        console.error("[CreateUser] Error inserting into credentials:", err);
+        user.error("[CreateUser] Error inserting into credentials:", err);
         throw err;
     }
 
@@ -224,7 +260,7 @@ function CreateUser({
     try {
         usernamesDb = new Database(usernamesDbPath);
     } catch (err) {
-        console.error("[CreateUser] Error opening usernames.db:", err);
+        user.error("[CreateUser] Error opening usernames.db:", err);
         throw err;
     }
     try {
@@ -232,10 +268,10 @@ function CreateUser({
             .prepare("INSERT INTO registered_usernames (id, username) VALUES (?, ?)")
             .run(userId, username);
         usernamesDb.close();
-        console.log("[CreateUser] Inserted into registered_usernames for:", username);
+        user.info("[CreateUser] Inserted into registered_usernames for:", username);
     } catch (err) {
         usernamesDb.close();
-        console.error("[CreateUser] Error inserting into registered_usernames:", err);
+        user.error("[CreateUser] Error inserting into registered_usernames:", err);
         throw err;
     }
 

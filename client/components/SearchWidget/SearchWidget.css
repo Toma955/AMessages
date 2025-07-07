@@ -230,11 +230,18 @@
     transform: scale(1.1);
 }
 
-.search-loading, .no-results, .search-hint {
+.search-loading, .no-results, .search-hint, .search-error {
     text-align: center;
     padding: 20px;
     color: rgba(255, 255, 255, 0.6);
     font-size: 14px;
+}
+
+.search-error {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+    border-radius: 8px;
+    margin: 8px 0;
 }
 
 .search-results::-webkit-scrollbar {

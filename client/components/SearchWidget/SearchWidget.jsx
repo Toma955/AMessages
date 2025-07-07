@@ -7,6 +7,7 @@ export default function SearchWidget({ onClose, onAddChat }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
     const searchRef = useRef(null);
 
     // Handle click outside to close the widget
@@ -29,12 +30,23 @@ export default function SearchWidget({ onClose, onAddChat }) {
             if (searchQuery.length >= 2) {
                 setIsLoading(true);
                 try {
+                    // Check if user is authenticated
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        setError('Please log in to search users');
+                        setSearchResults([]);
+                        return;
+                    }
+                    
+                    setError(null);
                     const response = await api.get(`/api/search/users/search?query=${encodeURIComponent(searchQuery)}`);
                     if (response.success) {
                         setSearchResults(response.results);
                     }
                 } catch (error) {
                     console.error('Search error:', error);
+                    setError('Failed to search users. Please try again.');
+                    setSearchResults([]);
                 } finally {
                     setIsLoading(false);
                 }
@@ -97,7 +109,9 @@ export default function SearchWidget({ onClose, onAddChat }) {
                 </div>
 
                 <div className="search-results">
-                    {isLoading ? (
+                    {error ? (
+                        <div className="search-error">{error}</div>
+                    ) : isLoading ? (
                         <div className="search-loading">Searching...</div>
                     ) : searchResults.length > 0 ? (
                         searchResults.map((user) => (
