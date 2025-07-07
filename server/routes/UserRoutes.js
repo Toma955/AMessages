@@ -57,6 +57,12 @@ router.get("/me", jwtMiddleware, (req, res) => {
     res.status(200).json({ success: true, user: req.user });
 });
 
+router.delete("/me", jwtMiddleware, (req, res) => {
+    // Pozovi handleDeleteUser s ID-om trenutnog korisnika
+    req.params.id = req.user.id;
+    handleDeleteUser(req, res);
+});
+
 router.post("/users/userlist/add", jwtMiddleware, addUserToUserlist);
 
 router.get("/users/userlist", jwtMiddleware, getUserlist);

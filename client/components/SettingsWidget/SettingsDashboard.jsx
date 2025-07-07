@@ -7,6 +7,7 @@ export default function SettingsDashboard(props) {
     const { avatar, gender } = props;
     const [language, setLanguage] = useState('hrv');
     const [avatarSrc, setAvatarSrc] = useState(avatar);
+    const [isDeleting, setIsDeleting] = useState(false);
     const fileInputRef = useRef(null);
 
     const handleLanguageToggle = () => {
@@ -43,6 +44,26 @@ export default function SettingsDashboard(props) {
     
     const handleImageError = () => {
         setAvatarSrc(`/avatars/${gender}.png`);
+    };
+
+    const handleDeleteAccount = async () => {
+        if (window.confirm('Jeste li sigurni da želite obrisati svoj račun? Ova akcija se ne može poništiti.')) {
+            setIsDeleting(true);
+            try {
+                const response = await api.delete('/api/users/me');
+                if (response.success) {
+                    // Obriši token iz localStorage
+                    localStorage.removeItem('token');
+                    // Preusmjeri na login stranicu
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error deleting account:', error);
+                alert('Greška pri brisanju računa. Pokušajte ponovno.');
+            } finally {
+                setIsDeleting(false);
+            }
+        }
     };
 
     return (
@@ -98,9 +119,13 @@ export default function SettingsDashboard(props) {
                 <span>ENG</span>
             </div>
 
-            <button className={`${styles.actionButton} ${styles.deleteButton}`}>
+            <button 
+                className={`${styles.actionButton} ${styles.deleteButton}`} 
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+            >
                 <Image src="/icons/Delette_Account.png" alt="" width={24} height={24} />
-                <span>Izbriši račun</span>
+                <span>{isDeleting ? 'Brisanje...' : 'Izbriši račun'}</span>
             </button>
         </div>
     );

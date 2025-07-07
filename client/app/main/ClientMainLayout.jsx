@@ -13,6 +13,8 @@ import LogoutModal from '@/components/LogoutModal/LogoutModal.jsx';
 import ChatListItem from '@/components/ChatList/ChatListItem';
 import ChatWindow from '@/components/ChatWindow/ChatWindow';
 import SettingsWidget from "@/components/SettingsWidget/SettingsWidget";
+import GroupButton from '@/components/GroupButton/GroupButton';
+import GrupChat from '@/components/GrupChat/GrupChat';
 import RadioListWidget from '@/components/RadioPlayer/RadioListWidget';
 import socketService from "@/services/socketService";
 import "@/app/styles/main.css";
@@ -118,10 +120,59 @@ function ClientMainLayout({ children }) {
     const [deleteAnimationKey, setDeleteAnimationKey] = useState(0);
     const [isDocumentOpen, setIsDocumentOpen] = useState(false);
     const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+    const [isGrupChatOpen, setIsGrupChatOpen] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const [songPage, setSongPage] = useState(0);
     const songsPerPage = 4;
     const totalSongPages = Math.ceil(songs.length / songsPerPage);
+
+    // Handle GrupChat open/close with proper width management
+    const handleGrupChatOpen = useCallback(() => {
+        setIsGrupChatOpen(true);
+        
+        // Adjust chat widths when opening group chat
+        if (activeChats.length > 0) {
+            const newWidths = { ...chatWidths };
+            
+            // If there's only one active chat, split the space
+            if (activeChats.length === 1) {
+                newWidths[activeChats[0].id] = '49%';
+                newWidths['group'] = '49%';
+            } else {
+                // If there are multiple chats, give group chat equal space
+                const equalWidth = `${100 / (activeChats.length + 1)}%`;
+                activeChats.forEach(chat => {
+                    newWidths[chat.id] = equalWidth;
+                });
+                newWidths['group'] = equalWidth;
+            }
+            
+            setChatWidths(newWidths);
+        }
+    }, [activeChats, chatWidths, setChatWidths]);
+
+    const handleGrupChatClose = useCallback(() => {
+        setIsGrupChatOpen(false);
+        
+        // Restore original widths when closing group chat
+        if (activeChats.length > 0) {
+            const newWidths = { ...chatWidths };
+            delete newWidths['group'];
+            
+            // If there's only one active chat, give it full width
+            if (activeChats.length === 1) {
+                newWidths[activeChats[0].id] = '100%';
+            } else {
+                // Distribute space equally among remaining chats
+                const equalWidth = `${100 / activeChats.length}%`;
+                activeChats.forEach(chat => {
+                    newWidths[chat.id] = equalWidth;
+                });
+            }
+            
+            setChatWidths(newWidths);
+        }
+    }, [activeChats, chatWidths, setChatWidths]);
 
     // Refs
     const router = useRouter();
@@ -134,20 +185,24 @@ function ClientMainLayout({ children }) {
     }, [isRecordPlayerVisible, isRadioPlayerVisible, isPianoVisible, isDashboardInPanelVisible, isSettingsVisible, isRadioListVisible, isPianoActive]);
 
     const contentContainerClass = useMemo(() => {
-        return `content-container${activeChats.length === 1 ? ' single-chat' : ''}`;
-    }, [activeChats.length]);
+        const totalChats = activeChats.length + (isGrupChatOpen ? 1 : 0);
+        return `content-container${totalChats === 1 ? ' single-chat' : ''}`;
+    }, [activeChats.length, isGrupChatOpen]);
 
-    const activeChatsContainerStyle = useMemo(() => ({
-        display: 'flex',
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        width: '100%',
-        height: '100%',
-        gap: activeChats.length > 1 ? '2%' : 0,
-        paddingLeft: activeChats.length > 1 ? '0.5%' : 0,
-        paddingRight: activeChats.length > 1 ? '0.5%' : 0,
-        position: 'relative',
-    }), [activeChats.length]);
+    const activeChatsContainerStyle = useMemo(() => {
+        const totalChats = activeChats.length + (isGrupChatOpen ? 1 : 0);
+        return {
+            display: 'flex',
+            alignItems: 'stretch',
+            justifyContent: 'center',
+            width: '100%',
+            height: '100%',
+            gap: totalChats > 1 ? '2%' : 0,
+            paddingLeft: totalChats > 1 ? '0.5%' : 0,
+            paddingRight: totalChats > 1 ? '0.5%' : 0,
+            position: 'relative',
+        };
+    }, [activeChats.length, isGrupChatOpen]);
 
     const userAvatar = useMemo(() => {
         return currentUser.id ? `/api/users/${currentUser.id}/profile-picture` : (currentUser.gender === 'woman' ? '/icons/Woman.png' : '/icons/Man.png');
@@ -697,21 +752,29 @@ function ClientMainLayout({ children }) {
                                                 currentTheme={currentTheme}
                                             />
                                         ) : (
-                                            chats.map((chat, index) => (
-                                                <ChatListItem
-                                                    key={chat.id}
-                                                    chat={chat}
-                                                    onDelete={handleDeleteChat}
-                                                    onChat={handleChatClick}
-                                                    onInfo={handleInfoClick}
-                                                    onMessages={handleChatClick}
-                                                    onDragRemove={() => handleDragRemoveChat(chat)}
-                                                    onDragRestore={handleDragRestoreChat}
-                                                    removing={removingChatId === chat.id}
-                                                    onRemoveAnimationEnd={() => handleRemoveAnimationEnd(chat.id)}
-                                                    onRemove={() => handleRemoveChat(chat)}
-                                                />
-                                            ))
+                                            <>
+                                                {chats.map((chat, index) => (
+                                                    <ChatListItem
+                                                        key={chat.id}
+                                                        chat={chat}
+                                                        onDelete={handleDeleteChat}
+                                                        onChat={handleChatClick}
+                                                        onInfo={handleInfoClick}
+                                                        onMessages={handleChatClick}
+                                                        onDragRemove={() => handleDragRemoveChat(chat)}
+                                                        onDragRestore={handleDragRestoreChat}
+                                                        removing={removingChatId === chat.id}
+                                                        onRemoveAnimationEnd={() => handleRemoveAnimationEnd(chat.id)}
+                                                        onRemove={() => handleRemoveChat(chat)}
+                                                    />
+                                                ))}
+                                                <div className="contacts-list-footer">
+                                                    <GroupButton 
+                                                        onClick={handleGrupChatOpen}
+                                                        title="Grup info"
+                                                    />
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 )
@@ -744,7 +807,17 @@ function ClientMainLayout({ children }) {
                                     isSingle={activeChats.length === 1}
                                 />
                             ))}
-                            {activeChats.length === 2 && (
+                            {isGrupChatOpen && (
+                                <GrupChat
+                                    onClose={handleGrupChatClose}
+                                    groupName="Group Chat"
+                                    isAdmin={true}
+                                    currentUser={currentUser}
+                                    style={activeChats.length > 0 ? { width: chatWidths['group'] || '49%' } : { width: '100%' }}
+                                    isSingle={activeChats.length === 0}
+                                />
+                            )}
+                            {(activeChats.length === 2 || (activeChats.length === 1 && isGrupChatOpen)) && (
                                 <div className="controls-between-chats" style={{ left: controlsLeft, transform: 'translateX(-50%)' }}>
                                     <div className="vertical-line"></div>
                                     <div className="controls-square">
@@ -815,6 +888,7 @@ function ClientMainLayout({ children }) {
                         <SearchWidget onClose={handleCloseSearch} onAddChat={handleAddChat} />
                     </Suspense>
                 )}
+
                 {/* Logout Modal */}
                 <LogoutModal
                     isOpen={isLogoutModalOpen}

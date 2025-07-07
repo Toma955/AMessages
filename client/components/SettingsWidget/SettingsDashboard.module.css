@@ -121,6 +121,17 @@
     color: #ff6666;
 }
 
+.deleteButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.deleteButton:disabled:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ff4d4d;
+}
+
 /* Theme-specific colors for action buttons */
 [data-theme="yellow"] .actionButton:not(.deleteButton) { border-color: #FFDE21; color: #FFDE21; }
 [data-theme="green"] .actionButton:not(.deleteButton) { border-color: #00FF40; color: #00FF40; }

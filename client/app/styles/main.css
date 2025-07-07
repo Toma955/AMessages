@@ -284,11 +284,28 @@
     width: 100%;
     height: 100%;
     transition: transform 0.3s ease;
+    position: relative;
 }
 
 .contacts-list.hidden {
     transform: translateX(-100%);
 }
+
+.contacts-list-footer {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 20px;
+    width: 80%;
+    height: 60px;
+    z-index: 10;
+}
+
+
 
 .radio-list-active {
     /* background: url('/icons/RadioBackground.jpg') center/cover !important; */

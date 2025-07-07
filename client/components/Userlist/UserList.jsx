@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import GroupButton from '../GroupButton/GroupButton';
 import api from '../../utils/api';
 import './UserList.css';
 
@@ -45,6 +46,19 @@ export default function UserList() {
         fetchUsers();
     }, [currentUserId]);
 
+    const handleDragStart = (e, user) => {
+        e.dataTransfer.setData('text/plain', JSON.stringify({
+            id: user.id,
+            username: user.username,
+            gender: user.gender
+        }));
+        e.dataTransfer.effectAllowed = 'copy';
+    };
+
+    const handleDragEnd = (e) => {
+        e.preventDefault();
+    };
+
     if (loading) {
         return (
             <div className="user-list-container loading">
@@ -66,7 +80,14 @@ export default function UserList() {
             <h2 className="user-list-title">Available Users</h2>
             <div className="user-list">
                 {users.map((user) => (
-                    <div key={user.id} className="user-item">
+                    <div 
+                        key={user.id} 
+                        className="user-item draggable"
+                        draggable={true}
+                        onDragStart={(e) => handleDragStart(e, user)}
+                        onDragEnd={handleDragEnd}
+                        title={`Drag ${user.username} to add to group chat`}
+                    >
                         <div className="user-avatar">
                             <Image
                                 src={`/avatars/${user.gender || 'default'}.png`}
@@ -78,11 +99,18 @@ export default function UserList() {
                         <div className="user-info">
                             <div className="user-name">{user.username}</div>
                         </div>
+                        <div className="drag-indicator">👤</div>
                     </div>
                 ))}
                 {users.length === 0 && (
                     <div className="no-users">No other users available</div>
                 )}
+            </div>
+            <div className="user-list-footer">
+                <GroupButton 
+                    onClick={() => console.log('Group button clicked')}
+                    title="Grup info"
+                />
             </div>
         </div>
     );

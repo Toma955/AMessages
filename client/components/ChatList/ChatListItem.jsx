@@ -67,36 +67,6 @@ export default function ChatListItem({ chat, onDelete, onChat, onInfo, onDragRem
                         >
                             {chat.unread_messages ?? 0}
                         </button>
-                        <button
-                            className="group-button"
-                            onClick={() => onInfo && onInfo(chat)}
-                            title="Grup info"
-                            style={{
-                                width: '32px',
-                                height: '32px',
-                                borderRadius: '8px',
-                                backgroundColor: '#E08543',
-                                border: 'none',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                marginLeft: '8px',
-                                transition: 'all 0.2s ease'
-                            }}
-                        >
-                            <Image
-                                src="/icons/grup.png"
-                                alt="Group"
-                                width={20}
-                                height={20}
-                            />
-                        </button>
-                        {/*
-                        <button onClick={() => onRemove && onRemove()} title="Remove chat" style={{marginLeft: 8}}>
-                            🗑️
-                        </button>
-                        */}
                     </div>
                 </div>
             </div>
