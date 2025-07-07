@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from "next/navigation";
 import CanvasBackground from "@/components/CanvasBackground/CanvasBackground";
 import RecordPlayer from "@/components/RecordPlayer/RecordPlayer.jsx";
+import VinylSongList from "@/components/RecordPlayer/VinylSongList.jsx";
 import RadioPlayer from "@/components/RadioPlayer/RadioPlayer.jsx";
 import PianoWidget from "@/components/PianoWidget/PianoWidget.jsx";
 import RadioStationsList from "@/components/RadioPlayer/RadioStationsList.jsx";
@@ -118,6 +119,9 @@ function ClientMainLayout({ children }) {
     const [isDocumentOpen, setIsDocumentOpen] = useState(false);
     const [isAiChatOpen, setIsAiChatOpen] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
+    const [songPage, setSongPage] = useState(0);
+    const songsPerPage = 4;
+    const totalSongPages = Math.ceil(songs.length / songsPerPage);
 
     // Refs
     const router = useRouter();
@@ -684,27 +688,14 @@ function ClientMainLayout({ children }) {
                                 (panelState === 'contacts' || panelState === 'animating-to-radio' || panelState === 'animating-to-contacts') && (
                                     <div className={`contacts-list${contactsAnim ? ' ' + contactsAnim : ''}`}> 
                                         {isSongListActive ? (
-                                            <div className={`song-list${activePanel === 'radio' ? ' radio-bg-panel' : ''}`}> 
-                                                {isSongListLoading ? (
-                                                    <p>Loading songs...</p>
-                                                ) : songListError ? (
-                                                    <p style={{ color: 'red' }}>{songListError}</p>
-                                                ) : songs.length > 0 ? (
-                                                    <ul>
-                                                        {songs.map((song, index) => (
-                                                            <li
-                                                                key={index}
-                                                                onClick={() => handleSongSelect(song)}
-                                                                className={song === currentSong ? 'frosted-song-list-item' : ''}
-                                                            >
-                                                                {song.replace(/\.mp3$|\.wav$|\.waw$/,'')}
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                ) : (
-                                                    <p>No songs found.</p>
-                                                )}
-                                            </div>
+                                            <VinylSongList
+                                                songs={songs}
+                                                currentSong={currentSong}
+                                                onSongSelect={handleSongSelect}
+                                                isLoading={isSongListLoading}
+                                                error={songListError}
+                                                currentTheme={currentTheme}
+                                            />
                                         ) : (
                                             chats.map((chat, index) => (
                                                 <ChatListItem
@@ -833,7 +824,7 @@ function ClientMainLayout({ children }) {
                 />
             </div>
             {/* PORTAL za overlay i delete ikonu */}
-            {typeof window !== 'undefined' && createPortal(
+            {typeof window !== 'undefined' && document.body && createPortal(
                 <>
                     {showDeleteArea && deleteAreaActive && (
                         <div 

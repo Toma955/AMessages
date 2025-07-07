@@ -91,21 +91,23 @@ export default function RecordPlayer({
         <div className={`${styles.recordPlayerContainer} ${isVisible ? styles.visible : ''}`}>
             <audio ref={audioRef} />
             <div className={styles.recordPlayerBox}>
-                <div className="centerDisc">
-                    <div className={`${styles.recordDisc} ${isPlaying ? styles.spinning : ''}`} onClick={onMenuClick} style={{ position: 'relative', width: 100, height: 100, display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer' }}>
+                <div className="centerDisc" style={{ position: 'relative', width: 160, height: 160, top: '10px' }}>
+                    {/* Statični vinil iznad */}
+                    <Image 
+                        src="/icons/Winil.png" 
+                        alt="Vinyl" 
+                        width={100} 
+                        height={100} 
+                        priority
+                        style={{ position: 'absolute', top: '50%', left: '100px', transform: 'translateY(-50%)', zIndex: 2 }}
+                    />
+                    {/* Rotirajući disc ispod */}
+                    <div className={`${styles.recordDisc} ${isPlaying ? styles.spinning : ''}`} onClick={onMenuClick} style={{ position: 'absolute', top: 0, left: 0, width: 160, height: 160, display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', zIndex: 1 }}>
                         <Image 
                             src="/icons/RecordDisc.png" 
                             alt="Record Disc" 
-                            width={100} 
-                            height={100} 
-                            priority
-                            style={{ position: 'absolute', top: 0, left: 0 }}
-                        />
-                        <Image 
-                            src="/icons/Winil.png" 
-                            alt="Vinyl" 
-                            width={100} 
-                            height={100} 
+                            width={160} 
+                            height={160} 
                             priority
                             style={{ position: 'absolute', top: 0, left: 0 }}
                         />
@@ -126,7 +128,6 @@ export default function RecordPlayer({
                                 height={36} 
                             />
                         </button>
-
                         <button 
                             className={`${styles.controlButton} ${styles.playButton}`}
                             onClick={togglePlayPause}
@@ -138,7 +139,6 @@ export default function RecordPlayer({
                                 height={36} 
                             />
                         </button>
-
                         <button 
                             className={styles.controlButton}
                             onClick={playNextSong}
@@ -155,4 +155,4 @@ export default function RecordPlayer({
             </div>
         </div>
     );
-} 
+}

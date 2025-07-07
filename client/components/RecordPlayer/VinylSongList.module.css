@@ -1,0 +1,390 @@
+.vinylWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+    height: 100%;
+    min-height: 340px;
+    justify-content: flex-start;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vinylContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    height: 300px;
+    overflow: hidden;
+    padding-bottom: 0;
+    flex: 1 1 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.vinylItem {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.vinylItem:hover {
+    /* transform: scale(1.05); uklonjeno */
+}
+
+.vinylItem.active {
+    /* transform: scale(1.1); uklonjeno */
+}
+
+.vinylItem.active .vinylImage {
+    filter: brightness(1.2);
+    box-shadow: 0 0 20px rgba(224, 133, 67, 0.6);
+    border-radius: 50%;
+}
+
+.songLabel {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.vinylItem:hover .songLabel {
+    transform: scale(1.05);
+}
+
+.vinylItem.active .songLabel {
+    transform: scale(1.1);
+    font-weight: 900;
+}
+
+.vinylDisc {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.vinylImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.vinylItem:hover .vinylImage {
+    filter: brightness(1.1);
+    border-radius: 50%;
+}
+
+.songText {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.textPath {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.curvedText {
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    fill: currentColor;
+    text-anchor: middle;
+}
+
+/* Theme colors for text */
+.theme-yellow .curvedText {
+    fill: #FFD700;
+    text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
+}
+
+.theme-green .curvedText {
+    fill: #32CD32;
+    text-shadow: 0 0 3px rgba(50, 205, 50, 0.5);
+}
+
+.theme-orange .curvedText {
+    fill: #FF8C00;
+    text-shadow: 0 0 3px rgba(255, 140, 0, 0.5);
+}
+
+.theme-white .curvedText {
+    fill: #FFFFFF;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+.theme-red .curvedText {
+    fill: #FF4444;
+    text-shadow: 0 0 3px rgba(255, 68, 68, 0.5);
+}
+
+.theme-blue .curvedText {
+    fill: #4169E1;
+    text-shadow: 0 0 3px rgba(65, 105, 225, 0.5);
+}
+
+.theme-black .curvedText {
+    fill: #FFFFFF;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+/* Theme colors for song labels */
+.theme-yellow .songLabel {
+    color: #FFD700;
+    text-shadow: 0 0 3px rgba(255, 215, 0, 0.5);
+}
+
+.theme-green .songLabel {
+    color: #32CD32;
+    text-shadow: 0 0 3px rgba(50, 205, 50, 0.5);
+}
+
+.theme-orange .songLabel {
+    color: #FF8C00;
+    text-shadow: 0 0 3px rgba(255, 140, 0, 0.5);
+}
+
+.theme-white .songLabel {
+    color: #FFFFFF;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+.theme-red .songLabel {
+    color: #FF4444;
+    text-shadow: 0 0 3px rgba(255, 68, 68, 0.5);
+}
+
+.theme-blue .songLabel {
+    color: #4169E1;
+    text-shadow: 0 0 3px rgba(65, 105, 225, 0.5);
+}
+
+.theme-black .songLabel {
+    color: #FFFFFF;
+    text-shadow: 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+/* Pagination styles */
+.paginationContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    width: 100%;
+    margin-top: auto;
+    border-radius: 16px;
+    min-height: 40px;
+    box-sizing: border-box;
+}
+.paginationContainer.theme-yellow { background: #fde68a; }
+.paginationContainer.theme-green { background: #00FA9A; }
+.paginationContainer.theme-orange { background: #ff884d; }
+.paginationContainer.theme-white { background: #f3f4f6; }
+.paginationContainer.theme-red { background: #fca5a5; }
+.paginationContainer.theme-blue { background: #93c5fd; }
+.paginationContainer.theme-black { background: #374151; }
+
+.arrowButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.arrowButton:hover {
+}
+
+.arrowIcon {
+}
+
+.arrowRotated .arrowIcon {
+}
+
+.arrowLeft {
+    /* makni rotaciju s buttona, koristi samo za img */
+}
+.arrowIcon.arrowLeft {
+    transform: rotate(180deg);
+}
+
+.pageIndicator {
+    color: #111;
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+/* Theme colors for arrow buttons */
+.theme-yellow .arrowButton {
+    color: #FFD700;
+}
+
+.theme-green .arrowButton {
+    color: #32CD32;
+}
+
+.theme-orange .arrowButton {
+    color: #FF8C00;
+}
+
+.theme-white .arrowButton {
+    color: #FFFFFF;
+}
+
+.theme-red .arrowButton {
+    color: #FF4444;
+}
+
+.theme-blue .arrowButton {
+    color: #4169E1;
+}
+
+.theme-black .arrowButton {
+    color: #FFFFFF;
+}
+
+/* Loading, error, and empty states */
+.loadingVinyl,
+.errorVinyl,
+.emptyVinyl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+}
+
+.loadingVinyl img,
+.errorVinyl img,
+.emptyVinyl img {
+    border-radius: 50%;
+}
+
+.loadingText,
+.errorText,
+.emptyText {
+    color: var(--main-text-color);
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.errorText {
+    color: #ff6b6b;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .vinylContainer {
+        gap: 15px;
+        padding: 15px;
+        height: 250px;
+        min-height: 250px;
+        padding-bottom: 50px;
+    }
+    
+    .vinylDisc {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .curvedText {
+        font-size: 12px;
+    }
+    
+    .songLabel {
+        font-size: 14px;
+        max-width: 100px;
+    }
+    
+    .paginationContainer {
+        gap: 15px;
+        min-width: 180px;
+        bottom: 8px;
+    }
+    
+    .pageIndicator {
+        font-size: 12px;
+    }
+    
+    .vinylWrapper {
+        padding-bottom: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vinylContainer {
+        gap: 10px;
+        padding: 10px;
+        height: 200px;
+        min-height: 200px;
+        padding-bottom: 40px;
+    }
+    
+    .vinylDisc {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .curvedText {
+        font-size: 10px;
+    }
+    
+    .songLabel {
+        font-size: 12px;
+        max-width: 80px;
+    }
+    
+    .paginationContainer {
+        gap: 10px;
+        min-width: 160px;
+        bottom: 5px;
+    }
+    
+    .pageIndicator {
+        font-size: 10px;
+    }
+    
+    .vinylWrapper {
+        padding-bottom: 10px;
+    }
+} 
+
+.vinylImage, .vinylDisc, .vinylItem {
+    animation: none !important;
+    transform: none !important;
+} 

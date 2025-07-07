@@ -1,8 +1,14 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from 'url';
 import Database from "better-sqlite3";
 import messageCache from "../../utils/messageCache.js";
-import errors from "../../constants/errors.json" assert { type: "json" };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Učitavanje JSON datoteka
+const errors = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/errors.json"), 'utf8'));
 
 function getHotDbPath(userId, otherId) {
   return path.resolve(__dirname, `../../database/users/${userId}/chat/${otherId}/hot.db`);

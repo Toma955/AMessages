@@ -1,5 +1,13 @@
-import errors from "../../constants/errors.json" assert { type: "json" };
-import success from "../../constants/success.json" assert { type: "json" };
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Učitavanje JSON datoteka
+const errors = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/errors.json"), 'utf8'));
+const success = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/success.json"), 'utf8'));
 import createConversation from "./createConversation.js";
 
 const startConversation = (req, res) => {

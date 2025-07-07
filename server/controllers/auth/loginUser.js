@@ -1,13 +1,16 @@
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import path from "path";
+import fs from "fs";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import Database from "better-sqlite3";
-import errors from "../../constants/errors.json" assert { type: "json" };
-import success from "../../constants/success.json" assert { type: "json" };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Učitavanje JSON datoteka
+const errors = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/errors.json"), 'utf8'));
+const success = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/success.json"), 'utf8'));
 
 const authDbPath = path.resolve(__dirname, "../../database/data/auth.db");
 const clientDbPath = path.resolve(__dirname, "../../database/data/client_info.db");

@@ -129,6 +129,11 @@
   background: rgba(34, 197, 94, 0.2);
 }
 
+.group-button:hover {
+  background-color: #D07533 !important;
+  transform: scale(1.1);
+}
+
 .chat-list-messages {
   display: flex;
   align-items: center;

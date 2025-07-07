@@ -1,11 +1,14 @@
 import path from "path";
 import { fileURLToPath } from 'url';
+import fs from "fs";
 import Database from "better-sqlite3";
-import errors from "../../constants/errors.json" assert { type: "json" };
-import success from "../../constants/success.json" assert { type: "json" };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Učitavanje JSON datoteka
+const errors = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/errors.json"), 'utf8'));
+const success = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/success.json"), 'utf8'));
 
 const loginLogDbPath = path.resolve(__dirname, "../../database/data/login.db");
 
