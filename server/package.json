@@ -4,6 +4,16 @@
     "description": "",
     "main": "server.js",
     "type": "module",
+    "engines": {
+        "node": "22.16.0"
+    },
+    "overrides": {
+        "sqlite3": {
+            "binary": {
+                "host": "https://github.com/mapbox/node-sqlite3/releases/download/"
+            }
+        }
+    },
     "scripts": {
         "start": "node server.js",
         "dev": "nodemon server.js",

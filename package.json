@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "cd server && npm start"
+  },
   "dependencies": {
     "@tensorflow/tfjs": "^4.22.0",
     "react-markdown": "^10.1.0"
