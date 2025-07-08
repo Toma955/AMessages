@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styles from './SettingsDashboard.module.css';
 import Image from 'next/image';
-import { api } from '@/services/api'; // Pretpostavka da postoji api servis
+import api from '@/services/api';
 
 export default function SettingsDashboard(props) {
     const { avatar, gender } = props;
@@ -50,7 +50,7 @@ export default function SettingsDashboard(props) {
         if (window.confirm('Jeste li sigurni da želite obrisati svoj račun? Ova akcija se ne može poništiti.')) {
             setIsDeleting(true);
             try {
-                const response = await api.delete('/api/users/me');
+                const response = await api.delete('/api/me');
                 if (response.success) {
                     // Obriši token iz localStorage
                     localStorage.removeItem('token');
