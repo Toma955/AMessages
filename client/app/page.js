@@ -15,7 +15,7 @@ export default function Home() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000); 
             
-            const response = await fetch('http://localhost:5000/test', {
+            const response = await fetch('https://amessages.onrender.com/test', {
                 method: 'GET',
                 signal: controller.signal
             });
@@ -42,7 +42,7 @@ export default function Home() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000); 
             
-            const response = await fetch('http://localhost:5000/test', {
+            const response = await fetch('https://amessages.onrender.com/test', {
                 method: 'GET',
                 signal: controller.signal
             });

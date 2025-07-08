@@ -47,7 +47,7 @@ console.log('===================');
 console.log('=== Environment Variables Debug ===');
 console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'EXISTS' : 'MISSING');
 console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'EXISTS' : 'MISSING');
-console.log('FRONTEND_URL:', process.env.FRONTEND_URL);
+console.log('FRONTEND_URL:', process.env.FRONTEND_URL || 'https://amessages-frontend.onrender.com');
 console.log('PORT:', process.env.PORT);
 console.log('===================================');
 

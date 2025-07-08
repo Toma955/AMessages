@@ -26,22 +26,31 @@
 
 ## Environment Variables Setup on Render
 
-### Required Environment Variables
+### Backend Environment Variables
 
-Set these in your Render dashboard under **Environment** section:
+Set these in your **backend** Render dashboard under **Environment** section:
 
 ```
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=admin
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 PORT=5000
-FRONTEND_URL=https://your-frontend-app.onrender.com
+FRONTEND_URL=https://amessages-frontend.onrender.com
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
 SENTRY_DSN=your-sentry-dsn-or-leave-empty
 DB_HOST=localhost
 DB_PORT=27017
 DB_NAME=amessages
+```
+
+### Frontend Environment Variables
+
+Set these in your **frontend** Render dashboard under **Environment** section:
+
+```
+NEXT_PUBLIC_API_URL=https://amessages.onrender.com
+NODE_ENV=production
 ```
 
 ### Important Notes
@@ -51,13 +60,25 @@ DB_NAME=amessages
 3. **GOOGLE_CLIENT_ID/SECRET**: Configure for your Google OAuth app
 4. **SENTRY_DSN**: Optional - can be left empty if not using Sentry
 
-### Render Dashboard Setup
+### Backend Render Dashboard Setup
 
-1. Go to your Render service dashboard
+1. Go to your **backend** Render service dashboard
 2. Navigate to **Environment** tab
-3. Add each environment variable listed above
+3. Add each backend environment variable listed above
 4. Save changes
 5. Redeploy your service
+
+### Frontend Render Dashboard Setup
+
+1. Create a new **Web Service** on Render
+2. Connect your GitHub repository
+3. Set **Root Directory** to `client`
+4. Set **Build Command** to `npm install && npm run build`
+5. Set **Start Command** to `npm start`
+6. Navigate to **Environment** tab
+7. Add each frontend environment variable listed above
+8. Save changes
+9. Deploy your service
 
 ## File Changes Made
 

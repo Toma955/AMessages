@@ -9,7 +9,7 @@
 5. Choose "Web application"
 6. Add authorized redirect URIs:
    - `http://localhost:5000/api/auth/google/callback` (for development)
-   - `https://yourdomain.com/api/auth/google/callback` (for production)
+   - `https://amessages.onrender.com/api/auth/google/callback` (for production)
 7. Copy the Client ID and Client Secret
 
 ## 2. Configure Environment Variables
@@ -20,7 +20,7 @@ Add these to your `.env` file:
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=https://amessages-frontend.onrender.com
 ```
 
 ## 3. Database Setup
