@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import styles from './SettingsDashboard.module.css';
 import Image from 'next/image';
-import api from '@/services/api';
+import api from '../../services/api';
 
 export default function SettingsDashboard(props) {
     const { avatar, gender } = props;
