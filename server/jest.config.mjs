@@ -9,8 +9,6 @@ export default {
     '^.+\\.jsx?$': ['babel-jest', { configFile: path.resolve(__dirname, 'babel.config.cjs') }],
   },
   testEnvironment: "node",
-  // Treat .js files as ES modules
-  extensionsToTreatAsEsm: ['.js'],
   // Enable ES modules support
   globals: {
     'ts-jest': {
