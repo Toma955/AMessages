@@ -1,7 +1,7 @@
 import api from './api';
 
 class GroupService {
-  // Create a new group
+  
   async createGroup(name, participants = []) {
     try {
       const response = await api.post('/api/group/create', {
@@ -15,7 +15,7 @@ class GroupService {
     }
   }
 
-  // Get user's groups
+  
   async getGroups() {
     try {
       const response = await api.get('/api/group/list');
@@ -26,7 +26,7 @@ class GroupService {
     }
   }
 
-  // Get group messages
+  
   async getGroupMessages(groupId) {
     try {
       const response = await api.get(`/api/group/${groupId}/messages`);
@@ -37,7 +37,7 @@ class GroupService {
     }
   }
 
-  // Send group message
+ 
   async sendGroupMessage(groupId, message) {
     try {
       const response = await api.post(`/api/group/${groupId}/messages`, {
@@ -50,7 +50,7 @@ class GroupService {
     }
   }
 
-  // Add participant to group
+ 
   async addGroupParticipant(groupId, participantId) {
     try {
       const response = await api.post(`/api/group/${groupId}/participants`, {
@@ -63,7 +63,7 @@ class GroupService {
     }
   }
 
-  // Remove participant from group
+
   async removeGroupParticipant(groupId, participantId) {
     try {
       const response = await api.delete(`/api/group/${groupId}/participants/${participantId}`);
@@ -74,7 +74,7 @@ class GroupService {
     }
   }
 
-  // Update group name
+  
   async updateGroupName(groupId, name) {
     try {
       const response = await api.put(`/api/group/${groupId}/name`, {
@@ -87,7 +87,7 @@ class GroupService {
     }
   }
 
-  // Delete group
+ 
   async deleteGroup(groupId) {
     try {
       const response = await api.delete(`/api/group/${groupId}`);

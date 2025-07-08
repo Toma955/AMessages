@@ -1,406 +1,339 @@
-import fs from "fs";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 import path from "path";
-import { fileURLToPath } from 'url';
+import fs from "fs";
 import Database from "better-sqlite3";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Load JSON files
 const errors = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../constants/errors.json"), 'utf8'));
 const success = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../constants/success.json"), 'utf8'));
 
-// Database paths
-const getGroupsDbPath = (userId) => {
-    return path.resolve(__dirname, `../database/users/${userId}/groups.db`);
-};
+const clientDbPath = path.resolve(__dirname, "../database/data/client_info.db");
 
-const getGroupMessagesDbPath = (userId, groupId) => {
-    return path.resolve(__dirname, `../database/users/${userId}/chat/${groupId}/hot.db`);
-};
-
-// Initialize group database for user
-const initGroupDb = (userId) => {
-    const dbPath = getGroupsDbPath(userId);
-    const dbDir = path.dirname(dbPath);
+function initializeGroupDatabase(userId) {
+    const userGroupsDbPath = path.resolve(__dirname, `../database/users/${userId}/groups.db`);
+    const userGroupsDir = path.dirname(userGroupsDbPath);
     
-    if (!fs.existsSync(dbDir)) {
-        fs.mkdirSync(dbDir, { recursive: true });
+    if (!fs.existsSync(userGroupsDir)) {
+        fs.mkdirSync(userGroupsDir, { recursive: true });
     }
     
-    const db = new Database(dbPath);
-    db.exec(`
+    const db = new Database(userGroupsDbPath);
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS groups (
-            id TEXT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
-            created_by INTEGER NOT NULL,
+            creator_id INTEGER NOT NULL,
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         )
-    `);
+    `).run();
     
-    db.exec(`
+    db.prepare(`
         CREATE TABLE IF NOT EXISTS group_participants (
-            group_id TEXT NOT NULL,
+            group_id INTEGER NOT NULL,
             user_id INTEGER NOT NULL,
             username TEXT NOT NULL,
-            is_admin BOOLEAN DEFAULT 0,
+            role TEXT DEFAULT 'member',
             joined_at TEXT NOT NULL,
             PRIMARY KEY (group_id, user_id),
-            FOREIGN KEY (group_id) REFERENCES groups(id)
+            FOREIGN KEY (group_id) REFERENCES groups (id)
         )
-    `);
+    `).run();
     
     db.close();
-};
+}
 
-// Initialize group messages database
-const initGroupMessagesDb = (userId, groupId) => {
-    const dbPath = getGroupMessagesDbPath(userId, groupId);
-    const dbDir = path.dirname(dbPath);
-    
-    if (!fs.existsSync(dbDir)) {
-        fs.mkdirSync(dbDir, { recursive: true });
-    }
-    
-    const db = new Database(dbPath);
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sender_id INTEGER NOT NULL,
-            receiver_id INTEGER NOT NULL,
-            message TEXT NOT NULL,
-            sent_at TEXT NOT NULL,
-            status TEXT DEFAULT 'sent',
-            direction TEXT DEFAULT 'outgoing'
-        )
-    `);
-    
-    db.close();
-};
-
-// Kreiraj bazu podataka za grupu za određenog korisnika
-const createGroupDbForUser = (userId, groupId, groupName, createdBy) => {
-    try {
-        // Kreiraj groups.db za korisnika
-        const groupsDbPath = getGroupsDbPath(userId);
-        const groupsDbDir = path.dirname(groupsDbPath);
+function initializeGroupMessagesDatabase(groupId, participants) {
+    for (const participant of participants) {
+        const participantMessagesDbPath = path.resolve(__dirname, `../database/users/${participant.user_id}/group_messages/${groupId}/messages.db`);
+        const participantMessagesDir = path.dirname(participantMessagesDbPath);
         
-        if (!fs.existsSync(groupsDbDir)) {
-            fs.mkdirSync(groupsDbDir, { recursive: true });
+        if (!fs.existsSync(participantMessagesDir)) {
+            fs.mkdirSync(participantMessagesDir, { recursive: true });
         }
         
-        const groupsDb = new Database(groupsDbPath);
-        
-        // Kreiraj tabele ako ne postoje
-        groupsDb.exec(`
-            CREATE TABLE IF NOT EXISTS groups (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                created_by INTEGER NOT NULL,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
+        const db = new Database(participantMessagesDbPath);
+        db.prepare(`
+            CREATE TABLE IF NOT EXISTS messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                sender_id INTEGER NOT NULL,
+                sender_name TEXT NOT NULL,
+                message TEXT NOT NULL,
+                sent_at TEXT NOT NULL,
+                group_id INTEGER NOT NULL
             )
-        `);
-        
-        groupsDb.exec(`
-            CREATE TABLE IF NOT EXISTS group_participants (
-                group_id TEXT NOT NULL,
-                user_id INTEGER NOT NULL,
-                username TEXT NOT NULL,
-                is_admin BOOLEAN DEFAULT 0,
-                joined_at TEXT NOT NULL,
-                PRIMARY KEY (group_id, user_id),
-                FOREIGN KEY (group_id) REFERENCES groups(id)
-            )
-        `);
-        
-        // Dodaj grupu u bazu korisnika
-        const timestamp = new Date().toISOString();
-        groupsDb.prepare(`
-            INSERT OR IGNORE INTO groups (id, name, created_by, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
-        `).run(groupId, groupName, createdBy, timestamp, timestamp);
-        
-        // Dodaj korisnika kao učesnika
-        const clientDb = new Database(path.resolve(__dirname, '../database/data/client_info.db'));
-        const user = clientDb.prepare('SELECT username FROM clients WHERE id = ?').get(userId);
-        clientDb.close();
-        
-        groupsDb.prepare(`
-            INSERT OR IGNORE INTO group_participants (group_id, user_id, username, is_admin, joined_at)
-            VALUES (?, ?, ?, 0, ?)
-        `).run(groupId, userId, user?.username || 'Unknown', timestamp);
-        
-        groupsDb.close();
-        
-        // Kreiraj messages.db za grupu
-        initGroupMessagesDb(userId, groupId);
-        
-        console.log(`✅ Kreirana baza za grupu ${groupId} za korisnika ${userId}`);
-        
-    } catch (error) {
-        console.error(`❌ Greška pri kreiranju baze za grupu ${groupId} za korisnika ${userId}:`, error);
+        `).run();
+        db.close();
     }
-};
+}
 
-// Create a new group
-const createGroup = (req, res) => {
-    const userId = req.user?.id;
-    const { name, participants } = req.body;
+function createGroupDatabaseForUser(userId, groupId, groupName, participants) {
+    const userGroupsDbPath = path.resolve(__dirname, `../database/users/${userId}/groups.db`);
+    const db = new Database(userGroupsDbPath);
     
-    if (!userId || !name) {
-        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
+    const result = db.prepare(`
+        INSERT INTO groups (name, creator_id, created_at, updated_at)
+        VALUES (?, ?, datetime('now'), datetime('now'))
+    `).run(groupName, userId);
+    
+    const groupId = result.lastInsertRowid;
+    
+    for (const participant of participants) {
+        db.prepare(`
+            INSERT INTO group_participants (group_id, user_id, username, role, joined_at)
+            VALUES (?, ?, ?, ?, datetime('now'))
+        `).run(groupId, participant.user_id, participant.username, participant.role || 'member');
     }
     
+    db.close();
+    return groupId;
+}
+
+function createGroupDatabaseForCreator(userId, groupId, groupName, participants) {
+    const creatorGroupsDbPath = path.resolve(__dirname, `../database/users/${userId}/groups.db`);
+    const db = new Database(creatorGroupsDbPath);
+    
+    const result = db.prepare(`
+        INSERT INTO groups (name, creator_id, created_at, updated_at)
+        VALUES (?, ?, datetime('now'), datetime('now'))
+    `).run(groupName, userId);
+    
+    const groupId = result.lastInsertRowid;
+    
+    for (const participant of participants) {
+        db.prepare(`
+            INSERT INTO group_participants (group_id, user_id, username, role, joined_at)
+            VALUES (?, ?, ?, ?, datetime('now'))
+        `).run(groupId, participant.user_id, participant.username, participant.role || 'member');
+    }
+    
+    db.close();
+    return groupId;
+}
+
+const handleCreateGroup = async (req, res) => {
     try {
-        initGroupDb(userId);
-        const db = new Database(getGroupsDbPath(userId));
+        const { name, participants } = req.body;
+        const userId = req.user.id;
         
-        const groupId = `group_${Date.now()}_${userId}`;
-        const timestamp = new Date().toISOString();
+        if (!name || !participants || !Array.isArray(participants)) {
+            return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
+        }
         
-        // Create group
-        db.prepare(`
-            INSERT INTO groups (id, name, created_by, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
-        `).run(groupId, name, userId, timestamp, timestamp);
+        const clientDb = new Database(clientDbPath);
+        const participantsWithInfo = [];
         
-        // Add creator as admin
-        const clientDb = new Database(path.resolve(__dirname, '../database/data/client_info.db'));
-        const creator = clientDb.prepare('SELECT username FROM clients WHERE id = ?').get(userId);
-        clientDb.close();
-        
-        db.prepare(`
-            INSERT INTO group_participants (group_id, user_id, username, is_admin, joined_at)
-            VALUES (?, ?, ?, 1, ?)
-        `).run(groupId, userId, creator?.username || 'Unknown', timestamp);
-        
-        // Add other participants
-        if (participants && Array.isArray(participants)) {
-            for (const participantId of participants) {
-                const participant = clientDb.prepare('SELECT username FROM clients WHERE id = ?').get(participantId);
-                if (participant) {
-                    db.prepare(`
-                        INSERT INTO group_participants (group_id, user_id, username, is_admin, joined_at)
-                        VALUES (?, ?, ?, 0, ?)
-                    `).run(groupId, participantId, participant.username, timestamp);
-                    
-                    // Kreiraj bazu podataka za svakog učesnika
-                    createGroupDbForUser(participantId, groupId, name, userId);
-                }
+        for (const participantId of participants) {
+            const participant = clientDb.prepare("SELECT id, username FROM clients WHERE id = ?").get(participantId);
+            if (participant) {
+                participantsWithInfo.push({
+                    user_id: participant.id,
+                    username: participant.username,
+                    role: participantId === userId ? 'admin' : 'member'
+                });
             }
         }
         
-        db.close();
+        participantsWithInfo.push({
+            user_id: userId,
+            username: req.user.username,
+            role: 'admin'
+        });
         
-        // Kreiraj bazu podataka za kreatora grupe
-        createGroupDbForUser(userId, groupId, name, userId);
+        clientDb.close();
+        
+        for (const participant of participantsWithInfo) {
+            initializeGroupDatabase(participant.user_id);
+        }
+        
+        const groupId = createGroupDatabaseForUser(userId, null, name, participantsWithInfo);
+        
+        initializeGroupMessagesDatabase(groupId, participantsWithInfo);
         
         return res.status(201).json({
             success: true,
-            group: {
-                id: groupId,
-                name,
-                created_by: userId,
-                created_at: timestamp
-            }
+            message_code: success.GROUP_CREATED,
+            groupId
         });
         
-    } catch (err) {
-        console.error("createGroup error:", err);
-        return res.status(500).json({ success: false, error_code: errors.INTERNAL_ERROR });
+    } catch (error) {
+        console.error("Create group error:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Get user's groups
-const getGroups = (req, res) => {
-    const userId = req.user?.id;
-    
-    if (!userId) {
-        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
-    }
-    
+const handleGetUserGroups = async (req, res) => {
     try {
-        const dbPath = getGroupsDbPath(userId);
-        if (!fs.existsSync(dbPath)) {
+        const userId = req.user.id;
+        const userGroupsDbPath = path.resolve(__dirname, `../database/users/${userId}/groups.db`);
+        
+        if (!fs.existsSync(userGroupsDbPath)) {
             return res.status(200).json({ success: true, groups: [] });
         }
         
-        const db = new Database(dbPath);
+        const db = new Database(userGroupsDbPath);
         const groups = db.prepare(`
-            SELECT g.*, COUNT(gp.user_id) as participant_count
+            SELECT g.*, gp.role
             FROM groups g
-            LEFT JOIN group_participants gp ON g.id = gp.group_id
-            WHERE g.id IN (
-                SELECT group_id FROM group_participants WHERE user_id = ?
-            )
-            GROUP BY g.id
+            JOIN group_participants gp ON g.id = gp.group_id
+            WHERE gp.user_id = ?
             ORDER BY g.updated_at DESC
         `).all(userId);
         
         db.close();
         
-        return res.status(200).json({ success: true, groups });
+        return res.status(200).json({
+            success: true,
+            groups
+        });
         
-    } catch (err) {
-        console.error("getGroups error:", err);
-        return res.status(500).json({ success: false, error_code: errors.INTERNAL_ERROR });
+    } catch (error) {
+        console.error("Get user groups error:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Get group messages
-const getGroupMessages = (req, res) => {
-    const userId = req.user?.id;
-    const { groupId } = req.params;
-    
-    if (!userId || !groupId) {
-        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
-    }
-    
+const handleGetGroupMessages = async (req, res) => {
     try {
-        const dbPath = getGroupMessagesDbPath(userId, groupId);
-        if (!fs.existsSync(dbPath)) {
+        const { groupId } = req.params;
+        const userId = req.user.id;
+        
+        const userGroupMessagesDbPath = path.resolve(__dirname, `../database/users/${userId}/group_messages/${groupId}/messages.db`);
+        
+        if (!fs.existsSync(userGroupMessagesDbPath)) {
             return res.status(200).json({ success: true, messages: [] });
         }
         
-        const db = new Database(dbPath);
+        const db = new Database(userGroupMessagesDbPath);
         const messages = db.prepare(`
-            SELECT 
-                id,
-                sender_id,
-                message,
-                sent_at,
-                status,
-                direction
-            FROM messages 
+            SELECT * FROM messages
             ORDER BY sent_at ASC
         `).all();
         
         db.close();
         
-        return res.status(200).json({ success: true, messages });
+        return res.status(200).json({
+            success: true,
+            messages
+        });
         
-    } catch (err) {
-        console.error("getGroupMessages error:", err);
-        return res.status(500).json({ success: false, error_code: errors.INTERNAL_ERROR });
+    } catch (error) {
+        console.error("Get group messages error:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Send group message
-const sendGroupMessage = (req, res) => {
-    const userId = req.user?.id;
-    const { groupId } = req.params;
-    const { message } = req.body;
-    
-    if (!userId || !groupId || !message) {
-        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
-    }
-    
+const handleSendGroupMessage = async (req, res) => {
     try {
-        const dbPath = getGroupMessagesDbPath(userId, groupId);
-        initGroupMessagesDb(userId, groupId);
+        const { groupId, message } = req.body;
+        const userId = req.user.id;
+        const username = req.user.username;
         
-        const db = new Database(dbPath);
-        const timestamp = new Date().toISOString();
+        if (!groupId || !message) {
+            return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
+        }
         
-        // Get sender info
-        const clientDb = new Database(path.resolve(__dirname, '../database/data/client_info.db'));
-        const sender = clientDb.prepare('SELECT username FROM clients WHERE id = ?').get(userId);
+        const clientDb = new Database(clientDbPath);
+        const sender = clientDb.prepare("SELECT username FROM clients WHERE id = ?").get(userId);
         clientDb.close();
         
         const messageData = {
             sender_id: userId,
-            receiver_id: groupId, // Grupa kao receiver
-            message,
-            sent_at: timestamp,
-            status: 'sent',
-            direction: 'outgoing'
+            sender_name: sender?.username || username,
+            message: message,
+            sent_at: new Date().toISOString(),
+            group_id: groupId
         };
         
-        db.prepare(`
-            INSERT INTO messages (sender_id, receiver_id, message, sent_at, status, direction)
-            VALUES (?, ?, ?, ?, ?, ?)
-        `).run(messageData.sender_id, messageData.receiver_id, messageData.message, messageData.sent_at, messageData.status, messageData.direction);
-        
-        db.close();
-        
-        // Emit to all group participants via Socket.IO
         if (global.io) {
-            const groupsDb = new Database(getGroupsDbPath(userId));
-            const participants = groupsDb.prepare(`
-                SELECT user_id FROM group_participants WHERE group_id = ?
-            `).all(groupId);
-            groupsDb.close();
-            
-            participants.forEach(participant => {
-                if (global.connectedUsers.has(participant.user_id)) {
-                    global.io.to(`user_${participant.user_id}`).emit('group_message', {
-                        groupId,
-                        ...messageData
-                    });
-                }
+            global.io.to(`group_${groupId}`).emit('group_message', {
+                groupId,
+                message: messageData.message,
+                sender: userId,
+                senderName: messageData.sender_name,
+                timestamp: messageData.sent_at
             });
         }
         
-        // Spremi poruku u bazu svakog učesnika
+        const userGroupsDbPath = path.resolve(__dirname, `../database/users/${userId}/groups.db`);
+        const db = new Database(userGroupsDbPath);
         const participants = db.prepare(`
             SELECT user_id FROM group_participants WHERE group_id = ?
         `).all(groupId);
+        db.close();
         
-        participants.forEach(participant => {
-            if (participant.user_id !== userId) { // Ne spremaj duplo za pošiljatelja
-                try {
-                    const participantDbPath = getGroupMessagesDbPath(participant.user_id, groupId);
-                    if (fs.existsSync(participantDbPath)) {
-                        const participantDb = new Database(participantDbPath);
-                        participantDb.prepare(`
-                            INSERT INTO messages (sender_id, receiver_id, message, sent_at, status, direction)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                        `).run(messageData.sender_id, messageData.receiver_id, messageData.message, messageData.sent_at, 'received', 'incoming');
-                        participantDb.close();
-                    }
-                } catch (error) {
-                    console.error(`❌ Greška pri spremanju poruke za korisnika ${participant.user_id}:`, error);
+        for (const participant of participants) {
+            if (participant.user_id !== userId) {
+                const participantMessagesDbPath = path.resolve(__dirname, `../database/users/${participant.user_id}/group_messages/${groupId}/messages.db`);
+                const participantMessagesDir = path.dirname(participantMessagesDbPath);
+                
+                if (!fs.existsSync(participantMessagesDir)) {
+                    fs.mkdirSync(participantMessagesDir, { recursive: true });
                 }
+                
+                const participantDb = new Database(participantMessagesDbPath);
+                participantDb.prepare(`
+                    CREATE TABLE IF NOT EXISTS messages (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        sender_id INTEGER NOT NULL,
+                        sender_name TEXT NOT NULL,
+                        message TEXT NOT NULL,
+                        sent_at TEXT NOT NULL,
+                        group_id INTEGER NOT NULL
+                    )
+                `).run();
+                
+                participantDb.prepare(`
+                    INSERT INTO messages (sender_id, sender_name, message, sent_at, group_id)
+                    VALUES (?, ?, ?, ?, ?)
+                `).run(
+                    messageData.sender_id,
+                    messageData.sender_name,
+                    messageData.message,
+                    messageData.sent_at,
+                    messageData.group_id
+                );
+                participantDb.close();
             }
+        }
+        
+        return res.status(201).json({
+            success: true,
+            message_code: success.MESSAGE_SENT
         });
         
-        return res.status(200).json({ success: true, message: messageData });
-        
-    } catch (err) {
-        console.error("sendGroupMessage error:", err);
-        return res.status(500).json({ success: false, error_code: errors.INTERNAL_ERROR });
+    } catch (error) {
+        console.error("Send group message error:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Add participant to group
-const addGroupParticipant = (req, res) => {
-    const userId = req.user?.id;
-    const { groupId } = req.params;
-    const { participantId } = req.body;
-    
-    if (!userId || !groupId || !participantId) {
-        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
-    }
-    
+const handleAddParticipant = async (req, res) => {
     try {
-        const db = new Database(getGroupsDbPath(userId));
+        const { groupId, participantId } = req.body;
+        const userId = req.user.id;
         
-        // Check if user is admin
+        if (!groupId || !participantId) {
+            return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
+        }
+        
+        const userGroupsDbPath = path.resolve(__dirname, `../database/users/${userId}/groups.db`);
+        const db = new Database(userGroupsDbPath);
+        
         const isAdmin = db.prepare(`
-            SELECT is_admin FROM group_participants 
+            SELECT role FROM group_participants 
             WHERE group_id = ? AND user_id = ?
         `).get(groupId, userId);
         
-        if (!isAdmin?.is_admin) {
+        if (!isAdmin || isAdmin.role !== 'admin') {
             db.close();
-            return res.status(403).json({ success: false, error_code: errors.UNAUTHORIZED });
+            return res.status(403).json({ success: false, error_code: errors.INSUFFICIENT_PERMISSIONS });
         }
         
-        // Get participant info
-        const clientDb = new Database(path.resolve(__dirname, '../database/data/client_info.db'));
-        const participant = clientDb.prepare('SELECT username FROM clients WHERE id = ?').get(participantId);
+        const clientDb = new Database(clientDbPath);
+        const participant = clientDb.prepare("SELECT id, username FROM clients WHERE id = ?").get(participantId);
         clientDb.close();
         
         if (!participant) {
@@ -408,44 +341,44 @@ const addGroupParticipant = (req, res) => {
             return res.status(404).json({ success: false, error_code: errors.USER_NOT_FOUND });
         }
         
-        const timestamp = new Date().toISOString();
-        
         db.prepare(`
-            INSERT OR IGNORE INTO group_participants (group_id, user_id, username, is_admin, joined_at)
-            VALUES (?, ?, ?, 0, ?)
-        `).run(groupId, participantId, participant.username, timestamp);
+            INSERT INTO group_participants (group_id, user_id, username, role, joined_at)
+            VALUES (?, ?, ?, 'member', datetime('now'))
+        `).run(groupId, participant.id, participant.username);
         
         db.close();
         
-        return res.status(200).json({ success: true });
+        return res.status(200).json({
+            success: true,
+            message_code: success.PARTICIPANT_ADDED
+        });
         
-    } catch (err) {
-        console.error("addGroupParticipant error:", err);
-        return res.status(500).json({ success: false, error_code: errors.INTERNAL_ERROR });
+    } catch (error) {
+        console.error("Add participant error:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Remove participant from group
-const removeGroupParticipant = (req, res) => {
-    const userId = req.user?.id;
-    const { groupId, participantId } = req.params;
-    
-    if (!userId || !groupId || !participantId) {
-        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
-    }
-    
+const handleRemoveParticipant = async (req, res) => {
     try {
-        const db = new Database(getGroupsDbPath(userId));
+        const { groupId, participantId } = req.body;
+        const userId = req.user.id;
         
-        // Check if user is admin
+        if (!groupId || !participantId) {
+            return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
+        }
+        
+        const userGroupsDbPath = path.resolve(__dirname, `../database/users/${userId}/groups.db`);
+        const db = new Database(userGroupsDbPath);
+        
         const isAdmin = db.prepare(`
-            SELECT is_admin FROM group_participants 
+            SELECT role FROM group_participants 
             WHERE group_id = ? AND user_id = ?
         `).get(groupId, userId);
         
-        if (!isAdmin?.is_admin) {
+        if (!isAdmin || isAdmin.role !== 'admin') {
             db.close();
-            return res.status(403).json({ success: false, error_code: errors.UNAUTHORIZED });
+            return res.status(403).json({ success: false, error_code: errors.INSUFFICIENT_PERMISSIONS });
         }
         
         db.prepare(`
@@ -455,104 +388,15 @@ const removeGroupParticipant = (req, res) => {
         
         db.close();
         
-        return res.status(200).json({ success: true });
+        return res.status(200).json({
+            success: true,
+            message_code: success.PARTICIPANT_REMOVED
+        });
         
-    } catch (err) {
-        console.error("removeGroupParticipant error:", err);
-        return res.status(500).json({ success: false, error_code: errors.INTERNAL_ERROR });
+    } catch (error) {
+        console.error("Remove participant error:", error);
+        return res.status(500).json({ success: false, message: "Internal server error" });
     }
 };
 
-// Update group name
-const updateGroupName = (req, res) => {
-    const userId = req.user?.id;
-    const { groupId } = req.params;
-    const { name } = req.body;
-    
-    if (!userId || !groupId || !name) {
-        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
-    }
-    
-    try {
-        const db = new Database(getGroupsDbPath(userId));
-        
-        // Check if user is admin
-        const isAdmin = db.prepare(`
-            SELECT is_admin FROM group_participants 
-            WHERE group_id = ? AND user_id = ?
-        `).get(groupId, userId);
-        
-        if (!isAdmin?.is_admin) {
-            db.close();
-            return res.status(403).json({ success: false, error_code: errors.UNAUTHORIZED });
-        }
-        
-        const timestamp = new Date().toISOString();
-        
-        db.prepare(`
-            UPDATE groups SET name = ?, updated_at = ? WHERE id = ?
-        `).run(name, timestamp, groupId);
-        
-        db.close();
-        
-        return res.status(200).json({ success: true });
-        
-    } catch (err) {
-        console.error("updateGroupName error:", err);
-        return res.status(500).json({ success: false, error_code: errors.INTERNAL_ERROR });
-    }
-};
-
-// Delete group
-const deleteGroup = (req, res) => {
-    const userId = req.user?.id;
-    const { groupId } = req.params;
-    
-    if (!userId || !groupId) {
-        return res.status(400).json({ success: false, error_code: errors.MISSING_REQUIRED_FIELD });
-    }
-    
-    try {
-        const db = new Database(getGroupsDbPath(userId));
-        
-        // Check if user is admin
-        const isAdmin = db.prepare(`
-            SELECT is_admin FROM group_participants 
-            WHERE group_id = ? AND user_id = ?
-        `).get(groupId, userId);
-        
-        if (!isAdmin?.is_admin) {
-            db.close();
-            return res.status(403).json({ success: false, error_code: errors.UNAUTHORIZED });
-        }
-        
-        // Delete group and all participants
-        db.prepare('DELETE FROM group_participants WHERE group_id = ?').run(groupId);
-        db.prepare('DELETE FROM groups WHERE id = ?').run(groupId);
-        
-        db.close();
-        
-        // Delete messages database
-        const messagesDbPath = getGroupMessagesDbPath(userId, groupId);
-        if (fs.existsSync(messagesDbPath)) {
-            fs.unlinkSync(messagesDbPath);
-        }
-        
-        return res.status(200).json({ success: true });
-        
-    } catch (err) {
-        console.error("deleteGroup error:", err);
-        return res.status(500).json({ success: false, error_code: errors.INTERNAL_ERROR });
-    }
-};
-
-export {
-    createGroup,
-    getGroups,
-    getGroupMessages,
-    sendGroupMessage,
-    addGroupParticipant,
-    removeGroupParticipant,
-    updateGroupName,
-    deleteGroup
-}; 
+export { handleCreateGroup, handleGetUserGroups, handleGetGroupMessages, handleSendGroupMessage, handleAddParticipant, handleRemoveParticipant }; 

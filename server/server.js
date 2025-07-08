@@ -59,7 +59,6 @@ const io = new Server(server, {
     }
 });
 
-
 const connectedUsers = new Map();
 
 io.use((socket, next) => {
@@ -176,7 +175,6 @@ app.get("/metrics", async (req, res) => {
     res.end(await client.register.metrics());
 });
 
-
 import AuthRoutes from "./routes/AuthRoutes.js";
 import GoogleAuthRoutes from "./routes/GoogleAuthRoutes.js";
 import GroupRoutes from "./routes/GroupRoutes.js";
@@ -214,7 +212,6 @@ app.get("/", (req, res) => {
 app.get("/test", (req, res) => {
     res.send("Server is up");
 });
-
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

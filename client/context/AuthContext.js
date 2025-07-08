@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Check authentication status on mount
+  
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }) => {
       setError(null);
     } catch (error) {
       console.error('Logout error:', error);
-      // Still clear local state even if server logout fails
+     
       setUser(null);
       setIsAuthenticated(false);
     } finally {

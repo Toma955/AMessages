@@ -1,0 +1,176 @@
+{"level":30,"time":1751980243922,"pid":25244,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980243922,"pid":25244,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980282343,"pid":24700,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980282343,"pid":24700,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980320088,"pid":25064,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980320088,"pid":25064,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980380326,"pid":17460,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980380326,"pid":17460,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980532469,"pid":25124,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980532470,"pid":25124,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980754166,"pid":15600,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980754167,"pid":15600,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980795372,"pid":25204,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980795373,"pid":25204,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1751980857774,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1751980857805,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1751980857805,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1751980857806,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Username is available"}
+{"level":30,"time":1751980857806,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Finding next available userId..."}
+{"level":30,"time":1751980857806,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Current user count:"}
+{"level":30,"time":1751980857806,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Next available userId:"}
+{"level":30,"time":1751980857989,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Inserted into clients:"}
+{"level":30,"time":1751980857990,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Created user folders for:"}
+{"level":30,"time":1751980858075,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Created info.db for:"}
+{"level":30,"time":1751980858203,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Created Userlist.db for:"}
+{"level":30,"time":1751980858346,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Created login.db for:"}
+{"level":30,"time":1751980858453,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Created groups.db for:"}
+{"level":30,"time":1751980858547,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Password hashed for:"}
+{"level":30,"time":1751980858630,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Inserted into credentials for:"}
+{"level":30,"time":1751980858725,"pid":24072,"hostname":"TomPC","msg":"[CreateUser] Inserted into registered_usernames for:"}
+{"level":30,"time":1751980917376,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751980917378,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751980917378,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1751980917378,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1751980917378,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1751980917378,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1751980917378,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1751980917378,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1751980917378,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1751980917379,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1751980917379,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1751980917379,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1751980917379,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1751980917379,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1751980917404,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1751980917404,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1751980917404,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Username is available"}
+{"level":30,"time":1751980917404,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Finding next available userId..."}
+{"level":30,"time":1751980917405,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Current user count:"}
+{"level":30,"time":1751980917405,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Next available userId:"}
+{"level":30,"time":1751980918023,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Inserted into clients:"}
+{"level":30,"time":1751980918045,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Created user folders for:"}
+{"level":30,"time":1751980918136,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Created info.db for:"}
+{"level":30,"time":1751980918263,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Created Userlist.db for:"}
+{"level":30,"time":1751980918366,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Created login.db for:"}
+{"level":30,"time":1751980918530,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Created groups.db for:"}
+{"level":30,"time":1751980918619,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Password hashed for:"}
+{"level":30,"time":1751980918707,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Inserted into credentials for:"}
+{"level":30,"time":1751980918795,"pid":12072,"hostname":"TomPC","msg":"[CreateUser] Inserted into registered_usernames for:"}
+{"level":30,"time":1751981208493,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1751981208494,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1751981208517,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1751981208517,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1751981208518,"pid":24360,"hostname":"TomPC","msg":"[CreateUser] Username already exists:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1751982140219,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1751982140220,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1751982140220,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1751982140220,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1751982140220,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1751982140247,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1751982140247,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1751982140268,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Username is available"}
+{"level":30,"time":1751982140268,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Finding next available userId..."}
+{"level":30,"time":1751982140272,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Current user count:"}
+{"level":30,"time":1751982140273,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Next available userId:"}
+{"level":30,"time":1751982140485,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Inserted into clients:"}
+{"level":30,"time":1751982140486,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Created user folders for:"}
+{"level":30,"time":1751982140619,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Created info.db for:"}
+{"level":30,"time":1751982140699,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Created Userlist.db for:"}
+{"level":30,"time":1751982140794,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Created login.db for:"}
+{"level":30,"time":1751982140883,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Created groups.db for:"}
+{"level":30,"time":1751982140994,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Password hashed for:"}
+{"level":30,"time":1751982141078,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Inserted into credentials for:"}
+{"level":50,"time":1751982141080,"pid":26592,"hostname":"TomPC","msg":"[CreateUser] Error inserting into registered_usernames:"}
+{"level":30,"time":1751982185258,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1751982185259,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1751982185307,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1751982185307,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1751982185308,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Username is available"}
+{"level":30,"time":1751982185308,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Finding next available userId..."}
+{"level":30,"time":1751982185308,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Current user count:"}
+{"level":30,"time":1751982185308,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Next available userId:"}
+{"level":30,"time":1751982185486,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Inserted into clients:"}
+{"level":30,"time":1751982185489,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Created user folders for:"}
+{"level":30,"time":1751982185584,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Created info.db for:"}
+{"level":30,"time":1751982185678,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Created Userlist.db for:"}
+{"level":30,"time":1751982185758,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Created login.db for:"}
+{"level":30,"time":1751982185851,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Created groups.db for:"}
+{"level":30,"time":1751982185957,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Password hashed for:"}
+{"level":30,"time":1751982186044,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Inserted into credentials for:"}
+{"level":30,"time":1751982186149,"pid":14664,"hostname":"TomPC","msg":"[CreateUser] Inserted into registered_usernames for:"}
+{"level":30,"time":1751982229289,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1751982229290,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1751982229290,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1751982229290,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1751982229290,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1751982229290,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1751982229290,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1751982229290,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1751982229290,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1751982229291,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1751982229291,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1751982229291,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1751982229291,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1751982229291,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1751982229386,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1751982229386,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1751982229392,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Username is available"}
+{"level":30,"time":1751982229392,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Finding next available userId..."}
+{"level":30,"time":1751982229392,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Current user count:"}
+{"level":30,"time":1751982229392,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Next available userId:"}
+{"level":30,"time":1751982230171,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Inserted into clients:"}
+{"level":30,"time":1751982230175,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Created user folders for:"}
+{"level":30,"time":1751982230422,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Created info.db for:"}
+{"level":30,"time":1751982230910,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Created Userlist.db for:"}
+{"level":30,"time":1751982231082,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Created login.db for:"}
+{"level":30,"time":1751982231258,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Created groups.db for:"}
+{"level":30,"time":1751982231364,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Password hashed for:"}
+{"level":30,"time":1751982231495,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Inserted into credentials for:"}
+{"level":30,"time":1751982231655,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Inserted into registered_usernames for:"}

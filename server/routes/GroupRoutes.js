@@ -1,26 +1,14 @@
 import express from "express";
+import { handleCreateGroup, handleGetUserGroups, handleGetGroupMessages, handleSendGroupMessage, handleAddParticipant, handleRemoveParticipant } from "../controllers/GroupController.js";
 import jwtMiddleware from "../middlewares/jwtMiddleware.js";
-import {
-    createGroup,
-    getGroups,
-    getGroupMessages,
-    sendGroupMessage,
-    addGroupParticipant,
-    removeGroupParticipant,
-    updateGroupName,
-    deleteGroup
-} from "../controllers/GroupController.js";
 
 const router = express.Router();
 
-// Group management routes
-router.post("/create", jwtMiddleware, createGroup);
-router.get("/list", jwtMiddleware, getGroups);
-router.get("/:groupId/messages", jwtMiddleware, getGroupMessages);
-router.post("/:groupId/messages", jwtMiddleware, sendGroupMessage);
-router.post("/:groupId/participants", jwtMiddleware, addGroupParticipant);
-router.delete("/:groupId/participants/:userId", jwtMiddleware, removeGroupParticipant);
-router.put("/:groupId/name", jwtMiddleware, updateGroupName);
-router.delete("/:groupId", jwtMiddleware, deleteGroup);
+router.post("/create", jwtMiddleware, handleCreateGroup);
+router.get("/user-groups", jwtMiddleware, handleGetUserGroups);
+router.get("/messages/:groupId", jwtMiddleware, handleGetGroupMessages);
+router.post("/send-message", jwtMiddleware, handleSendGroupMessage);
+router.post("/add-participant", jwtMiddleware, handleAddParticipant);
+router.post("/remove-participant", jwtMiddleware, handleRemoveParticipant);
 
 export default router;

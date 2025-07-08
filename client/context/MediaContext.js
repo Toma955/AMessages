@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useRef, useCallback, useEffect } f
 const MediaContext = createContext();
 
 export const MediaProvider = ({ children }) => {
-    // Media state varijable
+   
     const [isRecordPlayerVisible, setIsRecordPlayerVisible] = useState(false);
     const [isRadioPlayerVisible, setIsRadioPlayerVisible] = useState(false);
     const [isPianoVisible, setIsPianoVisible] = useState(false);
@@ -24,10 +24,9 @@ export const MediaProvider = ({ children }) => {
     const [activePanel, setActivePanel] = useState('record');
     const [panelAnimation, setPanelAnimation] = useState('slideIn');
 
-    // Media refs
+   
     const radioPlayerRef = useRef(null);
 
-    // Media funkcije
     const handleRecordPlayerMenuClick = useCallback(async () => {
         if (isSongListActive) {
             setIsSongListActive(false);
@@ -88,7 +87,7 @@ export const MediaProvider = ({ children }) => {
         setIsPianoVisible(false);
         switchPanel('record');
         
-        // Pause radio if playing
+        
         if (radioPlayerRef.current && radioPlayerRef.current.pause) {
             radioPlayerRef.current.pause();
         }
@@ -100,7 +99,7 @@ export const MediaProvider = ({ children }) => {
         setIsPianoVisible(false);
         switchPanel('radio');
         
-        // Pause audio if playing
+       
         const audio = document.querySelector('audio');
         if (audio) audio.pause();
     }, [isRadioPlayerVisible, switchPanel]);
@@ -114,24 +113,24 @@ export const MediaProvider = ({ children }) => {
     }, []);
 
     const pauseAllMedia = useCallback(() => {
-        // Pause radio player
+     
         if (radioPlayerRef.current && radioPlayerRef.current.pause) {
             radioPlayerRef.current.pause();
         }
         
-        // Pause any audio elements
+        
         const audioElements = document.querySelectorAll('audio');
         audioElements.forEach(audio => audio.pause());
     }, []);
 
-    // Effect za fallback radio station
+   
     useEffect(() => {
         if (!currentStation || !currentStation.url) return;
         if (window && window.Audio) {
             const testAudio = new window.Audio(currentStation.url);
             testAudio.crossOrigin = 'anonymous';
             testAudio.addEventListener('error', () => {
-                // Fallback to first station if current fails
+              
                 if (radioStations && radioStations.length > 0) {
                     setCurrentStation(radioStations[0]);
                 }
@@ -142,7 +141,7 @@ export const MediaProvider = ({ children }) => {
     }, [currentStation, radioStations]);
 
     const value = {
-        // State
+       
         isRecordPlayerVisible,
         isRadioPlayerVisible,
         isPianoVisible,
@@ -158,10 +157,10 @@ export const MediaProvider = ({ children }) => {
         activePanel,
         panelAnimation,
         
-        // Refs
+        
         radioPlayerRef,
         
-        // Setters
+        
         setIsRecordPlayerVisible,
         setIsRadioPlayerVisible,
         setIsPianoVisible,
@@ -177,7 +176,6 @@ export const MediaProvider = ({ children }) => {
         setActivePanel,
         setPanelAnimation,
         
-        // Functions
         handleRecordPlayerMenuClick,
         handleSongSelect,
         handleStationSelect,

@@ -25,7 +25,7 @@ export const ChatProvider = ({ children }) => {
     const initialWidths = useRef(null);
     const lastChatWidths = useRef({});
 
-    // Chat funkcije
+  
     const handleAddChat = useCallback(async (user) => {
         const chat = {
             id: user.id,

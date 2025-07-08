@@ -14,18 +14,15 @@ class SocketService {
             return this.socket;
         }
 
-        // Validate token before connecting
         if (!token) {
             throw new Error('Authentication token is required');
         }
 
-        // Check if token is expired
         try {
             const tokenData = JSON.parse(atob(token.split('.')[1]));
             const currentTime = Math.floor(Date.now() / 1000);
             
             if (tokenData.exp && tokenData.exp < currentTime) {
-                // Clear expired token from localStorage
                 localStorage.removeItem('token');
                 localStorage.removeItem('userId');
                 localStorage.removeItem('username');
@@ -60,15 +57,12 @@ class SocketService {
                 this.isConnected = false;
                 this.reconnectAttempts++;
                 
-                // Handle authentication errors specifically
                 if (error.message === 'Authentication error') {
-                    // Clear potentially invalid token
                     localStorage.removeItem('token');
                     localStorage.removeItem('userId');
                     localStorage.removeItem('username');
                     localStorage.removeItem('isAdmin');
                     
-                    // Redirect to login page
                     if (typeof window !== 'undefined') {
                         window.location.href = '/login?error=authentication_failed';
                     }
@@ -121,23 +115,19 @@ class SocketService {
         }
     }
 
-    // Typing indicators
     sendTyping(receiverId, isTyping) {
         this.emit('typing', { receiverId, isTyping });
     }
 
-    // Message read receipts
     sendMessageRead(messageId, senderId) {
         this.emit('message_read', { messageId, senderId });
     }
 
-    // Get connection status
     getConnectionStatus() {
         return this.isConnected;
     }
 }
 
-// Create a singleton instance
 const socketService = new SocketService();
 
 export default socketService; 

@@ -6,14 +6,12 @@ import pino from "pino";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Folder za logove
 const logDir = path.resolve(__dirname, "../log");
 
 if (!fs.existsSync(logDir)) {
     fs.mkdirSync(logDir, { recursive: true });
 }
 
-// Log destinacije
 const destinations = {
     error: path.join(logDir, "errors.log"),
     startup: path.join(logDir, "startup.log"),
@@ -22,7 +20,6 @@ const destinations = {
     requests: path.join(logDir, "requests.log")
 };
 
-// 📦 Funkcija za kreiranje loggera
 function createLogger(filePath, level = "info") {
     return pino({
         level,
