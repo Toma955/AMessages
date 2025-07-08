@@ -3,10 +3,13 @@
 ## Issues Fixed
 
 ### 1. Sentry Initialization Error
-**Problem**: `ReferenceError: Sentry is not defined`
+**Problem**: `ReferenceError: Sentry is not defined` and module compatibility issues
 **Solution**: 
 - Uncommented Sentry import in `server/server.js`
-- Properly initialized Sentry with fallback for empty DSN
+- Downgraded Sentry to v7.114.0 for compatibility
+- Removed incompatible `@sentry/integrations` package
+- Updated Sentry configuration for v7.x API
+- Added conditional Sentry usage (only when SENTRY_DSN is set)
 
 ### 2. Environment Variables Path Issue
 **Problem**: Server was looking for `.env` file at hardcoded Windows path `D:\AMessages\server\.env`
@@ -60,8 +63,14 @@ DB_NAME=amessages
 
 ### server/server.js
 - Fixed Sentry import and initialization
+- Updated Sentry configuration for v7.x compatibility
 - Updated dotenv configuration to use proper path
 - Updated CORS settings to use environment variables
+- Added conditional Sentry usage
+
+### server/package.json
+- Downgraded @sentry/node to v7.114.0
+- Removed incompatible @sentry/integrations package
 
 ### server/utils/startupChecks.js
 - Replaced hardcoded Windows paths with dynamic path resolution
