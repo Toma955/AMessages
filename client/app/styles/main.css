@@ -152,31 +152,13 @@
     margin: auto;
     position: relative;
     z-index: 2;
-}
-
-.content-container.single-chat {
-    gap: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.chat-area.panel-border.single-chat {
-    width: 100% !important;
-    height: 90% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: var(--border-radius);
+    /* Fiksne dimenzije - ne mijenja se */
+    min-height: calc(100vh - 16vh);
+    max-height: calc(100vh - 16vh);
     box-sizing: border-box;
 }
 
-.chat-area.panel-border.single-chat {
-    /* Formula: početni(32) + widget(240) + razmak(32) + dodatno(50) - smanjenje(140) */
-    margin-top: calc(32px + 240px + 32px + 50px - 140px);
-    height: calc(100% - (32px + 240px + 32px + 50px - 140px));
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* Uklonjeno - ne mijenja se layout */
 
 .panel-border {
     position: relative;
@@ -327,6 +309,10 @@
 .chat-area {
     flex: 1;
     height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+
 }
 
 .details-panel {
@@ -1220,8 +1206,13 @@
     align-items: stretch;
     justify-content: center;
     height: 100%;
+    max-height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     /* Layout za dva chata (width, gap, padding) kontrolira se inline stilovima iz Reacta */
+    box-sizing: border-box;
+    flex-shrink: 1;
+    flex-grow: 0;
 }
 
 .drop-chat-hint {

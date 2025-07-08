@@ -151,8 +151,8 @@ function ClientMainLayout({ children }) {
     }, [isRecordPlayerVisible, isRadioPlayerVisible, isPianoVisible, isDashboardInPanelVisible, isSettingsVisible, isRadioListVisible, isPianoActive]);
 
     const contentContainerClass = useMemo(() => {
-        return `content-container${activeChats.length === 1 ? ' single-chat' : ''}`;
-    }, [activeChats.length]);
+        return `content-container`; // Uvijek isti - ne mijenja se
+    }, []);
 
     const activeChatsContainerStyle = useMemo(() => {
         return {
@@ -161,12 +161,12 @@ function ClientMainLayout({ children }) {
             justifyContent: 'center',
             width: '100%',
             height: '100%',
-            gap: activeChats.length > 1 ? '2%' : 0,
-            paddingLeft: activeChats.length > 1 ? '0.5%' : 0,
-            paddingRight: activeChats.length > 1 ? '0.5%' : 0,
+            gap: '2%', // Uvijek isti gap
+            paddingLeft: '0.5%', // Uvijek isti padding
+            paddingRight: '0.5%', // Uvijek isti padding
             position: 'relative',
         };
-    }, [activeChats.length]);
+    }, []); // Nikad se ne mijenja
 
     const userAvatar = useMemo(() => {
         return currentUser.id ? `/api/users/${currentUser.id}/profile-picture` : (currentUser.gender === 'woman' ? '/icons/Woman.png' : '/icons/Man.png');
@@ -776,13 +776,13 @@ function ClientMainLayout({ children }) {
                                 <EndToEndMessenger
                                     key={chat.id}
                                     chat={chat}
-                                    style={activeChats.length > 1 ? { width: chatWidths[chat.id] || '49%' } : { width: '100%' }}
+                                    style={{ width: chatWidths[chat.id] || '49%' }} // Uvijek koristi dinamičku širinu
                                     onClose={() => handleCloseChat(chat.id)}
                                     data-chat-id={chat.id}
-                                    isSingle={activeChats.length === 1}
+                                    isSingle={false} // Uvijek false - ne mijenja se
                                 />
                             ))}
-                            {(activeChats.length === 2) && (
+                            {(activeChats.length >= 2) && (
                                 <div className="controls-between-chats" style={{ left: controlsLeft, transform: 'translateX(-50%)' }}>
                                     <div className="vertical-line"></div>
                                     <div className="controls-square">
