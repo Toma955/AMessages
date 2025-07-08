@@ -16,7 +16,7 @@
 2. Click "Log in" or use Google sign-in
 3. You'll be redirected to the main chat interface
 
-### Core Features
+### Basic Features
 
 #### Sending Messages
 1. Log in to your account
