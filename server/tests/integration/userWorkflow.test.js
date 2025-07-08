@@ -23,7 +23,7 @@ app.use("/api", userRoutes);
 app.use("/api", authRoutes);
 app.use("/api", searchRoutes);
 
-describe("Integracijski test - Kompletni workflow korisnika", () => {
+describe("UserWorkflow - Production Version 1.0", () => {
     let createdUserId = null;
     let authToken = null;
 
