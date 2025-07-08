@@ -1,9 +1,14 @@
-const request = require("supertest");
-const express = require("express");
-const path = require("path");
-const userRoutes = require("../../routes/UserRoutes");
+import request from "supertest";
+import express from "express";
+import path from "path";
+import { fileURLToPath } from 'url';
+import userRoutes from "../../routes/UserRoutes.js";
+import fs from 'fs';
 
-const config = require(path.resolve(__dirname, "../testConfig.json"));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../testConfig.json"), 'utf8'));
 const user = config.users.user1;
 
 const app = express();
@@ -11,7 +16,7 @@ app.use(express.json());
 app.use("/api", userRoutes);
 
 describe("Kreiranje korisnika", () => {
-    test("Uspješno kreira korisnika i pokreće backend procese", async () => {
+    test("Uspješno kreiranje korisnika i pokreće backend procese", async () => {
         try {
             const res = await request(app).post("/api/users").send({
                 username: user.username,
@@ -33,7 +38,7 @@ describe("Kreiranje korisnika", () => {
             expect(res.body).toHaveProperty("userId");
         } catch (err) {
             console.error(" Test failed with error:", err);
-            throw err; // re-throw so jest still fails the test
+            throw err;
         }
     });
 });

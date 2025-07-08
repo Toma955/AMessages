@@ -1,15 +1,15 @@
 {
   "users": {
     "user1": {
-      "username": "test_user",
+      "username": "test_user_98765",
       "password": "Test123!",
       "ip": "192.168.1.100",
       "name": "Test",
-      "surname": "Korisnik",
+      "surname": "Testic",
       "gender": "male",
-      "date_of_birth": "1990-01-01",
+      "date_of_birth": "01.01.2000",
       "theme": "light",
-      "language": "hr"
+      "language": "en"
     },
     "user2": {
       "username": "test_user2",
@@ -18,7 +18,7 @@
       "name": "Ana",
       "surname": "Tester",
       "gender": "female",
-      "date_of_birth": "1995-05-05",
+      "date_of_birth": "05.05.1995",
       "theme": "dark",
       "language": "en"
     }

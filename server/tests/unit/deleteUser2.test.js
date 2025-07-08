@@ -20,7 +20,7 @@ app.use(express.json());
 app.use("/api", userRoutes);
 
 describe("🧹 Brisanje korisnika preko backend API-ja", () => {
-    const user = config.users.user1;
+    const user = config.users.user2;
 
     let token = "";
     let userId = "";
@@ -61,4 +61,4 @@ describe("🧹 Brisanje korisnika preko backend API-ja", () => {
         expect(res.body.success).toBe(true);
         expect(res.body.message_code).toBe("USER_DELETED");
     });
-});
+}); 

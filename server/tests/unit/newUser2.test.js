@@ -1,9 +1,14 @@
-const request = require("supertest");
-const express = require("express");
-const path = require("path");
-const userRoutes = require("../../routes/UserRoutes");
+import request from "supertest";
+import express from "express";
+import path from "path";
+import { fileURLToPath } from 'url';
+import userRoutes from "../../routes/UserRoutes.js";
+import fs from 'fs';
 
-const config = require(path.resolve(__dirname, "../testConfig.json"));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../testConfig.json"), 'utf8'));
 const user = config.users.user2;
 
 const app = express();

@@ -1,10 +1,19 @@
-const request = require("supertest");
-const express = require("express");
-const Database = require("better-sqlite3");
-const jwt = require("jsonwebtoken");
-const authRoutes = require("../../routes/AuthRoutes");
-const config = require("../testUtils");
-require("dotenv").config();
+import request from "supertest";
+import express from "express";
+import path from "path";
+import { fileURLToPath } from 'url';
+import Database from "better-sqlite3";
+import jwt from "jsonwebtoken";
+import authRoutes from "../../routes/AuthRoutes.js";
+import fs from 'fs';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const config = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../testConfig.json"), 'utf8'));
 
 const app = express();
 app.use(express.json());
@@ -30,7 +39,8 @@ describe("✅ Logout postojećeg korisnika iz testConfig", () => {
         userId = session.user_id;
         ip = session.ip_address;
 
-        token = jwt.sign({ id: userId, username: user.username, ip }, process.env.JWT_SECRET, {
+        const jwtSecret = process.env.JWT_SECRET || "test-secret-key";
+        token = jwt.sign({ id: userId, username: user.username, ip }, jwtSecret, {
             expiresIn: "2h"
         });
     });
