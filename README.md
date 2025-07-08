@@ -56,6 +56,10 @@ AMessages/
 └── Dockerfile.server     # Backend Dockerfile
 ```
 
+## 📖 User Guide
+
+For detailed user instructions in English and Croatian, see [USER_GUIDE.md](./USER_GUIDE.md)
+
 ## 🛠️ Setup Instructions
 
 ### Prerequisites

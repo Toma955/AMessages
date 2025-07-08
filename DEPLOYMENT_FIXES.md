@@ -118,4 +118,40 @@ After setting up environment variables:
 ### If CORS errors occur:
 1. Verify FRONTEND_URL is set correctly
 2. Check that frontend is making requests to the correct backend URL
-3. Ensure both Express and Socket.IO CORS settings are correct 
+3. Ensure both Express and Socket.IO CORS settings are correct
+
+## User Guide
+
+### Creating an Account
+1. Click "Create Account" on the login page
+2. Fill in your first name, last name, and username
+3. Choose a strong password (at least 6 characters with uppercase, lowercase, number, and special character)
+4. Select your gender
+5. Click "Create Account" to register
+
+### Sending Messages
+1. Log in to your account
+2. Select a user from the chat list
+3. Type your message in the text box
+4. Press Enter or click Send to send the message
+5. You can also use voice messages and file sharing
+
+### Deleting Your Account
+1. Go to Settings in the main menu
+2. Scroll down to "Account Management"
+3. Click "Delete Account"
+4. Confirm your password
+5. Click "Delete Account" to permanently remove your account
+
+### Basic Features
+- Real-time messaging with other users
+- Voice messages and file sharing
+- Group chats and conversations
+- User search and friend management
+- Account settings and customization
+
+### Tips
+- Keep your password secure and don't share it
+- Use strong passwords for better security
+- You can change your language in settings
+- Report any issues through the help section 
