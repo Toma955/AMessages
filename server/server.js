@@ -130,6 +130,31 @@ io.on('connection', (socket) => {
         });
     });
 
+    // Handle group messages
+    socket.on('group_message', (data) => {
+        const { groupId, message } = data;
+        // Emit to all group participants
+        socket.to(`group_${groupId}`).emit('group_message', {
+            groupId,
+            message,
+            sender: socket.userId,
+            senderName: socket.username,
+            timestamp: new Date()
+        });
+    });
+
+    // Join group room
+    socket.on('join_group', (groupId) => {
+        socket.join(`group_${groupId}`);
+        console.log(`👥 User ${socket.username} joined group ${groupId}`);
+    });
+
+    // Leave group room
+    socket.on('leave_group', (groupId) => {
+        socket.leave(`group_${groupId}`);
+        console.log(`👥 User ${socket.username} left group ${groupId}`);
+    });
+
     // Handle disconnect
     socket.on('disconnect', () => {
         console.log(`🔌 User ${socket.username} (ID: ${socket.userId}) disconnected`);

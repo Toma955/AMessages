@@ -15,6 +15,7 @@ import ChatWindow from '@/components/ChatWindow/ChatWindow';
 import SettingsWidget from "@/components/SettingsWidget/SettingsWidget";
 import GroupButton from '@/components/GroupButton/GroupButton';
 import GrupChat from '@/components/GrupChat/GrupChat';
+import UserList from '@/components/Userlist/UserList';
 import RadioListWidget from '@/components/RadioPlayer/RadioListWidget';
 import socketService from "@/services/socketService";
 import "@/app/styles/main.css";
@@ -126,56 +127,21 @@ function ClientMainLayout({ children }) {
     const songsPerPage = 4;
     const totalSongPages = Math.ceil(songs.length / songsPerPage);
 
-    // Handle GrupChat open/close with proper width management
+    // Handle GrupChat open/close
     const handleGrupChatOpen = useCallback(() => {
+        console.log('🎯 Opening group chat overlay');
         setIsGrupChatOpen(true);
-        
-        // Adjust chat widths when opening group chat
-        if (activeChats.length > 0) {
-            const newWidths = { ...chatWidths };
-            
-            // If there's only one active chat, split the space
-            if (activeChats.length === 1) {
-                newWidths[activeChats[0].id] = '49%';
-                newWidths['group'] = '49%';
-            } else {
-                // If there are multiple chats, give group chat equal space
-                const equalWidth = `${100 / (activeChats.length + 1)}%`;
-                activeChats.forEach(chat => {
-                    newWidths[chat.id] = equalWidth;
-                });
-                newWidths['group'] = equalWidth;
-            }
-            
-            setChatWidths(newWidths);
-        }
-    }, [activeChats, chatWidths, setChatWidths]);
+    }, []);
 
     const handleGrupChatClose = useCallback(() => {
+        console.log('🎯 Closing group chat overlay');
         setIsGrupChatOpen(false);
-        
-        // Restore original widths when closing group chat
-        if (activeChats.length > 0) {
-            const newWidths = { ...chatWidths };
-            delete newWidths['group'];
-            
-            // If there's only one active chat, give it full width
-            if (activeChats.length === 1) {
-                newWidths[activeChats[0].id] = '100%';
-            } else {
-                // Distribute space equally among remaining chats
-                const equalWidth = `${100 / activeChats.length}%`;
-                activeChats.forEach(chat => {
-                    newWidths[chat.id] = equalWidth;
-                });
-            }
-            
-            setChatWidths(newWidths);
-        }
-    }, [activeChats, chatWidths, setChatWidths]);
+    }, []);
 
     // Refs
     const router = useRouter();
+
+
 
     // Memoized computed values - must be called before useEffect hooks
     const contactsPanelClass = useMemo(() => {
@@ -185,24 +151,22 @@ function ClientMainLayout({ children }) {
     }, [isRecordPlayerVisible, isRadioPlayerVisible, isPianoVisible, isDashboardInPanelVisible, isSettingsVisible, isRadioListVisible, isPianoActive]);
 
     const contentContainerClass = useMemo(() => {
-        const totalChats = activeChats.length + (isGrupChatOpen ? 1 : 0);
-        return `content-container${totalChats === 1 ? ' single-chat' : ''}`;
-    }, [activeChats.length, isGrupChatOpen]);
+        return `content-container${activeChats.length === 1 ? ' single-chat' : ''}`;
+    }, [activeChats.length]);
 
     const activeChatsContainerStyle = useMemo(() => {
-        const totalChats = activeChats.length + (isGrupChatOpen ? 1 : 0);
         return {
             display: 'flex',
             alignItems: 'stretch',
             justifyContent: 'center',
             width: '100%',
             height: '100%',
-            gap: totalChats > 1 ? '2%' : 0,
-            paddingLeft: totalChats > 1 ? '0.5%' : 0,
-            paddingRight: totalChats > 1 ? '0.5%' : 0,
+            gap: activeChats.length > 1 ? '2%' : 0,
+            paddingLeft: activeChats.length > 1 ? '0.5%' : 0,
+            paddingRight: activeChats.length > 1 ? '0.5%' : 0,
             position: 'relative',
         };
-    }, [activeChats.length, isGrupChatOpen]);
+    }, [activeChats.length]);
 
     const userAvatar = useMemo(() => {
         return currentUser.id ? `/api/users/${currentUser.id}/profile-picture` : (currentUser.gender === 'woman' ? '/icons/Woman.png' : '/icons/Man.png');
@@ -792,6 +756,17 @@ function ClientMainLayout({ children }) {
                                 onClose={() => setIsAiChatOpen(false)}
                                 style={{ width: '100%', height: '100%' }}
                             />
+                        ) : isGrupChatOpen ? (
+                            <GrupChat
+                                key="group-chat"
+                                onClose={handleGrupChatClose}
+                                groupName="Group Chat"
+                                isAdmin={true}
+                                currentUser={currentUser}
+                                style={{ width: '100%', height: '100%' }}
+                                isSingle={true}
+                                groupId="temp_group_1"
+                            />
                         ) : (
                         <div
                             className="active-chats-container"
@@ -807,17 +782,7 @@ function ClientMainLayout({ children }) {
                                     isSingle={activeChats.length === 1}
                                 />
                             ))}
-                            {isGrupChatOpen && (
-                                <GrupChat
-                                    onClose={handleGrupChatClose}
-                                    groupName="Group Chat"
-                                    isAdmin={true}
-                                    currentUser={currentUser}
-                                    style={activeChats.length > 0 ? { width: chatWidths['group'] || '49%' } : { width: '100%' }}
-                                    isSingle={activeChats.length === 0}
-                                />
-                            )}
-                            {(activeChats.length === 2 || (activeChats.length === 1 && isGrupChatOpen)) && (
+                            {(activeChats.length === 2) && (
                                 <div className="controls-between-chats" style={{ left: controlsLeft, transform: 'translateX(-50%)' }}>
                                     <div className="vertical-line"></div>
                                     <div className="controls-square">

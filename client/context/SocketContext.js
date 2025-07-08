@@ -72,6 +72,28 @@ export const SocketProvider = ({ children }) => {
     }
   }, []);
 
+  const joinGroup = useCallback((groupId) => {
+    if (socketRef.current) {
+      socketRef.current.emit('join_group', groupId);
+    }
+  }, []);
+
+  const leaveGroup = useCallback((groupId) => {
+    if (socketRef.current) {
+      socketRef.current.emit('leave_group', groupId);
+    }
+  }, []);
+
+  const sendGroupMessage = useCallback((groupId, message) => {
+    if (socketRef.current) {
+      socketRef.current.emit('group_message', {
+        groupId,
+        message,
+        timestamp: new Date().toISOString()
+      });
+    }
+  }, []);
+
   const onMessage = useCallback((handler) => {
     const handlerId = Date.now().toString();
     messageHandlersRef.current.set(handlerId, handler);
@@ -105,6 +127,9 @@ export const SocketProvider = ({ children }) => {
     sendMessage,
     joinConversation,
     leaveConversation,
+    joinGroup,
+    leaveGroup,
+    sendGroupMessage,
     onMessage,
     onConnectionChange,
     isConnected

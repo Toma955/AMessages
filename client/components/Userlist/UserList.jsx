@@ -15,7 +15,7 @@ export default function UserList() {
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
-                const response = await api.get('/api/user/me');
+                const response = await api.get('/api/me');
                 if (response.success) {
                     setCurrentUserId(response.user.id);
                 }
@@ -28,7 +28,7 @@ export default function UserList() {
             try {
                 setLoading(true);
                 
-                const response = await api.get('/api/search/users/search?query=%');
+                const response = await api.get('/api/search/users/search?query=all');
                 if (response.success) {
                     
                     const filteredUsers = response.results.filter(user => user.id !== currentUserId);
@@ -47,6 +47,7 @@ export default function UserList() {
     }, [currentUserId]);
 
     const handleDragStart = (e, user) => {
+        console.log('🎯 Drag started for user:', user);
         e.dataTransfer.setData('text/plain', JSON.stringify({
             id: user.id,
             username: user.username,
@@ -75,9 +76,11 @@ export default function UserList() {
         );
     }
 
+    console.log('🔄 UserList rendering with users:', users.length);
+    
     return (
         <div className="user-list-container">
-            <h2 className="user-list-title">Available Users</h2>
+            <h2 className="user-list-title">Available Users ({users.length})</h2>
             <div className="user-list">
                 {users.map((user) => (
                     <div 

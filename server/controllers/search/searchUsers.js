@@ -15,7 +15,7 @@ const searchUsers = (req, res) => {
   const query = req.query.query;
   const currentUserId = req.user.id; // Dobiveno iz jwtMiddleware
 
-  if (!query || query.length < 2) {
+  if (!query || (query !== 'all' && query.length < 2)) {
     return res.status(400).json({ success: false, message: "Upit prekratak." });
   }
 
@@ -23,9 +23,17 @@ const searchUsers = (req, res) => {
   try {
     // 1. Pretraga u usernames.db
     usernamesDb = new Database(path.join(dbPath, "usernames.db"));
-    const matchingUsers = usernamesDb
-      .prepare("SELECT id, username FROM registered_usernames WHERE username LIKE ? AND id != ? LIMIT 10")
-      .all(`%${query}%`, currentUserId);
+    let matchingUsers;
+    
+    if (query === 'all') {
+      matchingUsers = usernamesDb
+        .prepare("SELECT id, username FROM registered_usernames WHERE id != ? LIMIT 50")
+        .all(currentUserId);
+    } else {
+      matchingUsers = usernamesDb
+        .prepare("SELECT id, username FROM registered_usernames WHERE username LIKE ? AND id != ? LIMIT 10")
+        .all(`%${query}%`, currentUserId);
+    }
 
     if (matchingUsers.length === 0) {
       return res.status(200).json({ success: true, results: [], message_code: errors.USER_NOT_FOUND, message: "Nema korisnika koji odgovaraju upitu." });

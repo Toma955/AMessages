@@ -3,8 +3,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import './GrupChat.css';
+import groupService from '../../services/groupService';
+import { useSocket } from '../../hooks/useSocket';
 
-const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentUser = {}, style = {}, isSingle = true }) => {
+const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentUser = {}, style = {}, isSingle = true, groupId = null }) => {
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     const [participants, setParticipants] = useState([
@@ -16,20 +18,32 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
     const [showAddUser, setShowAddUser] = useState(false);
     const [newUserInput, setNewUserInput] = useState('');
     const [isDragOver, setIsDragOver] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     
     const containerRef = useRef(null);
+    const socket = useSocket();
 
-    const handleSendMessage = () => {
-        if (newMessage.trim()) {
-            const message = {
-                id: Date.now(),
-                text: newMessage,
-                sender: currentUser.username || 'You',
-                timestamp: new Date().toLocaleTimeString(),
-                avatar: currentUser.gender === 'female' ? '/icons/Woman.png' : '/icons/Man.png'
-            };
-            setMessages([...messages, message]);
-            setNewMessage('');
+    const handleSendMessage = async () => {
+        if (newMessage.trim() && groupId) {
+            setIsLoading(true);
+            try {
+                const response = await groupService.sendGroupMessage(groupId, newMessage.trim());
+                if (response.success) {
+                    const message = {
+                        id: Date.now(),
+                        text: newMessage.trim(),
+                        sender: currentUser.username || 'You',
+                        timestamp: new Date().toLocaleTimeString(),
+                        avatar: currentUser.gender === 'female' ? '/icons/Woman.png' : '/icons/Man.png'
+                    };
+                    setMessages(prev => [...prev, message]);
+                    setNewMessage('');
+                }
+            } catch (error) {
+                console.error('Error sending group message:', error);
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -94,6 +108,7 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
         setIsDragOver(true);
+        console.log('🎯 Drag over in GrupChat');
     };
 
     const handleDragLeave = (e) => {
@@ -106,12 +121,17 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
         e.preventDefault();
         setIsDragOver(false);
         
+        console.log('🎯 Drop event triggered in GrupChat');
+        
         try {
             const droppedData = e.dataTransfer.getData('text/plain');
+            console.log('📦 Dropped data:', droppedData);
             const userData = JSON.parse(droppedData);
+            console.log('👤 Parsed user data:', userData);
             
             // Check if user is already in the group
             const isAlreadyInGroup = participants.some(p => p.id === userData.id);
+            console.log('🔍 Is user already in group:', isAlreadyInGroup);
             
             if (!isAlreadyInGroup && isAdmin) {
                 const newUser = {
@@ -120,7 +140,8 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                     avatar: userData.gender === 'female' ? '/icons/Woman.png' : '/icons/Man.png',
                     isAdmin: false
                 };
-                setParticipants([...participants, newUser]);
+                setParticipants(prev => [...prev, newUser]);
+                console.log('✅ User added to group:', newUser);
                 
                 // Show success message
                 const message = {
@@ -131,8 +152,9 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                     avatar: '/icons/grup.png',
                     isSystemMessage: true
                 };
-                setMessages([...messages, message]);
+                setMessages(prev => [...prev, message]);
             } else if (isAlreadyInGroup) {
+                console.log('⚠️ User already in group');
                 // Show already in group message
                 const message = {
                     id: Date.now(),
@@ -142,13 +164,74 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                     avatar: '/icons/grup.png',
                     isSystemMessage: true
                 };
-                setMessages([...messages, message]);
+                setMessages(prev => [...prev, message]);
             }
         } catch (error) {
-            console.error('Error processing dropped user:', error);
+            console.error('❌ Error processing dropped user:', error);
         }
     };
 
+    // Load group messages on mount
+    useEffect(() => {
+        if (groupId) {
+            const loadMessages = async () => {
+                try {
+                    const response = await groupService.getGroupMessages(groupId);
+                    if (response.success && response.messages) {
+                        const formattedMessages = response.messages.map(msg => {
+                            // Dohvati username pošiljatelja
+                            const senderName = msg.sender_id === currentUser.id ? 'You' : `User ${msg.sender_id}`;
+                            return {
+                                id: msg.id,
+                                text: msg.message,
+                                sender: senderName,
+                                timestamp: new Date(msg.sent_at).toLocaleTimeString(),
+                                avatar: '/icons/Man.png' // Default avatar
+                            };
+                        });
+                        setMessages(formattedMessages);
+                    }
+                } catch (error) {
+                    console.error('Error loading group messages:', error);
+                    // For now, just set empty messages to avoid errors
+                    setMessages([]);
+                }
+            };
+            loadMessages();
+        }
+    }, [groupId]);
+
+    // Socket.IO real-time group messages
+    useEffect(() => {
+        if (groupId) {
+            // Join group room
+            socket?.joinGroup?.(groupId);
+
+            // Listen for new group messages
+            const handleGroupMessage = (data) => {
+                if (data.groupId === groupId) {
+                    const message = {
+                        id: Date.now(),
+                        text: data.message,
+                        sender: data.senderName,
+                        timestamp: new Date(data.timestamp).toLocaleTimeString(),
+                        avatar: '/icons/Man.png'
+                    };
+                    setMessages(prev => [...prev, message]);
+                }
+            };
+
+            const cleanup = socket?.onMessage?.(handleGroupMessage);
+
+            return () => {
+                cleanup?.();
+                socket?.leaveGroup?.(groupId);
+            };
+        }
+    }, [socket, groupId]);
+
+    console.log('🔄 GrupChat rendering, isDragOver:', isDragOver, 'groupId:', groupId);
+    
     return (
         <div 
             ref={containerRef}
@@ -306,13 +389,17 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                     placeholder="Type your message..."
                     rows={1}
                 />
-                <button onClick={handleSendMessage} disabled={!newMessage.trim()}>
-                    <Image
-                        src="/icons/Send.png"
-                        alt="Send"
-                        width={20}
-                        height={20}
-                    />
+                <button onClick={handleSendMessage} disabled={!newMessage.trim() || isLoading}>
+                    {isLoading ? (
+                        <div className="loading-spinner"></div>
+                    ) : (
+                        <Image
+                            src="/icons/Send.png"
+                            alt="Send"
+                            width={20}
+                            height={20}
+                        />
+                    )}
                 </button>
             </div>
         </div>
