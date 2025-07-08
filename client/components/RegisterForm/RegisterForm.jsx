@@ -587,7 +587,6 @@ export default function RegisterForm({
                                     alt="Back"
                                     width={24}
                                     height={24}
-                                    unoptimized
                                 />
                             </button>
                             <h1 className="title">{t.registerTitle}</h1>

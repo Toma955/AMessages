@@ -482,7 +482,7 @@
 /* Validation sidebar */
 .validation-sidebar {
     position: absolute;
-    right: -320px;
+    left: calc(100% + 20px);
     top: 0;
     width: 300px;
     background: var(--color-bg-box);
@@ -500,14 +500,12 @@
 .validation-sidebar.visible {
     opacity: 1;
     transform: translateX(0);
-    right: -20px;
 }
 
 .validation-sidebar.visible.strong {
     opacity: 1;
     transform: translateX(0);
     z-index: 1000;
-    right: -20px;
 }
 
 .validation-item {
