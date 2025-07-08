@@ -25,7 +25,7 @@ router.get('/google', (req, res) => {
 
 router.get('/google/callback', (req, res, next) => {
     if (!isGoogleOAuthConfigured()) {
-        return res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth-success?error=oauth_not_configured`);
+        return res.redirect(`${process.env.FRONTEND_URL || 'https://amessages.vercel.app'}/auth-success?error=oauth_not_configured`);
     }
     
     passport.authenticate('google', { 
@@ -47,10 +47,10 @@ router.get('/google/callback', (req, res, next) => {
         );
 
         
-        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth-success?token=${token}`);
+        res.redirect(`${process.env.FRONTEND_URL || 'https://amessages.vercel.app'}/auth-success?token=${token}`);
     } catch (error) {
         console.error('Google OAuth callback error:', error);
-        res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth-success?error=oauth_failed`);
+        res.redirect(`${process.env.FRONTEND_URL || 'https://amessages.vercel.app'}/auth-success?error=oauth_failed`);
     }
 });
 
