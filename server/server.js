@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
-import * as Sentry from "@sentry/node";
+// import * as Sentry from "@sentry/node";
 import { fileURLToPath } from 'url';
 import path from "path";
 import passport from "./config/passport.js";
@@ -165,13 +165,13 @@ io.on('connection', (socket) => {
 global.io = io;
 global.connectedUsers = connectedUsers;
 
-// Sentry
-Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    tracesSampleRate: 1.0,
-    environment: process.env.NODE_ENV || 'development',
-    profilesSampleRate: 1.0,
-});
+// Sentry - temporarily disabled due to module resolution issues
+// Sentry.init({
+//     dsn: process.env.SENTRY_DSN,
+//     tracesSampleRate: 1.0,
+//     environment: process.env.NODE_ENV || 'development',
+//     profilesSampleRate: 1.0,
+// });
 
 //CORS for frontend
 app.use(cors({
