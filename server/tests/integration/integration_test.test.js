@@ -1,15 +1,11 @@
-import dotenv from "dotenv";
+const dotenv = require("dotenv");
 dotenv.config();
-import request from "supertest";
-import express from "express";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
-import userRoutes from "../../routes/UserRoutes.js";
-import authRoutes from "../../routes/AuthRoutes.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const request = require("supertest");
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
+const userRoutes = require("../../routes/UserRoutes.js");
+const authRoutes = require("../../routes/AuthRoutes.js");
 
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../testConfig.json"), "utf8"));
 
