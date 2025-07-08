@@ -29,7 +29,8 @@ async function checkServerWithTimeout(timeout) {
     try {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeout);
-        const response = await fetch('http://localhost:5000/test', { signal: controller.signal });
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+        const response = await fetch(`${apiUrl}/test`, { signal: controller.signal });
         clearTimeout(id);
         return response.ok;
     } catch (error) {
