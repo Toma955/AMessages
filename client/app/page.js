@@ -23,12 +23,10 @@ export default function Home() {
             clearTimeout(timeoutId);
             
             if (response.ok) {
-                
                 setServerStatus('online');
                 setTimeout(() => setShowLoading(true), 100);
                 return true;
             } else {
-               
                 return await retryServerTest();
             }
         } catch (error) {
@@ -36,7 +34,6 @@ export default function Home() {
         }
     };
 
-   
     const retryServerTest = async () => {
         try {
             const controller = new AbortController();
@@ -59,7 +56,6 @@ export default function Home() {
                 return false;
             }
         } catch (error) {
-           
             setServerStatus('offline');
             router.push('/not-found');
             return false;

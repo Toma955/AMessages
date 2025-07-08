@@ -1,4 +1,3 @@
-// API client utility for making authenticated requests
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
 
 const getAuthToken = () => {
@@ -12,15 +11,12 @@ const handleResponse = async (response) => {
     let data;
     
     try {
-        // Try to parse JSON response
         const text = await response.text();
         data = text ? JSON.parse(text) : {};
     } catch (error) {
-        // Safe console logging
         if (typeof console !== 'undefined' && console.error) {
             console.error('JSON parsing error:', error);
         }
-        // If JSON parsing fails, create a basic error object
         data = {
             error_code: 'INVALID_RESPONSE',
             message: 'Invalid response format'
@@ -28,7 +24,6 @@ const handleResponse = async (response) => {
     }
     
     if (!response.ok) {
-        // Safe console logging
         if (typeof console !== 'undefined' && console.error) {
             console.error('API Error:', {
                 status: response.status,

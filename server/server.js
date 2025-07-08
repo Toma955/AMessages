@@ -17,7 +17,6 @@ import AdminRoutes from "./routes/AdminRoutes.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Prometheus monitoring
 const collectDefaultMetrics = client.collectDefaultMetrics;
 collectDefaultMetrics();
 
@@ -34,18 +33,15 @@ const httpRequestDuration = new client.Histogram({
     buckets: [0.1, 0.3, 0.5, 0.7, 1, 2, 5]
 });
 
-// Load environment variables - try .env file first, then fall back to system environment variables
 const envPath = path.join(__dirname, '..', '.env');
 dotenv.config({ path: envPath });
 
-// Admin credentials from environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
 
 const app = express();
 const server = createServer(app);
 
-//  Socket.IO
 const io = new Server(server, {
     cors: {
         origin: process.env.FRONTEND_URL || "http://localhost:3000",
@@ -57,7 +53,6 @@ const io = new Server(server, {
 
 const connectedUsers = new Map();
 
-// Socket.IO authentication middleware
 io.use((socket, next) => {
     const token = socket.handshake.auth.token;
     
@@ -75,7 +70,6 @@ io.use((socket, next) => {
     }
 });
 
-// Socket.IO connection
 io.on('connection', (socket) => {
     connectedUsers.set(socket.userId, {
         socketId: socket.id,
@@ -83,10 +77,8 @@ io.on('connection', (socket) => {
         connectedAt: new Date()
     });
 
-    // Join user to room
     socket.join(`user_${socket.userId}`);
 
-    // Handle typing events
     socket.on('typing', (data) => {
         const { receiverId, isTyping } = data;
         socket.to(`user_${receiverId}`).emit('user_typing', {
@@ -96,7 +88,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Handle messages read
     socket.on('message_read', (data) => {
         const { messageId, senderId } = data;
         socket.to(`user_${senderId}`).emit('message_read_receipt', {
@@ -106,10 +97,8 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Handle group messages
     socket.on('group_message', (data) => {
         const { groupId, message } = data;
-        // Emit to all group participants
         socket.to(`group_${groupId}`).emit('group_message', {
             groupId,
             message,
@@ -119,17 +108,14 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Join group room
     socket.on('join_group', (groupId) => {
         socket.join(`group_${groupId}`);
     });
 
-    // Leave group room
     socket.on('leave_group', (groupId) => {
         socket.leave(`group_${groupId}`);
     });
 
-    // Handle disconnect
     socket.on('disconnect', () => {
         connectedUsers.delete(socket.userId);
     });
@@ -138,13 +124,11 @@ io.on('connection', (socket) => {
 global.io = io;
 global.connectedUsers = connectedUsers;
 
-// Sentry initialization
 Sentry.init({
     dsn: process.env.SENTRY_DSN || '',
     environment: process.env.NODE_ENV || 'development',
 });
 
-//CORS for frontend
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000', 
     credentials: true,
@@ -156,7 +140,6 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Passport 
 app.use(passport.initialize());
 
 app.use('/songs', express.static(path.join(__dirname, 'songs')));
@@ -170,7 +153,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Prometheus 
 app.get("/metrics", async (req, res) => {
     res.set("Content-Type", client.register.contentType);
     res.end(await client.register.metrics());
