@@ -30,8 +30,6 @@
 2. Send messages to multiple users at once
 3. Manage group settings and members
 
-
-
 ### Account Management
 
 #### Changing Settings
@@ -84,8 +82,6 @@
 1. Kreirajte ili se pridružite grupnim razgovorima
 2. Šaljite poruke više korisnika odjednom
 3. Upravljajte postavkama grupe i članovima
-
-
 
 ### Upravljanje računom
 
