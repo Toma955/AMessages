@@ -48,7 +48,11 @@ const io = new Server(server, {
             process.env.FRONTEND_URL || "http://localhost:3000",
             'https://amessages.vercel.app',
             'https://amessages-frontend.vercel.app',
-            'https://amessages-git-main.vercel.app'
+            'https://amessages-git-main.vercel.app',
+            'https://amessages-git-develop.vercel.app',
+            'https://amessages-git-feature.vercel.app',
+            'https://amessages-git-patch.vercel.app',
+            'https://amessages-git-hotfix.vercel.app'
         ],
         methods: ["GET", "POST"],
         credentials: true
@@ -139,7 +143,11 @@ app.use(cors({
         process.env.FRONTEND_URL || 'http://localhost:3000',
         'https://amessages.vercel.app',
         'https://amessages-frontend.vercel.app',
-        'https://amessages-git-main.vercel.app'
+        'https://amessages-git-main.vercel.app',
+        'https://amessages-git-develop.vercel.app',
+        'https://amessages-git-feature.vercel.app',
+        'https://amessages-git-patch.vercel.app',
+        'https://amessages-git-hotfix.vercel.app'
     ], 
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
