@@ -1,0 +1,9 @@
+{"level":30,"time":1751969961790,"pid":6836,"hostname":"TomPC","msg":"Startup check initiated."}
+{"level":30,"time":1751969961792,"pid":6836,"hostname":"TomPC","msg":".env file exists."}
+{"level":30,"time":1751969961792,"pid":6836,"hostname":"TomPC","msg":"JWT_SECRET is properly configured."}
+{"level":30,"time":1751969961792,"pid":6836,"hostname":"TomPC","msg":"Database auth.db exists."}
+{"level":30,"time":1751969961793,"pid":6836,"hostname":"TomPC","msg":"Database client_info.db exists."}
+{"level":30,"time":1751969961793,"pid":6836,"hostname":"TomPC","msg":"Database login.db exists."}
+{"level":30,"time":1751969961793,"pid":6836,"hostname":"TomPC","msg":"Database system.db exists."}
+{"level":30,"time":1751969961794,"pid":6836,"hostname":"TomPC","msg":"Database usernames.db exists."}
+{"level":30,"time":1751969961795,"pid":6836,"hostname":"TomPC","msg":"[2025-07-08 10:19:21] Startup checks passed. All critical files are present."}

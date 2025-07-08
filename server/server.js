@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
-// import * as Sentry from "@sentry/node";
+import * as Sentry from "@sentry/node";
 import { fileURLToPath } from 'url';
 import path from "path";
 import passport from "./config/passport.js";
@@ -34,8 +34,9 @@ const httpRequestDuration = new client.Histogram({
     buckets: [0.1, 0.3, 0.5, 0.7, 1, 2, 5]
 });
 
-// Load environment variables with explicit path
-const result = dotenv.config();
+// Load environment variables - try .env file first, then fall back to system environment variables
+const envPath = path.join(__dirname, '..', '.env');
+const result = dotenv.config({ path: envPath });
 console.log('=== Dotenv Debug ===');
 console.log('Dotenv result:', result);
 console.log('Parsed:', result.parsed);
@@ -62,7 +63,7 @@ const server = createServer(app);
 //  Socket.IO
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000",
+        origin: process.env.FRONTEND_URL || "http://localhost:3000",
         methods: ["GET", "POST"],
         credentials: true
     }
@@ -165,17 +166,17 @@ io.on('connection', (socket) => {
 global.io = io;
 global.connectedUsers = connectedUsers;
 
-// Sentry - temporarily disabled due to module resolution issues
-// Sentry.init({
-//     dsn: process.env.SENTRY_DSN,
-//     tracesSampleRate: 1.0,
-//     environment: process.env.NODE_ENV || 'development',
-//     profilesSampleRate: 1.0,
-// });
+// Sentry initialization
+Sentry.init({
+    dsn: process.env.SENTRY_DSN || '',
+    tracesSampleRate: 1.0,
+    environment: process.env.NODE_ENV || 'development',
+    profilesSampleRate: 1.0,
+});
 
 //CORS for frontend
 app.use(cors({
-    origin: 'http://localhost:3000', 
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000', 
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
