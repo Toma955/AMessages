@@ -169,9 +169,7 @@ global.connectedUsers = connectedUsers;
 // Sentry initialization
 Sentry.init({
     dsn: process.env.SENTRY_DSN || '',
-    tracesSampleRate: 1.0,
     environment: process.env.NODE_ENV || 'development',
-    profilesSampleRate: 1.0,
 });
 
 //CORS for frontend
@@ -234,8 +232,9 @@ app.get("/test", (req, res) => {
 app.use((err, req, res, next) => {
     console.error(err.stack);
     
- 
-    Sentry.captureException(err);
+    if (process.env.SENTRY_DSN) {
+        Sentry.captureException(err);
+    }
     
     res.status(500).json({ 
         success: false, 
@@ -256,7 +255,9 @@ async function startServer() {
         });
     } catch (err) {
         console.error("Startup failed:", err.message);
-        Sentry.captureException(err);
+        if (process.env.SENTRY_DSN) {
+            Sentry.captureException(err);
+        }
         process.exit(1);
     }
 }
