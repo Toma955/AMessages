@@ -47,7 +47,8 @@ export default function LoginForm() {
 
     const handleGoogleLogin = () => {
         // Redirect to Google OAuth
-        window.location.href = 'http://localhost:5000/api/auth/google';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+        window.location.href = `${apiUrl}/api/auth/google`;
     };
 
     // Handle OAuth success callback

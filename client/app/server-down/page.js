@@ -15,7 +15,8 @@ export default function ServerDown() {
 
     const checkStatus = async () => {
       try {
-        const response = await fetch('http://localhost:5000/test');
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+        const response = await fetch(`${apiUrl}/test`);
         if (response.ok) {
           router.replace('/'); // Vrati se na početnu ako server oživi
         }

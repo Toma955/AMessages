@@ -37,7 +37,8 @@ class SocketService {
         }
 
         try {
-            this.socket = io('http://localhost:5000', {
+            const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'https://amessages.onrender.com';
+            this.socket = io(socketUrl, {
                 auth: { token },
                 transports: ['websocket', 'polling'],
                 reconnection: true,

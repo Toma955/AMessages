@@ -32,7 +32,8 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
             }
             
             try {
-                const url = `http://localhost:5000/api/messages/${chat.id}`;
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+                const url = `${apiUrl}/api/messages/${chat.id}`;
                 console.log('🔍 Frontend: Fetching from URL:', url);
                 console.log('🔍 Frontend: Authorization header:', `Bearer ${token.substring(0, 20)}...`);
                 
@@ -249,7 +250,8 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
 
     async function sendMessageToUser(receiverId, message) {
         const token = localStorage.getItem('token');
-        const url = 'http://localhost:5000/api/messages/send';
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+        const url = `${apiUrl}/api/messages/send`;
         try {
             const res = await fetch(url, {
                 method: 'POST',

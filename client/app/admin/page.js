@@ -144,7 +144,8 @@ export default function AdminPage() {
     const fetchUsers = () => {
         setLoadingUsers(true);
         setUsersError(null);
-        fetch('http://localhost:5000/api/users')
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+        fetch(`${apiUrl}/api/users`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -163,7 +164,8 @@ export default function AdminPage() {
     const fetchStartupLog = () => {
         setLoadingLog(true);
         setLogError(null);
-        fetch('http://localhost:5000/api/admin/logs/startup')
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+        fetch(`${apiUrl}/api/admin/logs/startup`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -182,7 +184,8 @@ export default function AdminPage() {
     const fetchSystemResources = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
-        fetch('http://localhost:5000/api/admin/system/resources', {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+        fetch(`${apiUrl}/api/admin/system/resources`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -232,7 +235,8 @@ export default function AdminPage() {
         try {
             const userId = localStorage.getItem('userId');
             if (userId) {
-                await fetch('http://localhost:5000/api/logout', {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+                await fetch(`${apiUrl}/api/logout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -278,7 +282,8 @@ export default function AdminPage() {
         }
 
         try {
-            const response = await fetch(`http://localhost:5000/api/users/${userId}`, {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+            const response = await fetch(`${apiUrl}/api/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
