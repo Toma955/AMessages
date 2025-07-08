@@ -5,16 +5,8 @@ const router = express.Router();
 
 
 const isGoogleOAuthConfigured = () => {
-    
     const GOOGLE_CLIENT_ID = '27094931648-hvjgmve0irldebe6d6u897m72cf4h610.apps.googleusercontent.com';
     const GOOGLE_CLIENT_SECRET = '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';
-    const FRONTEND_URL = process.env.FRONTEND_URL || 'https://amessages-frontend.onrender.com';
-    
-    console.log('Debug - Google OAuth check:');
-    console.log('GOOGLE_CLIENT_ID:', GOOGLE_CLIENT_ID);
-    console.log('GOOGLE_CLIENT_SECRET:', GOOGLE_CLIENT_SECRET ? 'EXISTS' : 'MISSING');
-    console.log('FRONTEND_URL:', FRONTEND_URL);
-    
     return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET;
 };
 

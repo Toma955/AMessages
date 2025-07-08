@@ -36,26 +36,11 @@ const httpRequestDuration = new client.Histogram({
 
 // Load environment variables - try .env file first, then fall back to system environment variables
 const envPath = path.join(__dirname, '..', '.env');
-const result = dotenv.config({ path: envPath });
-console.log('=== Dotenv Debug ===');
-console.log('Dotenv result:', result);
-console.log('Parsed:', result.parsed);
-console.log('Error:', result.error);
-console.log('===================');
-
-// Debug environment variables
-console.log('=== Environment Variables Debug ===');
-console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'EXISTS' : 'MISSING');
-console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'EXISTS' : 'MISSING');
-console.log('FRONTEND_URL:', process.env.FRONTEND_URL || 'https://amessages-frontend.onrender.com');
-console.log('PORT:', process.env.PORT);
-console.log('===================================');
+dotenv.config({ path: envPath });
 
 // Admin credentials from environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
-
-console.log(`Admin credentials loaded: ${ADMIN_USERNAME}`);
 
 const app = express();
 const server = createServer(app);
@@ -75,33 +60,23 @@ const connectedUsers = new Map();
 // Socket.IO authentication middleware
 io.use((socket, next) => {
     const token = socket.handshake.auth.token;
-    console.log('🔍 Socket.IO Auth: Token provided:', !!token);
-    console.log('🔍 Socket.IO Auth: JWT_SECRET exists:', !!process.env.JWT_SECRET);
     
     if (!token) {
-        console.log('❌ Socket.IO Auth: No token provided');
         return next(new Error('Authentication error'));
     }
 
     try {
-        console.log('🔍 Socket.IO Auth: Attempting to verify token...');
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-        console.log('✅ Socket.IO Auth: Token verified successfully');
-        console.log('🔍 Socket.IO Auth: Decoded token:', { id: decoded.id, username: decoded.username });
         socket.userId = decoded.id;
         socket.username = decoded.username;
         next();
     } catch (err) {
-        console.log('❌ Socket.IO Auth: Token verification failed:', err.message);
         next(new Error('Authentication error'));
     }
 });
 
 // Socket.IO connection
 io.on('connection', (socket) => {
-    console.log(`🔌 User ${socket.username} (ID: ${socket.userId}) connected`);
-    
-    
     connectedUsers.set(socket.userId, {
         socketId: socket.id,
         username: socket.username,
@@ -147,18 +122,15 @@ io.on('connection', (socket) => {
     // Join group room
     socket.on('join_group', (groupId) => {
         socket.join(`group_${groupId}`);
-        console.log(`👥 User ${socket.username} joined group ${groupId}`);
     });
 
     // Leave group room
     socket.on('leave_group', (groupId) => {
         socket.leave(`group_${groupId}`);
-        console.log(`👥 User ${socket.username} left group ${groupId}`);
     });
 
     // Handle disconnect
     socket.on('disconnect', () => {
-        console.log(`🔌 User ${socket.username} (ID: ${socket.userId}) disconnected`);
         connectedUsers.delete(socket.userId);
     });
 });
@@ -190,8 +162,6 @@ app.use(passport.initialize());
 app.use('/songs', express.static(path.join(__dirname, 'songs')));
 
 app.use((req, res, next) => {
-    const now = new Date().toLocaleString();
-    console.log(`Request received: ${now} - [${req.method}] ${req.originalUrl}`);
     const end = httpRequestDuration.startTimer();
     res.on("finish", () => {
         httpRequestCounter.inc({ method: req.method, route: req.originalUrl, status: res.statusCode });
