@@ -1,77 +1,91 @@
-# Deployment Fixes Guide
+# Render Deployment Fixes
 
 ## Issues Fixed
 
-### 1. Client-side Icon Import Issues
-**Problem**: Components were importing icons using relative paths that don't work in Next.js
-```
-import magnifyingGlassIcon from "../../public/icons/Magnifying_glass.png";
-```
-
-**Solution**: Updated all components to use Next.js Image component with direct paths
-```jsx
-<Image src="/icons/Magnifying_glass.png" alt="Search" width={24} height={24} />
-```
-
-**Files Updated**:
-- `client/app/login/page.js` - Removed icon imports, simplified component props
-- `client/components/LoginForm/LoginForm.jsx` - Updated to use direct icon paths
-- `client/components/RegisterForm/RegisterForm.jsx` - Updated to use direct icon paths
-
-### 2. Missing Dependencies
-**Problem**: `react-markdown` dependency was in package.json but not installed
-
-**Solution**: Ran `npm install` in client directory to install all dependencies
-
-### 3. Server-side Native Module Issue
-**Problem**: `better-sqlite3` native module compiled for wrong architecture causing "invalid ELF header" error
-
+### 1. Sentry Initialization Error
+**Problem**: `ReferenceError: Sentry is not defined`
 **Solution**: 
-1. Updated `Dockerfile.server` to use Alpine Linux with build dependencies
-2. Added postinstall script to rebuild better-sqlite3 for target platform
+- Uncommented Sentry import in `server/server.js`
+- Properly initialized Sentry with fallback for empty DSN
 
-**Dockerfile Changes**:
-```dockerfile
-FROM node:20-alpine
+### 2. Environment Variables Path Issue
+**Problem**: Server was looking for `.env` file at hardcoded Windows path `D:\AMessages\server\.env`
+**Solution**:
+- Updated `server/utils/startupChecks.js` to use dynamic path resolution
+- Modified `server/server.js` to look for `.env` file in root directory
+- Made environment variable checks non-fatal (warnings instead of errors)
 
-WORKDIR /app
+### 3. CORS Configuration
+**Problem**: Hardcoded `http://localhost:3000` as CORS origin
+**Solution**:
+- Updated CORS settings to use `process.env.FRONTEND_URL` with fallback
+- Applied to both Express CORS and Socket.IO CORS settings
 
-# Install build dependencies for better-sqlite3
-RUN apk add --no-cache python3 make g++ sqlite-dev
+## Environment Variables Setup on Render
 
-COPY server/package*.json ./
-RUN npm install
+### Required Environment Variables
 
-COPY server/ .
+Set these in your Render dashboard under **Environment** section:
 
-EXPOSE 4000
-
-CMD ["node", "server.js"]
+```
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=admin
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+PORT=5000
+FRONTEND_URL=https://your-frontend-app.onrender.com
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+SENTRY_DSN=your-sentry-dsn-or-leave-empty
+DB_HOST=localhost
+DB_PORT=27017
+DB_NAME=amessages
 ```
 
-**Package.json Changes**:
-```json
-{
-  "scripts": {
-    "postinstall": "npm rebuild better-sqlite3"
-  }
-}
-```
+### Important Notes
 
-## Deployment Steps
+1. **FRONTEND_URL**: Must be set to your actual frontend URL on Render
+2. **JWT_SECRET**: Use a strong, unique secret key
+3. **GOOGLE_CLIENT_ID/SECRET**: Configure for your Google OAuth app
+4. **SENTRY_DSN**: Optional - can be left empty if not using Sentry
 
-1. **Client Build**: The client now builds successfully with all icon imports fixed
-2. **Server Build**: The server Dockerfile now includes necessary build dependencies for native modules
-3. **Database**: The better-sqlite3 module will be rebuilt for the target platform during deployment
+### Render Dashboard Setup
 
-## Testing
+1. Go to your Render service dashboard
+2. Navigate to **Environment** tab
+3. Add each environment variable listed above
+4. Save changes
+5. Redeploy your service
 
-- Client build: `cd client && npm run build` ✅
-- All icon imports now use proper Next.js Image component paths
-- Server Dockerfile includes Alpine build dependencies for native modules
+## File Changes Made
 
-## Notes
+### server/server.js
+- Fixed Sentry import and initialization
+- Updated dotenv configuration to use proper path
+- Updated CORS settings to use environment variables
 
-- The `react-markdown` dependency was already in package.json but needed to be installed
-- Icon imports were the main blocking issue for client deployment
-- Server deployment issue was due to architecture mismatch with better-sqlite3 native module 
+### server/utils/startupChecks.js
+- Replaced hardcoded Windows paths with dynamic path resolution
+- Made .env file check non-fatal
+- Made JWT_SECRET check non-fatal
+
+## Testing Deployment
+
+After setting up environment variables:
+
+1. Check Render logs for any remaining errors
+2. Verify that server starts without Sentry errors
+3. Test CORS functionality with your frontend
+4. Verify database initialization works correctly
+
+## Troubleshooting
+
+### If server still fails to start:
+1. Check Render logs for specific error messages
+2. Verify all environment variables are set correctly
+3. Ensure FRONTEND_URL matches your actual frontend URL
+4. Check that JWT_SECRET is properly configured
+
+### If CORS errors occur:
+1. Verify FRONTEND_URL is set correctly
+2. Check that frontend is making requests to the correct backend URL
+3. Ensure both Express and Socket.IO CORS settings are correct 
