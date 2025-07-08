@@ -19,16 +19,7 @@ const MONTHS = [
 
 export default function RegisterForm({ 
     onBack, 
-    language = "en",
-    backIcon,
-    leftIcon,
-    rightIcon,
-    calendarIcon,
-    maleIcon,
-    femaleIcon,
-    magnifyingGlassIcon,
-    yesIcon,
-    noIcon
+    language = "en"
 }) {
     const [formData, setFormData] = useState({
         firstName: "",
@@ -486,7 +477,7 @@ export default function RegisterForm({
                                     setFormData(prev => ({ ...prev, dateOfBirth: "" }));
                                 }}
                             >
-                                <Image src={leftIcon} alt="Back" width={16} height={16} unoptimized />
+                                <Image src="/icons/Left.png" alt="Back" width={16} height={16} unoptimized />
                                 Back to Year
                             </button>
                             <h3>Select Month</h3>
@@ -521,7 +512,7 @@ export default function RegisterForm({
                                         setShowYearPicker(false);
                                     }}
                                 >
-                                    <Image src={leftIcon} alt="Back" width={16} height={16} unoptimized />
+                                    <Image src="/icons/Left.png" alt="Back" width={16} height={16} unoptimized />
                                     Back to Month
                                 </button>
                                 <span className="month-year-text">
@@ -592,7 +583,7 @@ export default function RegisterForm({
                                 onMouseLeave={() => setHoverText("")}
                             >
                                 <Image
-                                    src={backIcon}
+                                    src="/icons/Back.png"
                                     alt="Back"
                                     width={24}
                                     height={24}
@@ -665,7 +656,7 @@ export default function RegisterForm({
                                         onMouseLeave={() => setHoverText("")}
                                     >
                                         <Image
-                                            src={magnifyingGlassIcon}
+                                            src="/icons/Magnifying_glass.png"
                                             alt="Toggle"
                                             width={16}
                                             height={16}
@@ -703,7 +694,7 @@ export default function RegisterForm({
                                         onClick={handleCalendarClick}
                                     >
                                         <Image
-                                            src={calendarIcon}
+                                            src="/icons/Calendar.png"
                                             alt="Calendar"
                                             width={24}
                                             height={24}
@@ -721,7 +712,7 @@ export default function RegisterForm({
                                     onClick={() => handleGenderSelect("M")}
                                 >
                                     <Image
-                                        src={maleIcon}
+                                        src="/icons/Male.png"
                                         alt="Male"
                                         width={24}
                                         height={24}
@@ -735,7 +726,7 @@ export default function RegisterForm({
                                     onClick={() => handleGenderSelect("F")}
                                 >
                                     <Image
-                                        src={femaleIcon}
+                                        src="/icons/Female.png"
                                         alt="Female"
                                         width={24}
                                         height={24}
@@ -777,7 +768,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.firstName ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.firstName ? yesIcon : noIcon}
+                                    src={validations.firstName ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}
@@ -789,7 +780,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.lastName ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.lastName ? yesIcon : noIcon}
+                                    src={validations.lastName ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}
@@ -801,7 +792,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.username ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.username ? yesIcon : noIcon}
+                                    src={validations.username ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}
@@ -813,7 +804,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.password.length ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.password.length ? yesIcon : noIcon}
+                                    src={validations.password.length ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}
@@ -825,7 +816,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.password.uppercase ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.password.uppercase ? yesIcon : noIcon}
+                                    src={validations.password.uppercase ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}
@@ -837,7 +828,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.password.lowercase ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.password.lowercase ? yesIcon : noIcon}
+                                    src={validations.password.lowercase ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}
@@ -849,7 +840,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.password.number ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.password.number ? yesIcon : noIcon}
+                                    src={validations.password.number ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}
@@ -861,7 +852,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.password.special ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.password.special ? yesIcon : noIcon}
+                                    src={validations.password.special ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}
@@ -873,7 +864,7 @@ export default function RegisterForm({
                         <div className={`validation-item ${validations.password.notCommon ? 'valid' : 'invalid'}`}>
                             <div className="validation-icon">
                                 <Image
-                                    src={validations.password.notCommon ? yesIcon : noIcon}
+                                    src={validations.password.notCommon ? "/icons/Yes.png" : "/icons/No.png"}
                                     alt="Validation"
                                     width={16}
                                     height={16}

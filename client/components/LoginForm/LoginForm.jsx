@@ -30,18 +30,7 @@ const getErrorMessage = (errorCode) => {
     }
 };
 
-export default function LoginForm({ 
-    backIcon, 
-    googleIcon, 
-    magnifyingGlassIcon,
-    leftIcon,
-    rightIcon,
-    calendarIcon,
-    maleIcon,
-    femaleIcon,
-    yesIcon,
-    noIcon
-}) {
+export default function LoginForm() {
     const router = useRouter();
     const [language, setLanguage] = useState("en");
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -174,15 +163,6 @@ export default function LoginForm({
         return <RegisterForm 
             onBack={() => setShowRegister(false)} 
             language={language}
-            backIcon={backIcon}
-            leftIcon={leftIcon}
-            rightIcon={rightIcon}
-            calendarIcon={calendarIcon}
-            maleIcon={maleIcon}
-            femaleIcon={femaleIcon}
-            magnifyingGlassIcon={magnifyingGlassIcon}
-            yesIcon={yesIcon}
-            noIcon={noIcon}
         />;
     }
 
@@ -226,7 +206,7 @@ export default function LoginForm({
                                         onMouseLeave={() => setHoverText("")}
                                     >
                                         <Image
-                                            src={googleIcon}
+                                            src="/icons/Google.png"
                                             alt="Google"
                                             width={24}
                                             height={24}
@@ -254,7 +234,7 @@ export default function LoginForm({
                                         onMouseLeave={() => setHoverText("")}
                                     >
                                         <Image
-                                            src={magnifyingGlassIcon}
+                                            src="/icons/Magnifying_glass.png"
                                             alt="Show"
                                             width={24}
                                             height={24}

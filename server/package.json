@@ -20,7 +20,8 @@
         "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --verbose",
         "start-Preloader": "node scripts/Preloader.js",
         "eslint": "eslint",
-        "lint": "eslint ."
+        "lint": "eslint .",
+        "postinstall": "npm rebuild better-sqlite3"
     },
     "keywords": [],
     "author": "",
