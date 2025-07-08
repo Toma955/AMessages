@@ -23,17 +23,14 @@
 2. Select a user from the chat list
 3. Type your message in the text box
 4. Press Enter or click Send to send the message
-5. You can also use voice messages and file sharing
+5. You can also use voice messages
 
 #### Group Chats
 1. Create or join group conversations
 2. Send messages to multiple users at once
 3. Manage group settings and members
 
-#### File Sharing
-1. Click the attachment icon in the chat
-2. Select files to upload and share
-3. Supported formats: images, documents, audio files
+
 
 ### Account Management
 
@@ -81,17 +78,14 @@
 2. Odaberite korisnika s popisa razgovora
 3. Upišite poruku u tekstualno polje
 4. Pritisnite Enter ili kliknite Pošalji za slanje poruke
-5. Možete koristiti i glasovne poruke i dijeljenje datoteka
+5. Možete koristiti i glasovne poruke
 
 #### Grupni razgovori
 1. Kreirajte ili se pridružite grupnim razgovorima
 2. Šaljite poruke više korisnika odjednom
 3. Upravljajte postavkama grupe i članovima
 
-#### Dijeljenje datoteka
-1. Kliknite ikonu za prilog u razgovoru
-2. Odaberite datoteke za upload i dijeljenje
-3. Podržani formati: slike, dokumenti, audio datoteke
+
 
 ### Upravljanje računom
 
