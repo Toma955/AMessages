@@ -9,6 +9,16 @@ export default {
     '^.+\\.jsx?$': ['babel-jest', { configFile: path.resolve(__dirname, 'babel.config.cjs') }],
   },
   testEnvironment: "node",
-  // Force all test files to be treated as CommonJS for compatibility
-  extensionsToTreatAsEsm: [],
+  // Treat .js files as ES modules
+  extensionsToTreatAsEsm: ['.js'],
+  // Enable ES modules support
+  globals: {
+    'ts-jest': {
+      useESM: true,
+    },
+  },
+  // Set module type to ES modules
+  preset: undefined,
+  moduleFileExtensions: ['js', 'json'],
+  testMatch: ['**/tests/**/*.test.js'],
 }; 
