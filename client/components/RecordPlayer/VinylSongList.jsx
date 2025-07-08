@@ -107,7 +107,7 @@ export default function VinylSongList({
                                         <defs>
                                             <path 
                                                 id={`textPath-${startIndex + index}`} 
-                                                d="M 100,100 m -80,0 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0"
+                                                d="M 100,100 m -80,0 a 80,80 0 0,1 160,0"
                                             />
                                         </defs>
                                         <text>

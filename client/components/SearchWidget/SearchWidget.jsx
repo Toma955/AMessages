@@ -123,7 +123,7 @@ export default function SearchWidget({ onClose, onAddChat }) {
                                 <div className="user-info-container">
                                     <div className="user-avatar">
                                         <Image
-                                            src={`/avatars/${user.gender || 'default'}.png`}
+                                            src={`/avatars/${user.gender === 'male' ? 'male' : user.gender === 'female' ? 'female' : 'default'}.png`}
                                             alt={user.username}
                                             width={32}
                                             height={32}
