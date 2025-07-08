@@ -186,6 +186,23 @@ app.use("/api", UserRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/admin', AdminRoutes);
 
+app.get("/", (req, res) => {
+    res.json({ 
+        message: "AMessages Backend API", 
+        status: "running",
+        version: "1.0.0",
+        endpoints: {
+            auth: "/api/auth",
+            users: "/api/users",
+            messages: "/api/messages",
+            groups: "/api/group",
+            search: "/api/search",
+            media: "/api/media",
+            admin: "/api/admin"
+        }
+    });
+});
+
 app.get("/test", (req, res) => {
     res.send("Server is up");
 });
