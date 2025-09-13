@@ -1,0 +1,33 @@
+.home-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 80px;
+}
+
+.home-page h1 {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    color: #0070f3;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.button-group button {
+    padding: 0.75rem 2rem;
+    font-size: 1.2rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+}
+
+.button-group button:hover {
+    background-color: #0051a3;
+}

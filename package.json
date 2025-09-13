@@ -1,9 +1,24 @@
 {
+  "name": "client",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "start": "cd server && npm start"
+    "dev": "next dev",
+    "build": "next build && npm run sentry:sourcemaps",
+    "start": "next start",
+    "lint": "next lint",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org algebra-0s --project node-express .next && sentry-cli sourcemaps upload --org algebra-0s --project node-express .next"
   },
   "dependencies": {
-    "@tensorflow/tfjs": "^4.22.0",
-    "react-markdown": "^10.1.0"
+    "@sentry/cli": "^2.46.0",
+    "@sentry/nextjs": "^9.17.0",
+    "libsodium-wrappers": "^0.7.15",
+    "logrocket": "^10.1.0",
+    "next": "15.3.0",
+    "openpgp": "^6.1.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "socket.io-client": "^4.8.1"
   }
 }

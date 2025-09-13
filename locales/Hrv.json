@@ -1,0 +1,87 @@
+{
+  "loginTitle": "Prijava",
+  "usernamePlaceholder": "Korisničko ime",
+  "passwordPlaceholder": "Lozinka",
+  "loginButton": "Prijavi se",
+  "googleHover": "Nastavi s Googleom",
+  "languageHover": "Promijeni jezik",
+  "showHover": "Prikaži lozinku",
+  "hideHover": "Sakrij lozinku",
+  "newUserHover": "Kreiraj novi račun",
+  "resetHover": "Resetiraj lozinku",
+  "backToGoogleHover": "Povratak na Google prijavu",
+  "loginWithGoogle": "Prijava putem Googlea",
+
+  "registerTitle": "Kreiraj Račun",
+  "firstNamePlaceholder": "Ime",
+  "lastNamePlaceholder": "Prezime",
+  "usernamePlaceholder": "Korisničko ime",
+  "confirmPasswordPlaceholder": "Potvrdi lozinku",
+  "selectGenderPlaceholder": "Odaberi spol",
+  "male": "Muško",
+  "female": "Žensko",
+  "registerButton": "Kreiraj račun",
+  "backToLogin": "Natrag na prijavu",
+  "registrationError": "Registracija nije uspjela. Molimo pokušajte ponovno.",
+
+  "nameMinLength": "Ime mora imati najmanje 2 znaka",
+  "nameSpecialChars": "Ime ne smije sadržavati posebne znakove ili brojeve",
+  "usernameMinLength": "Korisničko ime mora imati najmanje 3 znaka",
+  "usernameInvalid": "Korisničko ime može sadržavati samo slova, brojeve i podvlake",
+  "usernameTaken": "Ovo korisničko ime je već zauzeto",
+  "passwordRequirements": "Lozinka mora zadovoljiti sve uvjete",
+  "passwordMismatch": "Lozinke se ne podudaraju",
+  "minimumAge": "Morate imati najmanje 13 godina",
+  "selectGender": "Molimo odaberite spol",
+
+  "firstNameValidation": "Ime: samo slova",
+  "lastNameValidation": "Prezime: samo slova",
+  "usernameValidation": "Korisničko ime: slova, brojevi, podvlake",
+  "passwordLengthValidation": "Najmanje 6 znakova",
+  "passwordUppercaseValidation": "Barem jedno veliko slovo",
+  "passwordLowercaseValidation": "Barem jedno malo slovo",
+  "passwordNumberValidation": "Barem jedan broj",
+  "passwordSpecialValidation": "Barem jedan poseban znak",
+  "passwordCommonValidation": "Ne smije biti česta lozinka",
+
+  "userGuide": "Korisnički vodič",
+  "createAccountGuide": "Kreiranje računa",
+  "createAccountSteps": [
+    "Kliknite 'Kreiraj račun' na stranici za prijavu",
+    "Ispunite svoje ime, prezime i korisničko ime",
+    "Odaberite jaku lozinku (najmanje 6 znakova s velikim, malim slovom, brojem i posebnim znakom)",
+    "Odaberite svoj spol",
+    "Kliknite 'Kreiraj račun' za registraciju"
+  ],
+  "sendingMessagesGuide": "Slanje poruka",
+  "sendingMessagesSteps": [
+    "Prijavite se na svoj račun",
+    "Odaberite korisnika s popisa razgovora",
+    "Upišite poruku u tekstualno polje",
+    "Pritisnite Enter ili kliknite Pošalji za slanje poruke",
+    "Možete koristiti i glasovne poruke i dijeljenje datoteka"
+  ],
+  "deletingAccountGuide": "Brisanje računa",
+  "deletingAccountSteps": [
+    "Idite u Postavke u glavnom izborniku",
+    "Skrolajte do 'Upravljanje računom'",
+    "Kliknite 'Obriši račun'",
+    "Potvrdite svoju lozinku",
+    "Kliknite 'Obriši račun' za trajno uklanjanje računa"
+  ],
+  "basicFeatures": "Osnovne funkcionalnosti",
+  "basicFeaturesList": [
+    "Razgovor u stvarnom vremenu s drugim korisnicima",
+    "Glasovne poruke i dijeljenje datoteka",
+    "Grupni razgovori i konverzacije",
+    "Pretraživanje korisnika i upravljanje prijateljima",
+    "Postavke računa i prilagodba"
+  ],
+  "tips": "Savjeti",
+  "tipsList": [
+    "Čuvajte svoju lozinku sigurnom i ne dijelite je",
+    "Koristite jake lozinke za bolju sigurnost",
+    "Jezik možete promijeniti u postavkama",
+    "Prijavite probleme kroz sekciju za pomoć"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "loginTitle": "Login",
+  "usernamePlaceholder": "Username",
+  "passwordPlaceholder": "Password",
+  "loginButton": "Log in",
+  "googleHover": "Continue with Google",
+  "languageHover": "Switch language",
+  "showHover": "Show password",
+  "hideHover": "Hide password",
+  "newUserHover": "Create new account",
+  "resetHover": "Reset password",
+  "backToGoogleHover": "Back to Google sign-in",
+  "loginWithGoogle": "Login with Google",
+  
+  "registerTitle": "Create Account",
+  "firstNamePlaceholder": "First Name",
+  "lastNamePlaceholder": "Last Name",
+  "usernamePlaceholder": "Username",
+  "confirmPasswordPlaceholder": "Confirm Password",
+  "selectGenderPlaceholder": "Select Gender",
+  "male": "Male",
+  "female": "Female",
+  "registerButton": "Create Account",
+  "backToLogin": "Back to Login",
+  "registrationError": "Registration failed. Please try again.",
+  
+  "nameMinLength": "Name must be at least 2 characters",
+  "nameSpecialChars": "Name cannot contain special characters or numbers",
+  "usernameMinLength": "Username must be at least 3 characters",
+  "usernameInvalid": "Username can only contain letters, numbers, and underscores",
+  "usernameTaken": "This username is already taken",
+  "passwordRequirements": "Password must meet all requirements",
+  "passwordMismatch": "Passwords do not match",
+  "minimumAge": "You must be at least 13 years old",
+  "selectGender": "Please select your gender",
+
+  "firstNameValidation": "First name: letters only",
+  "lastNameValidation": "Last name: letters only",
+  "usernameValidation": "Username: letters, numbers, underscores",
+  "passwordLengthValidation": "At least 6 characters",
+  "passwordUppercaseValidation": "At least one uppercase letter",
+  "passwordLowercaseValidation": "At least one lowercase letter",
+  "passwordNumberValidation": "At least one number",
+  "passwordSpecialValidation": "At least one special character",
+  "passwordCommonValidation": "Not a common password",
+
+  "userGuide": "User Guide",
+  "createAccountGuide": "Creating an Account",
+  "createAccountSteps": [
+    "Click 'Create Account' on the login page",
+    "Fill in your first name, last name, and username",
+    "Choose a strong password (at least 6 characters with uppercase, lowercase, number, and special character)",
+    "Select your gender",
+    "Click 'Create Account' to register"
+  ],
+  "sendingMessagesGuide": "Sending Messages",
+  "sendingMessagesSteps": [
+    "Log in to your account",
+    "Select a user from the chat list",
+    "Type your message in the text box",
+    "Press Enter or click Send to send the message",
+    "You can also use voice messages and file sharing"
+  ],
+  "deletingAccountGuide": "Deleting Your Account",
+  "deletingAccountSteps": [
+    "Go to Settings in the main menu",
+    "Scroll down to 'Account Management'",
+    "Click 'Delete Account'",
+    "Confirm your password",
+    "Click 'Delete Account' to permanently remove your account"
+  ],
+  "basicFeatures": "Basic Features",
+  "basicFeaturesList": [
+    "Real-time messaging with other users",
+    "Voice messages and file sharing",
+    "Group chats and conversations",
+    "User search and friend management",
+    "Account settings and customization"
+  ],
+  "tips": "Tips",
+  "tipsList": [
+    "Keep your password secure and don't share it",
+    "Use strong passwords for better security",
+    "You can change your language in settings",
+    "Report any issues through the help section"
+  ]
+}

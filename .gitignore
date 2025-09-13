@@ -104,3 +104,5 @@ backups/
 # Server specific
 server/log/
 server/backups/ 
+.vercel
+.env*.local

@@ -1,0 +1,26 @@
+.recordPlayerContainer {
+    position: fixed;
+    top: 32px;
+    left: -400px;
+    width: 240px;
+    height: 240px;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    transform: translateY(10px);
+}
+
+.recordPlayerBox {
+    background: #000 url('/icons/RecordBackground.jpg') center/cover;
+    border-radius: 16px;
+    padding: 20px;
+    width: 240px;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 8px 32px rgba(224, 133, 67, 0.3);
+    border: 2px solid #E08543;
+    box-sizing: border-box;
+    position: relative;
+} 
