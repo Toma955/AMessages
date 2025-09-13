@@ -12,8 +12,8 @@ class RadioService {
         this.currentServerIndex = 0;
         
         this.handleError = this._handleError.bind(this);
-        this.handleLoadStart = () => console.log('Audio loading started');
-        this.handlePlaying = () => console.log('Audio started playing');
+        this.handleLoadStart = () => {};
+        this.handlePlaying = () => {};
 
         this.initAudio();
     }
@@ -62,13 +62,10 @@ class RadioService {
             return data;
 
         } catch (error) {
-            console.warn(`Error fetching from ${url}:`, error);
             
             if (retries > 0) {
-                console.log(`Retrying... ${retries} attempts left`);
                 const nextBaseUrl = await this.tryNextServer();
                 const nextUrl = url.replace(/^https?:\/\/[^/]+/, nextBaseUrl);
-                console.log(`Trying next server: ${nextUrl}`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
                 return this.fetchWithRetry(nextUrl, options, retries - 1);
             }
@@ -90,7 +87,6 @@ class RadioService {
                 station.favicon
             );
         } catch (error) {
-            console.error('Search stations error:', error);
             return [];
         }
     }
@@ -108,7 +104,6 @@ class RadioService {
                 station.favicon
             );
         } catch (error) {
-            console.error('Get top stations error:', error);
             return [];
         }
     }
@@ -157,7 +152,6 @@ class RadioService {
     }
 
     _handleError(error) {
-        console.error('Radio service error:', error);
     }
 }
 

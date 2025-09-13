@@ -46,7 +46,6 @@ export const ChatProvider = ({ children }) => {
                 body: JSON.stringify({ id: user.id, username: user.username })
             });
         } catch (e) {
-            console.error('Greška pri upisu u Userlist.db:', e);
         }
 
         if (!chats.some(c => c.id === user.id)) {
@@ -199,7 +198,6 @@ export const ChatProvider = ({ children }) => {
                 return newChats;
             });
         } catch (error) {
-            console.error('Error handling drop:', error);
         }
     }, [chats]);
 
@@ -228,7 +226,6 @@ export const ChatProvider = ({ children }) => {
             try {
                 droppedChat = JSON.parse(data);
             } catch {
-                console.error('Invalid drop data:', data);
                 return;
             }
             if (activeChats.some(chat => chat.id === droppedChat.id)) {
@@ -259,7 +256,6 @@ export const ChatProvider = ({ children }) => {
                 return newChats;
             });
         } catch (error) {
-            console.error('Error handling chat drop:', error);
         }
         // setShowDeleteArea(false);
         // setDeleteAreaActive(false);
@@ -334,7 +330,6 @@ export const ChatProvider = ({ children }) => {
     }, [activeChats]);
 
     const handleInfoClick = useCallback((chat) => {
-        console.log('Show info for:', chat);
     }, []);
 
     const handleDeleteChat = useCallback((chat) => {

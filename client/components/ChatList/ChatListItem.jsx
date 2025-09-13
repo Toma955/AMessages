@@ -28,7 +28,6 @@ export default function ChatListItem({ chat, onDelete, onChat, onInfo, onDragRem
                 }
             };
         } catch (err) {
-            console.log('Drag preview not supported');
         }
     };
 

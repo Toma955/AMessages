@@ -27,17 +27,14 @@ export const SocketProvider = ({ children }) => {
       
       // Set up connection event handlers
       socketRef.current.on('connect', () => {
-        console.log('Socket connected');
         connectionHandlersRef.current.forEach(handler => handler('connected'));
       });
 
       socketRef.current.on('disconnect', () => {
-        console.log('Socket disconnected');
         connectionHandlersRef.current.forEach(handler => handler('disconnected'));
       });
 
       socketRef.current.on('error', (error) => {
-        console.error('Socket error:', error);
         connectionHandlersRef.current.forEach(handler => handler('error', error));
       });
 

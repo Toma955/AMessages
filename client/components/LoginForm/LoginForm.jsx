@@ -90,9 +90,8 @@ export default function LoginForm() {
         }
     }, [router]);
 
-    const handleResetPassword = () => console.log("Reset password requested.");
+    const handleResetPassword = () => {};
     const handleCreateAccount = () => {
-        console.log("Create Account clicked, setting showRegister to true");
         setShowRegister(true);
     };
     
@@ -113,7 +112,6 @@ export default function LoginForm() {
                 password: passwordInput
             });
 
-            console.log('Login response:', data);
            
             localStorage.setItem('token', data.token);
             localStorage.setItem('userId', data.userId);
@@ -131,11 +129,9 @@ export default function LoginForm() {
             
             // Backend odlučuje gdje korisnik ide
             const redirectUrl = data.redirectUrl || '/main';
-            console.log('Redirecting to:', redirectUrl);
             router.push(redirectUrl);
             setCookie('token', data.token);
 
-            console.log('LogRocket: Identifying user:', data.userId, usernameInput);
             LogRocket.identify(data.userId, {
                 email: usernameInput,
                 name: usernameInput,
@@ -144,10 +140,8 @@ export default function LoginForm() {
                 isAdmin: data.isAdmin,
                 isGoogleUser: data.isGoogleUser
             });
-            console.log('LogRocket: User identified successfully');
 
         } catch (err) {
-            console.error('Login error:', err);
            
             const errorCode = err.message.includes(':') ? err.message.split(':')[0] : err.message;
             setError(getErrorMessage(errorCode));

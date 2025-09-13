@@ -40,7 +40,6 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                     setNewMessage('');
                 }
             } catch (error) {
-                console.error('Error sending group message:', error);
             } finally {
                 setIsLoading(false);
             }
@@ -108,7 +107,6 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
         e.preventDefault();
         e.dataTransfer.dropEffect = 'copy';
         setIsDragOver(true);
-        console.log('🎯 Drag over in GrupChat');
     };
 
     const handleDragLeave = (e) => {
@@ -121,17 +119,13 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
         e.preventDefault();
         setIsDragOver(false);
         
-        console.log('🎯 Drop event triggered in GrupChat');
         
         try {
             const droppedData = e.dataTransfer.getData('text/plain');
-            console.log('📦 Dropped data:', droppedData);
             const userData = JSON.parse(droppedData);
-            console.log('👤 Parsed user data:', userData);
             
             // Check if user is already in the group
             const isAlreadyInGroup = participants.some(p => p.id === userData.id);
-            console.log('🔍 Is user already in group:', isAlreadyInGroup);
             
             if (!isAlreadyInGroup && isAdmin) {
                 const newUser = {
@@ -141,7 +135,6 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                     isAdmin: false
                 };
                 setParticipants(prev => [...prev, newUser]);
-                console.log('✅ User added to group:', newUser);
                 
                 // Show success message
                 const message = {
@@ -154,7 +147,6 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                 };
                 setMessages(prev => [...prev, message]);
             } else if (isAlreadyInGroup) {
-                console.log('⚠️ User already in group');
                 // Show already in group message
                 const message = {
                     id: Date.now(),
@@ -167,7 +159,6 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                 setMessages(prev => [...prev, message]);
             }
         } catch (error) {
-            console.error('❌ Error processing dropped user:', error);
         }
     };
 
@@ -192,7 +183,6 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
                         setMessages(formattedMessages);
                     }
                 } catch (error) {
-                    console.error('Error loading group messages:', error);
                     // For now, just set empty messages to avoid errors
                     setMessages([]);
                 }
@@ -230,7 +220,6 @@ const GrupChat = ({ onClose, groupName = "Group Chat", isAdmin = false, currentU
         }
     }, [socket, groupId]);
 
-    console.log('🔄 GrupChat rendering, isDragOver:', isDragOver, 'groupId:', groupId);
     
     return (
         <div 

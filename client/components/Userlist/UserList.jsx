@@ -20,7 +20,6 @@ export default function UserList() {
                     setCurrentUserId(response.user.id);
                 }
             } catch (error) {
-                console.error('Error fetching current user:', error);
             }
         };
 
@@ -36,7 +35,6 @@ export default function UserList() {
                 }
             } catch (error) {
                 setError('Failed to load users');
-                console.error('Error fetching users:', error);
             } finally {
                 setLoading(false);
             }
@@ -47,7 +45,6 @@ export default function UserList() {
     }, [currentUserId]);
 
     const handleDragStart = (e, user) => {
-        console.log('🎯 Drag started for user:', user);
         e.dataTransfer.setData('text/plain', JSON.stringify({
             id: user.id,
             username: user.username,
@@ -76,7 +73,6 @@ export default function UserList() {
         );
     }
 
-    console.log('🔄 UserList rendering with users:', users.length);
     
     return (
         <div className="user-list-container">
@@ -111,7 +107,7 @@ export default function UserList() {
             </div>
             <div className="user-list-footer">
                 <GroupButton 
-                    onClick={() => console.log('Group button clicked')}
+                    onClick={() => {}}
                     title="Grup info"
                 />
             </div>

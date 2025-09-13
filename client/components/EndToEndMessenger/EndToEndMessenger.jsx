@@ -22,20 +22,14 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     useEffect(() => {
         async function fetchMessages() {
             const token = localStorage.getItem('token');
-            console.log('🔍 Frontend: Fetching messages for chat.id:', chat.id);
-            console.log('🔍 Frontend: Token:', token ? 'Present' : 'Missing');
-            console.log('🔍 Frontend: Chat object:', chat);
             
             if (!token) {
-                console.error('❌ Frontend: No token found in localStorage');
                 return;
             }
             
             try {
                 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
                 const url = `${apiUrl}/api/messages/${chat.id}`;
-                console.log('🔍 Frontend: Fetching from URL:', url);
-                console.log('🔍 Frontend: Authorization header:', `Bearer ${token.substring(0, 20)}...`);
                 
                 const res = await fetch(url, {
                     headers: {
@@ -44,11 +38,8 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                     }
                 });
                 
-                console.log('🔍 Frontend: Response status:', res.status);
-                console.log('🔍 Frontend: Response headers:', Object.fromEntries(res.headers.entries()));
                 
                 const data = await res.json();
-                console.log('🔍 Frontend: Response data:', data);
                 
                 if (data.success && Array.isArray(data.data)) {
                     const currentUserId = parseInt(localStorage.getItem('userId'));
@@ -60,20 +51,9 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                         status: msg.status || 'sent'
                     }));
                     setMessages(msgs);
-                    console.log('✅ Frontend: Poruke za chat', chat.id, msgs);
                 } else {
-                    console.log('❌ Frontend: Invalid response format:', data);
-                    if (data.message) {
-                        console.log('❌ Frontend: Error message:', data.message);
-                    }
                 }
             } catch (err) {
-                console.error('❌ Frontend: Greška pri dohvaćanju poruka:', err);
-                console.error('❌ Frontend: Error details:', {
-                    name: err.name,
-                    message: err.message,
-                    stack: err.stack
-                });
             }
         }
         if (chat?.id) fetchMessages();
@@ -82,10 +62,8 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     // Real-time message handling
     useEffect(() => {
         const handleNewMessage = (event) => {
-            console.log('🔌 EndToEndMessenger received new_message_received event:', event.detail);
             const messageData = event.detail;
             if (messageData.sender_id === chat.id) {
-                console.log('✅ Adding message to chat:', chat.id);
                 setMessages(prev => [...prev, {
                     id: messageData.id,
                     text: messageData.message,
@@ -94,22 +72,18 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                     status: 'received'
                 }]);
             } else {
-                console.log('❌ Message not for this chat. Expected:', chat.id, 'Got:', messageData.sender_id);
             }
         };
 
         const handleMessageSent = (event) => {
-            console.log('🔌 EndToEndMessenger received message_sent_confirmation event:', event.detail);
             const messageData = event.detail;
             if (messageData.receiver_id === chat.id) {
-                console.log('✅ Updating message status for chat:', chat.id);
                 setMessages(prev => prev.map(msg => 
                     msg.text === messageData.message && msg.sender === 'me' && !msg.id
                         ? { ...msg, id: messageData.id, status: 'sent' }
                         : msg
                 ));
             } else {
-                console.log('❌ Message confirmation not for this chat. Expected:', chat.id, 'Got:', messageData.receiver_id);
             }
         };
 
@@ -195,7 +169,6 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
 
     // Drag and drop functionality
     const handleMouseDown = (e) => {
-        console.log('🎯 Mouse down on header!', e);
         e.preventDefault();
         e.stopPropagation();
         
@@ -211,7 +184,6 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     const handleMouseMove = (e) => {
         if (!isDragging || !windowRef.current) return;
         
-        console.log('🔄 Mouse move while dragging!', e);
         
         const newX = e.clientX - dragOffset.x;
         const newY = e.clientY - dragOffset.y;
@@ -230,7 +202,6 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     };
 
     const handleMouseUp = () => {
-        console.log('✅ Mouse up - stopping drag!');
         setIsDragging(false);
     };
 
@@ -248,7 +219,6 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     }, [isDragging, dragOffset]);
 
     const handleHeaderClick = (e) => {
-        console.log('🖱️ Header clicked!', e);
     };
 
     const handleDragStart = (e) => {
@@ -321,21 +291,18 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
 
         try {
             const response = await sendMessageToUser(chat.id, messageText);
-            console.log('📤 Message send response:', response);
             
             if (response && response.success) {
                 // Update the temporary message with success status
                 setMessages(prev => prev.map(msg => 
                     msg.id === tempMessage.id ? { ...msg, status: 'sent' } : msg
                 ));
-                console.log('✅ Message sent successfully');
             } else {
                 // Update the temporary message with error status
                 setMessages(prev => prev.map(msg => 
                     msg.id === tempMessage.id ? { ...msg, status: 'error' } : msg
                 ));
                 
-                console.error('❌ Message send failed:', response);
                 Sentry.captureMessage('Failed to send message', {
                     level: 'error',
                     tags: {
@@ -350,10 +317,8 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                 });
                 
                 // Ne prikazuj alert odmah - možda je poruka ipak poslana
-                console.warn('⚠️ Message send reported failure, but message might still be delivered');
             }
         } catch (error) {
-            console.error('❌ Error sending message:', error);
             
             // Update the temporary message with error status
             setMessages(prev => prev.map(msg => 
@@ -371,7 +336,6 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                 }
             });
             
-            console.warn('⚠️ Network error, but message might still be delivered');
         }
     };
 

@@ -194,7 +194,6 @@ export default function AdminPage() {
             .then(data => {
                 if (data.success) {
                     setSystemResources({ ram: data.ram, cpu: data.cpu });
-                    console.log(`[ADMIN] RAM: ${data.ram}% | CPU: ${data.cpu}%`);
                 }
             });
     };
@@ -306,7 +305,6 @@ export default function AdminPage() {
                 alert(`Greška kod brisanja korisnika: ${data.message || 'Nepoznata greška'}`);
             }
         } catch (error) {
-            console.error('Greška kod brisanja korisnika:', error);
             alert('Došlo je do greške na strani klijenta.');
         }
     };

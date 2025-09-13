@@ -129,12 +129,10 @@ function ClientMainLayout({ children }) {
 
     // Handle GrupChat open/close
     const handleGrupChatOpen = useCallback(() => {
-        console.log('🎯 Opening group chat overlay');
         setIsGrupChatOpen(true);
     }, []);
 
     const handleGrupChatClose = useCallback(() => {
-        console.log('🎯 Closing group chat overlay');
         setIsGrupChatOpen(false);
     }, []);
 
@@ -260,7 +258,6 @@ function ClientMainLayout({ children }) {
                     });
                 }
             } catch (error) {
-                console.error("Failed to fetch user data:", error);
             }
         };
 
@@ -281,7 +278,6 @@ function ClientMainLayout({ children }) {
                 });
             }
         } catch (error) {
-            console.error('Logout error:', error);
         }
         // Briši token i preusmjeri tek nakon što je fetch završen
         localStorage.removeItem('token');
@@ -436,7 +432,6 @@ function ClientMainLayout({ children }) {
                     setChats(chatList);
                 }
             } catch (e) {
-                console.error('Greška pri dohvaćanju userlist:', e);
             }
         };
         fetchUserlist();
@@ -453,11 +448,9 @@ function ClientMainLayout({ children }) {
         try {
            
             const socket = socketService.connect(token);
-            console.log('🔌 Socket connection established:', socket?.connected);
 
            
             socketService.on('new_message', (messageData) => {
-                console.log('🔌 Received new_message event:', messageData);
               
                 setChats(prevChats => {
                     const updatedChats = prevChats.map(chat => {
@@ -481,7 +474,6 @@ function ClientMainLayout({ children }) {
 
           
             socketService.on('message_sent', (messageData) => {
-                console.log('🔌 Received message_sent event:', messageData);
                 // Uvijek pošalji event - ne provjeravaj activeChats jer se ažurira asinkrono
                 window.dispatchEvent(new CustomEvent('message_sent_confirmation', {
                     detail: messageData
@@ -516,7 +508,6 @@ function ClientMainLayout({ children }) {
             }
             
             
-            console.error('Socket connection failed:', error.message);
         }
 
        

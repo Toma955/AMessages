@@ -288,15 +288,12 @@ export default function RegisterForm({
         const generateCalendarDays = () => {
             const daysInMonth = getDaysInMonth(displayedMonth);
             const firstDay = getFirstDayOfMonth(displayedMonth);
-            console.log('Days in month:', daysInMonth, 'First day of week:', firstDay);
-            console.log('displayedMonth is valid:', !isNaN(displayedMonth.getTime()));
             
             const days = [];
 
             // Previous month days (only to fill the first week)
             const prevMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() - 1, 1);
             const daysInPrevMonth = getDaysInMonth(prevMonth);
-            console.log('Previous month days to add:', Math.max(0, firstDay - 1));
             for (let i = firstDay - 1; i >= 0; i--) {
                 days.push({
                     day: daysInPrevMonth - i,
@@ -306,7 +303,6 @@ export default function RegisterForm({
             }
 
             // Current month days
-            console.log('Adding current month days:', daysInMonth);
             for (let i = 1; i <= daysInMonth; i++) {
                 days.push({
                     day: i,
@@ -320,7 +316,6 @@ export default function RegisterForm({
             const weeksNeeded = Math.ceil(totalDays / 7);
             const totalCellsNeeded = weeksNeeded * 7;
             const remainingDays = totalCellsNeeded - totalDays;
-            console.log('Total days so far:', totalDays, 'Weeks needed:', weeksNeeded, 'Remaining days to add:', remainingDays);
             
             for (let i = 1; i <= remainingDays; i++) {
                 days.push({
@@ -330,7 +325,6 @@ export default function RegisterForm({
                 });
             }
 
-            console.log('Generated days:', days.length, 'for month with', daysInMonth, 'days');
             return days;
         };
 
@@ -351,7 +345,6 @@ export default function RegisterForm({
         };
 
         const handleDateClick = (date) => {
-            console.log('Date clicked:', date);
             if (!isFutureDate(date) && !isUnder13(date)) {
                 // Only update the day part, keep existing month and year from selected values
                 const day = date.getDate().toString().padStart(2, '0');
@@ -359,7 +352,6 @@ export default function RegisterForm({
                 const year = (selectedYear || displayedMonth.getFullYear()).toString();
                 const formattedDate = `${day}.${month}.${year}`;
                 
-                console.log('Final formatted date:', formattedDate);
                 
                 onDateSelect(formattedDate);
                 setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
@@ -373,7 +365,6 @@ export default function RegisterForm({
         };
 
         const handleYearSelect = (year) => {
-            console.log('Year selected:', year);
             setSelectedYear(year);
             
             // Only update the year part, keep existing day and month if any
@@ -383,7 +374,6 @@ export default function RegisterForm({
             const month = parts[1] || "";
             const formattedDate = `${day}.${month}.${year}`;
             
-            console.log('Formatted date after year:', formattedDate);
             
             // Update the form data
             setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
@@ -395,8 +385,6 @@ export default function RegisterForm({
         };
 
         const handleMonthSelect = (monthIndex) => {
-            console.log('Month selected:', monthIndex, MONTHS[monthIndex]);
-            console.log('Current selectedYear:', selectedYear);
             setSelectedMonth(monthIndex);
             
             // Only update the month part, keep existing day and year
@@ -407,14 +395,12 @@ export default function RegisterForm({
             const year = parts[2] || selectedYear || "";
             const formattedDate = `${day}.${month}.${year}`;
             
-            console.log('Formatted date after month:', formattedDate);
             
             // Update the form data
             setFormData(prev => ({ ...prev, dateOfBirth: formattedDate }));
             
             // Show calendar with days - use selectedYear and selectedMonth
             const yearToUse = selectedYear || parseInt(year) || 2025; // Default 2025
-            console.log('Using year:', yearToUse, 'and month:', monthIndex, 'for calendar');
             
             // Set the selected year and month
             setSelectedYear(yearToUse);
@@ -423,7 +409,6 @@ export default function RegisterForm({
             // The displayedMonth will be updated by the useEffect
             setShowMonthPicker(false);
             setShowDatePicker(true);
-            console.log('After setting - showDatePicker:', true, 'selectedYear:', yearToUse, 'selectedMonth:', monthIndex);
         };
 
         const generateYearOptions = () => {
@@ -452,7 +437,6 @@ export default function RegisterForm({
                                     key={year}
                                     className={`picker-item ${year === selectedYear ? 'selected' : ''}`}
                                     onClick={() => {
-                                        console.log('Year button clicked:', year);
                                         handleYearSelect(year);
                                     }}
                                 >
@@ -488,7 +472,6 @@ export default function RegisterForm({
                                     key={month}
                                     className={`picker-item ${index === selectedMonth ? 'selected' : ''}`}
                                     onClick={() => {
-                                        console.log('Month button clicked:', index, month);
                                         handleMonthSelect(index);
                                     }}
                                 >
@@ -552,7 +535,6 @@ export default function RegisterForm({
                                             className={classes}
                                             onClick={(e) => {
                                                 e.stopPropagation();
-                                                console.log('Cell clicked:', day.date, 'Disabled:', isDisabled);
                                                 if (!isDisabled) {
                                                     handleDateClick(day.date);
                                                 }
