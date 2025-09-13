@@ -1,5 +1,3 @@
-const { withSentryConfig } = require("@sentry/nextjs");
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     env: {
@@ -13,13 +11,4 @@ const nextConfig = {
     },
 }
 
-const sentryWebpackPluginOptions = {
-   
-
-    silent: true, 
-    org: "your-org-name",
-    project: "amessages",
-};
-
-
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions); 
+module.exports = nextConfig; 

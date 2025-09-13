@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import helmet from "helmet";
-import * as Sentry from "@sentry/node";
+// import * as Sentry from "@sentry/node";
 import { fileURLToPath } from 'url';
 import path from "path";
 import passport from "./config/passport.js";
@@ -134,10 +134,10 @@ io.on('connection', (socket) => {
 global.io = io;
 global.connectedUsers = connectedUsers;
 
-Sentry.init({
-    dsn: process.env.SENTRY_DSN || '',
-    environment: process.env.NODE_ENV || 'development',
-});
+// Sentry.init({
+//     dsn: process.env.SENTRY_DSN || '',
+//     environment: process.env.NODE_ENV || 'development',
+// });
 
 app.use(cors({
     origin: [
@@ -221,9 +221,9 @@ app.get("/test", (req, res) => {
 app.use((err, req, res, next) => {
     console.error(err.stack);
     
-    if (process.env.SENTRY_DSN) {
-        Sentry.captureException(err);
-    }
+    // if (process.env.SENTRY_DSN) {
+    //     Sentry.captureException(err);
+    // }
     
     res.status(500).json({ 
         success: false, 
@@ -244,9 +244,9 @@ async function startServer() {
         });
     } catch (err) {
         console.error("Startup failed:", err.message);
-        if (process.env.SENTRY_DSN) {
-            Sentry.captureException(err);
-        }
+        // if (process.env.SENTRY_DSN) {
+        //     Sentry.captureException(err);
+        // }
         process.exit(1);
     }
 }

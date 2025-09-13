@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && npm run sentry:sourcemaps",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org algebra-0s --project node-express .next && sentry-cli sourcemaps upload --org algebra-0s --project node-express .next"
