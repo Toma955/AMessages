@@ -7,3 +7,7 @@
 {"level":30,"time":1751969961793,"pid":6836,"hostname":"TomPC","msg":"Database system.db exists."}
 {"level":30,"time":1751969961794,"pid":6836,"hostname":"TomPC","msg":"Database usernames.db exists."}
 {"level":30,"time":1751969961795,"pid":6836,"hostname":"TomPC","msg":"[2025-07-08 10:19:21] Startup checks passed. All critical files are present."}
+{"level":30,"time":1757754288150,"pid":12190,"hostname":"MacBook-Air-od-Toma.local","msg":"Startup check initiated."}
+{"level":30,"time":1757754288150,"pid":12190,"hostname":"MacBook-Air-od-Toma.local","msg":".env file not found, using system environment variables"}
+{"level":30,"time":1757754288150,"pid":12190,"hostname":"MacBook-Air-od-Toma.local","msg":"JWT_SECRET not found, using default"}
+{"level":30,"time":1757754288151,"pid":12190,"hostname":"MacBook-Air-od-Toma.local","msg":"[2025-09-13 09:04:48] Startup checks passed. All critical files are present."}

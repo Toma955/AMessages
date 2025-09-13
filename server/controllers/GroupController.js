@@ -78,17 +78,17 @@ function createGroupDatabaseForUser(userId, groupId, groupName, participants) {
         VALUES (?, ?, datetime('now'), datetime('now'))
     `).run(groupName, userId);
     
-    const groupId = result.lastInsertRowid;
+    const newGroupId = result.lastInsertRowid;
     
     for (const participant of participants) {
         db.prepare(`
             INSERT INTO group_participants (group_id, user_id, username, role, joined_at)
             VALUES (?, ?, ?, ?, datetime('now'))
-        `).run(groupId, participant.user_id, participant.username, participant.role || 'member');
+        `).run(newGroupId, participant.user_id, participant.username, participant.role || 'member');
     }
     
     db.close();
-    return groupId;
+    return newGroupId;
 }
 
 function createGroupDatabaseForCreator(userId, groupId, groupName, participants) {
@@ -100,17 +100,17 @@ function createGroupDatabaseForCreator(userId, groupId, groupName, participants)
         VALUES (?, ?, datetime('now'), datetime('now'))
     `).run(groupName, userId);
     
-    const groupId = result.lastInsertRowid;
+    const newGroupId = result.lastInsertRowid;
     
     for (const participant of participants) {
         db.prepare(`
             INSERT INTO group_participants (group_id, user_id, username, role, joined_at)
             VALUES (?, ?, ?, ?, datetime('now'))
-        `).run(groupId, participant.user_id, participant.username, participant.role || 'member');
+        `).run(newGroupId, participant.user_id, participant.username, participant.role || 'member');
     }
     
     db.close();
-    return groupId;
+    return newGroupId;
 }
 
 const handleCreateGroup = async (req, res) => {
