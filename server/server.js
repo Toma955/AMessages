@@ -218,6 +218,15 @@ app.get("/test", (req, res) => {
     res.send("Server is up");
 });
 
+// Health check endpoint for Render
+app.get("/health", (req, res) => {
+    res.status(200).json({ 
+        status: "healthy", 
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
 app.use((err, req, res, next) => {
     console.error(err.stack);
     
@@ -237,7 +246,7 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
     try {
         await startupChecks();
-        server.listen(PORT, () => {
+        server.listen(PORT, '0.0.0.0', () => {
             const now = new Date().toISOString().replace("T", " ").slice(0, 19);
             console.log(` Server started at ${now} on port ${PORT}`);
             console.log(` Socket.IO server is running`);
