@@ -1,0 +1,98 @@
+name: Backend Health Check
+
+on:
+  schedule:
+    # Pokreće se svakih 5 minuta
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    # Može se pokrenuti ručno
+  push:
+    branches: [ main ]
+    paths:
+      - 'server/**'
+      - '.github/workflows/backend-health-check.yml'
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: 'server/package-lock.json'
+        
+    - name: Install dependencies
+      working-directory: ./server
+      run: npm ci
+      
+    - name: Run backend tests
+      working-directory: ./server
+      run: npm test
+      
+    - name: Test backend health endpoint
+      run: |
+        echo "Testing backend health endpoint..."
+        
+        # Čeka da se backend pokrene (ako je lokalno)
+        sleep 10
+        
+        # Testira health endpoint
+        HEALTH_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://amessages.onrender.com/health)
+        echo "Health endpoint status: $HEALTH_RESPONSE"
+        
+        if [ "$HEALTH_RESPONSE" = "200" ]; then
+          echo "✅ Backend is healthy!"
+          exit 0
+        else
+          echo "❌ Backend health check failed with status: $HEALTH_RESPONSE"
+          exit 1
+        fi
+        
+    - name: Test backend test route
+      run: |
+        echo "Testing backend test route..."
+        
+        # Testira /test endpoint
+        TEST_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://amessages.onrender.com/test)
+        echo "Test endpoint status: $TEST_RESPONSE"
+        
+        if [ "$TEST_RESPONSE" = "200" ]; then
+          echo "✅ Backend test route is working!"
+        else
+          echo "❌ Backend test route failed with status: $TEST_RESPONSE"
+          exit 1
+        fi
+        
+    - name: Test backend API endpoints
+      run: |
+        echo "Testing backend API endpoints..."
+        
+        # Testira glavni API endpoint
+        API_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://amessages.onrender.com/)
+        echo "API endpoint status: $API_RESPONSE"
+        
+        if [ "$API_RESPONSE" = "200" ]; then
+          echo "✅ Backend API is responding!"
+        else
+          echo "❌ Backend API failed with status: $API_RESPONSE"
+          exit 1
+        fi
+        
+    - name: Notify on failure
+      if: failure()
+      run: |
+        echo "🚨 Backend health check failed!"
+        echo "Please check the Render dashboard for backend status."
+        echo "Backend URL: https://amessages.onrender.com"
+        
+    - name: Notify on success
+      if: success()
+      run: |
+        echo "✅ All backend health checks passed!"
+        echo "Backend is running smoothly at: https://amessages.onrender.com"
