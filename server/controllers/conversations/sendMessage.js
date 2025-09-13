@@ -122,7 +122,7 @@ const sendMessage = (req, res) => {
     }
 
     // Emit real-time message to receiver
-    if (global.io && global.connectedUsers.has(receiverId)) {
+    if (global.io) {
       const messageData = {
         id: Date.now(), // Temporary ID, will be replaced with actual DB ID
         sender_id: senderId,
@@ -133,12 +133,13 @@ const sendMessage = (req, res) => {
         direction: "incoming"
       };
       
+      // Pošalji real-time poruku bez provjere connectedUsers - ako korisnik nije povezan, event se jednostavno neće primiti
       global.io.to(`user_${receiverId}`).emit('new_message', messageData);
       console.log(`🔌 Real-time message sent to user ${receiverId}`);
     }
 
     // Emit message sent confirmation to sender
-    if (global.io && global.connectedUsers.has(senderId)) {
+    if (global.io) {
       const messageData = {
         id: Date.now(), // Temporary ID, will be replaced with actual DB ID
         sender_id: senderId,
@@ -149,6 +150,7 @@ const sendMessage = (req, res) => {
         direction: "outgoing"
       };
       
+      // Pošalji potvrdu bez provjere connectedUsers - ako korisnik nije povezan, event se jednostavno neće primiti
       global.io.to(`user_${senderId}`).emit('message_sent', messageData);
       console.log(`🔌 Message sent confirmation to user ${senderId}`);
     }

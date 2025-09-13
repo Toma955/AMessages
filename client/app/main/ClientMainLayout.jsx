@@ -471,44 +471,34 @@ function ClientMainLayout({ children }) {
                     return updatedChats;
                 });
 
-               
-                if (activeChats.some(chat => chat.id === messageData.sender_id)) {
-                    
-                    window.dispatchEvent(new CustomEvent('new_message_received', {
-                        detail: messageData
-                    }));
-                }
+                // Uvijek pošalji event - ne provjeravaj activeChats jer se ažurira asinkrono
+                window.dispatchEvent(new CustomEvent('new_message_received', {
+                    detail: messageData
+                }));
             });
 
           
             socketService.on('message_sent', (messageData) => {
-                
-                if (activeChats.some(chat => chat.id === messageData.receiver_id)) {
-                    
-                    window.dispatchEvent(new CustomEvent('message_sent_confirmation', {
-                        detail: messageData
-                    }));
-                }
+                // Uvijek pošalji event - ne provjeravaj activeChats jer se ažurira asinkrono
+                window.dispatchEvent(new CustomEvent('message_sent_confirmation', {
+                    detail: messageData
+                }));
             });
 
           
             socketService.on('user_typing', (typingData) => {
-                
-                if (activeChats.some(chat => chat.id === typingData.userId)) {
-                    window.dispatchEvent(new CustomEvent('user_typing', {
-                        detail: typingData
-                    }));
-                }
+                // Uvijek pošalji event - ne provjeravaj activeChats jer se ažurira asinkrono
+                window.dispatchEvent(new CustomEvent('user_typing', {
+                    detail: typingData
+                }));
             });
 
             
             socketService.on('message_read_receipt', (readData) => {
-
-                if (activeChats.some(chat => chat.id === readData.readBy)) {
-                    window.dispatchEvent(new CustomEvent('message_read_receipt', {
-                        detail: readData
-                    }));
-                }
+                // Uvijek pošalji event - ne provjeravaj activeChats jer se ažurira asinkrono
+                window.dispatchEvent(new CustomEvent('message_read_receipt', {
+                    detail: readData
+                }));
             });
 
         } catch (error) {

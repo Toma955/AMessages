@@ -51,10 +51,11 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                 console.log('🔍 Frontend: Response data:', data);
                 
                 if (data.success && Array.isArray(data.data)) {
+                    const currentUserId = parseInt(localStorage.getItem('userId'));
                     const msgs = data.data.map(msg => ({
                         id: msg.id,
                         text: msg.message,
-                        sender: msg.sender_id === chat.id ? 'them' : 'me',
+                        sender: msg.sender_id === currentUserId ? 'me' : 'them',
                         timestamp: msg.sent_at,
                         status: msg.status || 'sent'
                     }));
@@ -312,16 +313,21 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
 
         try {
             const response = await sendMessageToUser(chat.id, messageText);
-            if (response.success) {
+            console.log('📤 Message send response:', response);
+            
+            if (response && response.success) {
                 // Update the temporary message with success status
                 setMessages(prev => prev.map(msg => 
                     msg.id === tempMessage.id ? { ...msg, status: 'sent' } : msg
                 ));
+                console.log('✅ Message sent successfully');
             } else {
                 // Update the temporary message with error status
                 setMessages(prev => prev.map(msg => 
                     msg.id === tempMessage.id ? { ...msg, status: 'error' } : msg
                 ));
+                
+                console.error('❌ Message send failed:', response);
                 Sentry.captureMessage('Failed to send message', {
                     level: 'error',
                     tags: {
@@ -334,15 +340,30 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                         messageLength: messageText.length
                     }
                 });
-                alert('Greška pri slanju poruke!');
+                
+                // Ne prikazuj alert odmah - možda je poruka ipak poslana
+                console.warn('⚠️ Message send reported failure, but message might still be delivered');
             }
         } catch (error) {
-            console.error('Error sending message:', error);
+            console.error('❌ Error sending message:', error);
+            
             // Update the temporary message with error status
             setMessages(prev => prev.map(msg => 
                 msg.id === tempMessage.id ? { ...msg, status: 'error' } : msg
             ));
-            alert('Greška pri slanju poruke!');
+            
+            Sentry.captureException(error, {
+                tags: {
+                    component: 'EndToEndMessenger',
+                    action: 'handleSubmit'
+                },
+                extra: {
+                    receiverId: chat.id,
+                    messageLength: messageText.length
+                }
+            });
+            
+            console.warn('⚠️ Network error, but message might still be delivered');
         }
     };
 
