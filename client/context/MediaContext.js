@@ -36,7 +36,8 @@ export const MediaProvider = ({ children }) => {
         if (songs.length === 0 && !isSongListLoading) {
             setIsSongListLoading(true);
             try {
-                const response = await fetch('/api/media/songs');
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+                const response = await fetch(`${apiUrl}/api/media/songs`);
                 if (!response.ok) {
                     const errorData = await response.json();
                     setSongs([]);

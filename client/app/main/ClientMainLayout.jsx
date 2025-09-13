@@ -240,7 +240,8 @@ function ClientMainLayout({ children }) {
 
             try {
                
-                const response = await fetch('/api/me', {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+                const response = await fetch(`${apiUrl}/api/me`, {
                     headers: { 
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json'
@@ -270,7 +271,8 @@ function ClientMainLayout({ children }) {
         try {
             const token = localStorage.getItem('token');
             if (token) {
-                await fetch('/api/auth/logout', {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+                await fetch(`${apiUrl}/api/auth/logout`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -410,7 +412,8 @@ function ClientMainLayout({ children }) {
             const token = localStorage.getItem('token');
             if (!token) return;
             try {
-                const res = await fetch('/api/users/userlist', {
+                const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+                const res = await fetch(`${apiUrl}/api/users/userlist`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

@@ -111,7 +111,7 @@ const sendMessage = (req, res) => {
           // Dohvati username pošiljatelja (iz baze podataka)
           const clientDbPath = path.resolve(__dirname, '../../database/data/client_info.db');
           const clientDb = new Database(clientDbPath);
-          const sender = clientDb.prepare('SELECT username FROM clients WHERE id = ?').get(senderId);
+          const sender = clientDb.prepare('SELECT username FROM users WHERE id = ?').get(senderId);
           clientDb.close();
           userlistDb.prepare('INSERT INTO userlist (id, username, unread_messages, last_message_at) VALUES (?, ?, 1, ?)')
             .run(senderId, sender?.username || 'Unknown', payload.sent_at);

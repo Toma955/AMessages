@@ -27,7 +27,8 @@ export default function RadioListWidget({ onStationSelect, currentStation, isVis
         if (!show) return;
         setLoading(true);
         setError(null);
-        fetch('/api/media/radio/stations')
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+        fetch(`${apiUrl}/api/media/radio/stations`)
             .then(res => res.json())
             .then(data => {
                 if (data.success) {

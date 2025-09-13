@@ -36,7 +36,8 @@ export const ChatProvider = ({ children }) => {
         // API call za dodavanje u userlist
         try {
             const token = localStorage.getItem('token');
-            await fetch('/api/users/userlist/add', {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com';
+            await fetch(`${apiUrl}/api/users/userlist/add`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

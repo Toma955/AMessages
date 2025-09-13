@@ -93,7 +93,7 @@ async function syncUserlistFromChats(userId) {
         console.log('📊 syncUserlistFromChats: Unread messages count:', unread);
         
         // Username sugovornika
-        const other = clientDb.prepare('SELECT username FROM clients WHERE id = ?').get(Number(otherId));
+        const other = clientDb.prepare('SELECT username FROM users WHERE id = ?').get(Number(otherId));
         console.log('👤 syncUserlistFromChats: Other user info:', other);
         
         // Upsert u userlist
