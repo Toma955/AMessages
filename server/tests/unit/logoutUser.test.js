@@ -2,7 +2,7 @@ import request from "supertest";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from 'url';
-import Database from "better-sqlite3";
+import Database from "sqlite3";
 import jwt from "jsonwebtoken";
 import authRoutes from "../../routes/AuthRoutes.js";
 import fs from 'fs';

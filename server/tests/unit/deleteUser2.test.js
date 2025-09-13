@@ -6,7 +6,7 @@ import userRoutes from "../../routes/UserRoutes.js";
 import fs from 'fs';
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
-import Database from "better-sqlite3";
+import Database from "sqlite3";
 
 dotenv.config();
 

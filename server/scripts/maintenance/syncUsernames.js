@@ -1,5 +1,5 @@
 const path = require("path");
-const Database = require("better-sqlite3");
+const Database = require("sqlite3");
 
 // Putanje do baza podataka
 const dbPath = path.resolve(__dirname, "../../database/data");

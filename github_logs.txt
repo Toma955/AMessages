@@ -1,0 +1,100 @@
+d1762beb|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Zadnja stabilna verzija
+0e608214|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Production version 1.0 - UserWorkflow test
+56000436|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Update test files to use ES6 modules and fix test configurations
+892cd9aa|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Remove fileURLToPath and import.meta.url from integration test
+cda63a8b|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Remove .js from extensionsToTreatAsEsm in Jest config
+2f88b3cd|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix Jest configuration to support ES6 modules in integration test
+982d28fe|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix integration test to use CommonJS require instead of ES6 import
+ef09417b|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix frontend-backend connection: add environment config and expand CORS domains
+28fcc17e|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix deployment issues: replace hardcoded localhost URLs with environment variables
+a53e3cbf|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix hardcoded API URLs in page.js to use environment variables
+55fdb2dc|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix SettingsDashboard API import path
+f9b90a6d|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix grup icon, record player text layout, and search widget avatars
+bbe5e2cc|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix back button icon and validation sidebar position
+11b49336|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix LoadingCounter to use production API URL
+cd1b6eb6|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix frontend API import and Sentry config
+949fa788|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Add root route to backend API
+07133b4e|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fully synchronize Croatian and English user guides - remove extra spacing and align structure
+b6850db8|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix English user guide - change Core Features to Basic Features for consistency
+272f320d|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Remove file sharing functionality from user guide - sync Croatian and English versions
+2fac4f97|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Add comprehensive user guide in English and Croatian - update documentation with user instructions
+34c555f7|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Update CORS and OAuth redirects for Vercel frontend deployment
+7a841b81|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Remove unnecessary comments - clean up verbose comments from server and client code
+e10c2174|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Remove verbose debug logs - clean up Google OAuth, Socket.IO, and startup logs
+a0befd27|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Configure frontend URLs for Render deployment - update all API endpoints and environment variables
+f04c4af5|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Update deployment guide: Sentry version compatibility and config details
+cf0e8152|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix Sentry version compatibility issue - downgrade to v7.x and update configuration
+cbad21bd|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Add Render deployment instructions and environment variable setup guide
+250901e9|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix Render deployment issues: Sentry initialization, environment variables, and CORS settings
+c269cc9e|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Push all local changes
+85f17024|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|Fix Sentry module resolution issue and image import paths
+aee68f38|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|fix: update sentry to latest version
+b67cd3e9|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|fix: replace sqlite3 with better-sqlite3 in User model
+8b01ee77|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|fix: sqlite3 render compatibility
+516c5781|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|build: buildan front i update CSS
+48bcf2eb|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-08|gruo Chat
+a80bc5f6|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-07|Production mode 1
+6868854a|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-07|Fix: registracija korisnika, logiranje u user.log, SearchWidget autentikacija i error handling
+3d40002e|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-07|Added group button to chat list items and adjusted record player positioning
+e8920222|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-02|Fix: Return empty userlist if Userlist.db does not exist; general code and style updates
+25b09ac4|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-02|Popravljen preloader
+e580cac8|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-02|Complete refactoring: Add services, contexts, hooks, Docker config, and documentation
+2934c475|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-01|Fix CI: add build-essential, python3, clean node_modules, and prebuild-install for Node 20 compatibility
+df6f9811|Toma955|78325663+Toma955@users.noreply.github.com|2025-07-01|Prototipna verzija
+ad13778f|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-30|UI poboljšanja: SettingsDashboard, DocumentReader, layout i stilovi
+3f37173c|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-28|Update messaging system with improved UI and functionality
+3fde1159|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-27|Sve promjene: ažuriran EndToEndMessenger.jsx
+616b811c|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-27|Maknut obrub (border) sa svih panela i centralnog containera, .active-chats-container sada potpuno prazan kad nema chatova
+1355613d|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-27|Prikaz avatara prema spolu (Man/Woman), ispravljena putanja, poboljsan drag-to-delete UX, i ostale UI dorade
+f3512a7d|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-26|Feat: Userlist backend and frontend integration, prevent duplicates, persist chat list
+0789143f|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-26|Fix: User can only delete own account, add JWT to delete, improve logout and modal UX, and redirect to login after delete
+df84b61d|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-26|Fix: Render SearchWidget in ClientMainLayout and improve JWT backend review
+514dff1e|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-25|Radio widget: swap animacija, novi RadioListWidget, backend API, HTTPS default stream, fallback, filter, bugfixes
+dab17f6d|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-24|Implementiran admin dashboard s prikazom korisnika i startup loga, poboljšan layout i responsive dizajn
+5abae14d|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-23|Uklonjen loading overlay s login stranice i poboljsan logout iz admina (router.push)
+faa305ca|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-23|Implement robust preloader, 404, and server-down logic; UI/UX improvements; CSS fixes
+a800896d|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-21|Fix custom date picker calendar functionality - step by step date selection with proper year/month/day building
+156af788|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-21|Updated registration form: removed email field, added 2x2 grid layout for buttons, fixed image imports
+62c3851e|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-19|UI: popravljene pozadine wigeta
+ed8a6177|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-04|Dodan server side rederning na main app
+8044d557|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-04|Dodan Settings Wiget
+26f12157|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-04|Prozori
+0491469d|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-03|Search wiget i logika dodavanja osoba u listu
+878f2e5e|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-03|Frontend sa logiom i logoutom
+09783e3d|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-03|Frontend sa meniem zvukova
+3d535a01|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-02|Merge pull request #2 from Toma955/frontend
+08bace28|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-02|Gramofon wiget
+1bf8b498|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-02|Frontend Tema i Izbornik sa animacijama
+903e8c5b|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-01|Sinkronizacija lokalnih promjena
+7ba00b9c|Toma955|78325663+Toma955@users.noreply.github.com|2025-06-01|Front
+eddcf0f8|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-31|Pocetak Frontenda
+45730769|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-31| Prometeus
+82c0b6c2|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-31| Komentari i popravljene datoteke za integracijski test
+34e59d49|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-30|Finalne ispravke i JWT middleware integracija
+9c44254d|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-30|Dodana logika za handleUpdateUser
+9a017ce9|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-30|Dodana funkcija handleUpdateUser u UserController
+7ddf1d8b|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-26|Kreirane datoteke za slanje i primanje poruka te za spremanje u hot i cold bazu podataka te rute. AuthControlru dodan login i logout datoteke
+c6cc251e|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-19|Update nodejs.yml
+715570e5|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-19|Update nodejs.yml
+b2a68124|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-19|Dodan integraciski test od 2 usera i ylm datoteka preuredjena da samo njega izvrsava
+99a737bc|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-09|Popravljen server.js
+dcc376d2|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-09|Update server.js
+5dbac3ef|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-07|Update backup.js
+782abba7|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-07|Integracija helmet, backup.js, priprema za Sentry sa testovima
+67a5d901|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-07|Integracija helmet, backup.js, priprema za Sentry
+528aae3c|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Fix: test konfiguracija i CI SQLite rebuild
+430ed661|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Ispravak: putanje do testConfig-a i tijek prijave/odjave korisnika
+3d390c3c|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Update startup.log
+742bdd1a|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Rename userController.js to UserController.js
+e48b42aa|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Rename messageController.js to MessageController.js
+22f8ded0|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Rename conversationController.js to ConversationController.js
+9ab73d2d|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Rename authController.js to AuthController.js
+8f4e53f2|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|CI: ispravljen jest execution i sintaksa
+8d6371ce|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Popravljen jest poziv u CI (Permission denied workaround)
+78bcb8e1|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Ispravak: instalacija devDependencies za jest
+0da8452a|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Ispravak sintakse u GitHub Actions workflowu
+f2cd38ab|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Dodane GitHub Actions CI workflow
+be124ec3|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Ispravna Verzija
+ede00218|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Testovi korisnika, logovi i provjera datoteka prilikom paljena servera
+3ba19ecf|Toma955|78325663+Toma955@users.noreply.github.com|2025-05-03|Dodana Server Logika i testovi za kreiranje usera, logiranje, logout, dodano prilikom pokretanja servera da se provjere kljucne datoteke te log funkcija za neke ključne događaje
+13924e5e|Toma955|78325663+Toma955@users.noreply.github.com|2025-04-11|Inicijalni commit - kompletan AMessages projekt
