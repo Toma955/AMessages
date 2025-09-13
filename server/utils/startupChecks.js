@@ -6,6 +6,7 @@ import initClientDb from "../models/InitClientInfoDb.js";
 import initLoginDb from "../models/InitLoginDb.js";
 import initSystemDb from "../models/InitSystemDb.js";
 import initUsernamesDb from "../models/InitUsernamesDb.js";
+import initUserlistDb from "../models/InitUserlistDb.js";
 
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -54,6 +55,16 @@ async function startupChecks() {
     await checkAndInitDatabase("login.db", initLoginDb);
     await checkAndInitDatabase("system.db", initSystemDb);
     await checkAndInitDatabase("usernames.db", initUsernamesDb);
+    
+    // Inicijalizuj userlist tabele za sve postojeće korisnike
+    try {
+        startup.info("Initializing userlist tables for existing users...");
+        initUserlistDb();
+        startup.info("Userlist tables initialization completed.");
+    } catch (err) {
+        startup.error(`Userlist initialization error: ${err.message}`);
+        throw new Error(`Failed to initialize userlist tables: ${err.message}`);
+    }
 
     const now = new Date().toISOString().replace("T", " ").slice(0, 19);
     startup.info(`[${now}] Startup checks passed. All critical files are present.`);

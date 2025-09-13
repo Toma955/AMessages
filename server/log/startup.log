@@ -11,3 +11,9 @@
 {"level":30,"time":1757754288150,"pid":12190,"hostname":"MacBook-Air-od-Toma.local","msg":".env file not found, using system environment variables"}
 {"level":30,"time":1757754288150,"pid":12190,"hostname":"MacBook-Air-od-Toma.local","msg":"JWT_SECRET not found, using default"}
 {"level":30,"time":1757754288151,"pid":12190,"hostname":"MacBook-Air-od-Toma.local","msg":"[2025-09-13 09:04:48] Startup checks passed. All critical files are present."}
+{"level":30,"time":1757757341049,"pid":41140,"hostname":"MacBook-Air-od-Toma.local","msg":"Startup check initiated."}
+{"level":30,"time":1757757341049,"pid":41140,"hostname":"MacBook-Air-od-Toma.local","msg":".env file not found, using system environment variables"}
+{"level":30,"time":1757757341050,"pid":41140,"hostname":"MacBook-Air-od-Toma.local","msg":"JWT_SECRET not found, using default"}
+{"level":30,"time":1757757341050,"pid":41140,"hostname":"MacBook-Air-od-Toma.local","msg":"Initializing userlist tables for existing users..."}
+{"level":30,"time":1757757341050,"pid":41140,"hostname":"MacBook-Air-od-Toma.local","msg":"Userlist tables initialization completed."}
+{"level":30,"time":1757757341051,"pid":41140,"hostname":"MacBook-Air-od-Toma.local","msg":"[2025-09-13 09:55:41] Startup checks passed. All critical files are present."}

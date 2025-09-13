@@ -4,8 +4,8 @@ const { withSentryConfig } = require("@sentry/nextjs");
 const nextConfig = {
     output: 'standalone',
     env: {
-        NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://amessages.onrender.com',
-        NEXT_PUBLIC_SOCKET_URL: process.env.NEXT_PUBLIC_SOCKET_URL || 'https://amessages.onrender.com',
+        NEXT_PUBLIC_API_URL: 'https://amessages.onrender.com',
+        NEXT_PUBLIC_SOCKET_URL: 'https://amessages.onrender.com',
     },
     images: {
         domains: [
