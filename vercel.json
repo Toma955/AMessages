@@ -3,9 +3,5 @@
   "buildCommand": "cd client && npm install && npm run build",
   "outputDirectory": "client/.next",
   "installCommand": "cd client && npm install",
-  "framework": "nextjs",
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://amessages.onrender.com",
-    "NEXT_PUBLIC_SOCKET_URL": "https://amessages.onrender.com"
-  }
+  "framework": "nextjs"
 }
