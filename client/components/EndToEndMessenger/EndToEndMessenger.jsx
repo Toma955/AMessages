@@ -82,8 +82,10 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
     // Real-time message handling
     useEffect(() => {
         const handleNewMessage = (event) => {
+            console.log('🔌 EndToEndMessenger received new_message_received event:', event.detail);
             const messageData = event.detail;
             if (messageData.sender_id === chat.id) {
+                console.log('✅ Adding message to chat:', chat.id);
                 setMessages(prev => [...prev, {
                     id: messageData.id,
                     text: messageData.message,
@@ -91,17 +93,23 @@ export default function EndToEndMessenger({ chat, onClose, width = '100%', isSin
                     timestamp: messageData.sent_at,
                     status: 'received'
                 }]);
+            } else {
+                console.log('❌ Message not for this chat. Expected:', chat.id, 'Got:', messageData.sender_id);
             }
         };
 
         const handleMessageSent = (event) => {
+            console.log('🔌 EndToEndMessenger received message_sent_confirmation event:', event.detail);
             const messageData = event.detail;
             if (messageData.receiver_id === chat.id) {
+                console.log('✅ Updating message status for chat:', chat.id);
                 setMessages(prev => prev.map(msg => 
                     msg.text === messageData.message && msg.sender === 'me' && !msg.id
                         ? { ...msg, id: messageData.id, status: 'sent' }
                         : msg
                 ));
+            } else {
+                console.log('❌ Message confirmation not for this chat. Expected:', chat.id, 'Got:', messageData.receiver_id);
             }
         };
 

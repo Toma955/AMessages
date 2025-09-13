@@ -453,9 +453,11 @@ function ClientMainLayout({ children }) {
         try {
            
             const socket = socketService.connect(token);
+            console.log('🔌 Socket connection established:', socket?.connected);
 
            
             socketService.on('new_message', (messageData) => {
+                console.log('🔌 Received new_message event:', messageData);
               
                 setChats(prevChats => {
                     const updatedChats = prevChats.map(chat => {
@@ -479,6 +481,7 @@ function ClientMainLayout({ children }) {
 
           
             socketService.on('message_sent', (messageData) => {
+                console.log('🔌 Received message_sent event:', messageData);
                 // Uvijek pošalji event - ne provjeravaj activeChats jer se ažurira asinkrono
                 window.dispatchEvent(new CustomEvent('message_sent_confirmation', {
                     detail: messageData

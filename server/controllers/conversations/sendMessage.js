@@ -12,7 +12,12 @@ const errors = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constan
 const success = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/success.json"), 'utf8'));
 
 function getHotDbPath(userId, otherId) {
-  return path.resolve(__dirname, `../../database/users/${userId}/chat/${otherId}/hot.db`);
+  // Na Render-u koristi /tmp direktorij koji je uvijek dostupan
+  const baseDir = process.env.NODE_ENV === 'production' 
+    ? '/tmp/amessages/database' 
+    : path.resolve(__dirname, `../../database`);
+  
+  return path.join(baseDir, `users/${userId}/chat/${otherId}/hot.db`);
 }
 
 const sendMessage = (req, res) => {
@@ -58,27 +63,45 @@ const sendMessage = (req, res) => {
     for (const dbPath of paths) {
       console.log("🗄️ Processing database:", dbPath);
       
-      if (!fs.existsSync(dbPath)) {
-        console.log("🗄️ Creating database:", dbPath);
-        // Ako baza ne postoji, kreiraj je i tablicu 'messages'
-        const dbDir = path.dirname(dbPath);
-        if (!fs.existsSync(dbDir)) {
-          fs.mkdirSync(dbDir, { recursive: true });
+      try {
+        if (!fs.existsSync(dbPath)) {
+          console.log("🗄️ Creating database:", dbPath);
+          // Ako baza ne postoji, kreiraj je i tablicu 'messages'
+          const dbDir = path.dirname(dbPath);
+          console.log("🗄️ Database directory:", dbDir);
+          
+          if (!fs.existsSync(dbDir)) {
+            console.log("🗄️ Creating directory:", dbDir);
+            fs.mkdirSync(dbDir, { recursive: true });
+            console.log("✅ Directory created successfully");
+          }
+          
+          const db = new Database(dbPath);
+          db.prepare(`
+            CREATE TABLE IF NOT EXISTS messages (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              sender_id INTEGER NOT NULL,
+              receiver_id INTEGER NOT NULL,
+              message TEXT NOT NULL,
+              sent_at TEXT NOT NULL,
+              status TEXT NOT NULL,
+              direction TEXT NOT NULL
+            );
+          `).run();
+          db.close();
+          console.log("✅ Created database and table");
         }
-        const db = new Database(dbPath);
-        db.prepare(`
-          CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sender_id INTEGER NOT NULL,
-            receiver_id INTEGER NOT NULL,
-            message TEXT NOT NULL,
-            sent_at TEXT NOT NULL,
-            status TEXT NOT NULL,
-            direction TEXT NOT NULL
-          );
-        `).run();
-        db.close();
-        console.log("✅ Created database and table");
+      } catch (dirError) {
+        console.error("❌ Error creating database directory:", dirError);
+        console.error("❌ Directory path:", path.dirname(dbPath));
+        console.error("❌ Error details:", {
+          code: dirError.code,
+          errno: dirError.errno,
+          syscall: dirError.syscall,
+          path: dirError.path
+        });
+        // Nastavi s drugim putanjom
+        continue;
       }
 
       const db = new Database(dbPath);
@@ -99,7 +122,10 @@ const sendMessage = (req, res) => {
       // Ažuriraj Userlist.db za primatelja (samo ako je ovo baza primatelja)
       if (dbPath.includes(`/users/${receiverId}/`)) {
         console.log("📋 Updating userlist for receiver:", receiverId);
-        const userlistDbPath = path.resolve(__dirname, `../../database/users/${receiverId}/Userlist.db`);
+        const baseDir = process.env.NODE_ENV === 'production' 
+          ? '/tmp/amessages/database' 
+          : path.resolve(__dirname, `../../database`);
+        const userlistDbPath = path.join(baseDir, `users/${receiverId}/Userlist.db`);
         const userlistDb = new Database(userlistDbPath);
         // Provjeri postoji li već pošiljatelj
         const existing = userlistDb.prepare('SELECT * FROM userlist WHERE id = ?').get(senderId);
@@ -109,7 +135,10 @@ const sendMessage = (req, res) => {
           console.log("✅ Updated existing user in userlist");
         } else {
           // Dohvati username pošiljatelja (iz baze podataka)
-          const clientDbPath = path.resolve(__dirname, '../../database/data/client_info.db');
+          const baseDir = process.env.NODE_ENV === 'production' 
+            ? '/tmp/amessages/database' 
+            : path.resolve(__dirname, `../../database`);
+          const clientDbPath = path.join(baseDir, 'data/client_info.db');
           const clientDb = new Database(clientDbPath);
           const sender = clientDb.prepare('SELECT username FROM users WHERE id = ?').get(senderId);
           clientDb.close();

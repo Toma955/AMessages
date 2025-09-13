@@ -11,7 +11,12 @@ const __dirname = path.dirname(__filename);
 const errors = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../constants/errors.json"), 'utf8'));
 
 function getHotDbPath(userId, otherId) {
-  return path.resolve(__dirname, `../../database/users/${userId}/chat/${otherId}/hot.db`);
+  // Na Render-u koristi /tmp direktorij koji je uvijek dostupan
+  const baseDir = process.env.NODE_ENV === 'production' 
+    ? '/tmp/amessages/database' 
+    : path.resolve(__dirname, `../../database`);
+  
+  return path.join(baseDir, `users/${userId}/chat/${otherId}/hot.db`);
 }
 
 const receiveMessages = (req, res) => {
