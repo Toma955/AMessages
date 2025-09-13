@@ -174,3 +174,78 @@
 {"level":30,"time":1751982231364,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Password hashed for:"}
 {"level":30,"time":1751982231495,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Inserted into credentials for:"}
 {"level":30,"time":1751982231655,"pid":26432,"hostname":"TomPC","msg":"[CreateUser] Inserted into registered_usernames for:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1757762582871,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1757762582872,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1757762582872,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1757762582872,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1757762582872,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1757762582872,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1757762582874,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1757762582874,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1757762582874,"pid":84562,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Username already exists:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1757762582641,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1757762582651,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1757762582651,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1757762582652,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Username is available"}
+{"level":30,"time":1757762582652,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Finding next available userId..."}
+{"level":30,"time":1757762582652,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Current user count:"}
+{"level":30,"time":1757762582652,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Next available userId:"}
+{"level":30,"time":1757762582653,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Inserted into clients:"}
+{"level":30,"time":1757762582653,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created user folders for:"}
+{"level":30,"time":1757762582653,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created info.db for:"}
+{"level":30,"time":1757762582654,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created Userlist.db for:"}
+{"level":30,"time":1757762582654,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created login.db for:"}
+{"level":30,"time":1757762582657,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created groups.db for:"}
+{"level":30,"time":1757762582929,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Password hashed for:"}
+{"level":30,"time":1757762582930,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Inserted into credentials for:"}
+{"level":30,"time":1757762582930,"pid":84556,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Inserted into registered_usernames for:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate called with:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate: parsed parts:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] formatDate: result:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - username:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - name:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - surname:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - gender:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - date_of_birth:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - formattedDate:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - theme:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Start - language:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] __dirname:"}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] About to resolve database path..."}
+{"level":30,"time":1757762582882,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Database path:"}
+{"level":30,"time":1757762582886,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Database opened successfully"}
+{"level":30,"time":1757762582886,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Checking if username exists:"}
+{"level":30,"time":1757762582887,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Username is available"}
+{"level":30,"time":1757762582887,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Finding next available userId..."}
+{"level":30,"time":1757762582887,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Current user count:"}
+{"level":30,"time":1757762582887,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Next available userId:"}
+{"level":30,"time":1757762582887,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Inserted into clients:"}
+{"level":30,"time":1757762582888,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created user folders for:"}
+{"level":30,"time":1757762582888,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created info.db for:"}
+{"level":30,"time":1757762582888,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created Userlist.db for:"}
+{"level":30,"time":1757762582889,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created login.db for:"}
+{"level":30,"time":1757762582889,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Created groups.db for:"}
+{"level":30,"time":1757762582950,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Password hashed for:"}
+{"level":30,"time":1757762582951,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Inserted into credentials for:"}
+{"level":30,"time":1757762582951,"pid":84563,"hostname":"MacBook-Air-od-Toma.local","msg":"[CreateUser] Inserted into registered_usernames for:"}

@@ -126,7 +126,25 @@ const sendMessage = (req, res) => {
           ? '/tmp/amessages/database' 
           : path.resolve(__dirname, `../../database`);
         const userlistDbPath = path.join(baseDir, `users/${receiverId}/Userlist.db`);
+        
+        // Kreiraj direktorij ako ne postoji
+        const userlistDir = path.dirname(userlistDbPath);
+        if (!fs.existsSync(userlistDir)) {
+          fs.mkdirSync(userlistDir, { recursive: true });
+        }
+        
         const userlistDb = new Database(userlistDbPath);
+        
+        // Kreiraj tablicu userlist ako ne postoji
+        userlistDb.prepare(`
+          CREATE TABLE IF NOT EXISTS userlist (
+            id INTEGER PRIMARY KEY,
+            username TEXT NOT NULL,
+            unread_messages INTEGER DEFAULT 0,
+            last_message_at TEXT
+          );
+        `).run();
+        
         // Provjeri postoji li već pošiljatelj
         const existing = userlistDb.prepare('SELECT * FROM userlist WHERE id = ?').get(senderId);
         if (existing) {
@@ -139,11 +157,21 @@ const sendMessage = (req, res) => {
             ? '/tmp/amessages/database' 
             : path.resolve(__dirname, `../../database`);
           const clientDbPath = path.join(baseDir, 'data/client_info.db');
-          const clientDb = new Database(clientDbPath);
-          const sender = clientDb.prepare('SELECT username FROM users WHERE id = ?').get(senderId);
-          clientDb.close();
+          
+          let senderUsername = 'Unknown';
+          try {
+            if (fs.existsSync(clientDbPath)) {
+              const clientDb = new Database(clientDbPath);
+              const sender = clientDb.prepare('SELECT username FROM users WHERE id = ?').get(senderId);
+              clientDb.close();
+              senderUsername = sender?.username || 'Unknown';
+            }
+          } catch (err) {
+            console.error("❌ Error accessing client_info.db:", err.message);
+          }
+          
           userlistDb.prepare('INSERT INTO userlist (id, username, unread_messages, last_message_at) VALUES (?, ?, 1, ?)')
-            .run(senderId, sender?.username || 'Unknown', payload.sent_at);
+            .run(senderId, senderUsername, payload.sent_at);
           console.log("✅ Added new user to userlist");
         }
         userlistDb.close();
