@@ -1,9 +1,6 @@
 name: Backend Health Check
 
 on:
-  schedule:
-    # Pokreće se svakih 5 minuta
-    - cron: '*/5 * * * *'
   workflow_dispatch:
     # Može se pokrenuti ručno
   push:
