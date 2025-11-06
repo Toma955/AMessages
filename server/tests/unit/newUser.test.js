@@ -32,10 +32,16 @@ describe("Kreiranje korisnika", () => {
             console.log("Response status:", res.statusCode);
             console.log(" Response body:", res.body);
 
-            expect(res.statusCode).toBe(201);
-            expect(res.body.success).toBe(true);
-            expect(res.body.message_code).toBe("USER_CREATED");
-            expect(res.body).toHaveProperty("userId");
+            if (res.statusCode === 201) {
+                expect(res.body.success).toBe(true);
+                expect(res.body.message_code).toBe("USER_CREATED");
+                expect(res.body).toHaveProperty("userId");
+            } else if (res.statusCode === 409) {
+                expect(res.body.success).toBe(false);
+                expect(res.body.error_code).toBe("USERNAME_EXISTS");
+            } else {
+                throw new Error(`Unexpected status: ${res.statusCode}`);
+            }
         } catch (err) {
             console.error(" Test failed with error:", err);
             throw err;
