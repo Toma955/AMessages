@@ -1,4 +1,7 @@
 module.exports = {
   presets: [["@babel/preset-env", { targets: { node: "current" }, modules: "auto" }]],
-  plugins: ["@babel/plugin-syntax-import-assertions"],
+  plugins: [
+    "@babel/plugin-syntax-import-assertions",
+    ["@babel/plugin-transform-modules-commonjs", { allowTopLevelThis: true }]
+  ],
 }; 
