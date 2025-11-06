@@ -4,8 +4,12 @@ import request from "supertest";
 import express from "express";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from 'url';
 import userRoutes from "../../routes/UserRoutes.js";
 import authRoutes from "../../routes/AuthRoutes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, "../testConfig.json"), "utf8"));
 

@@ -1,13 +1,9 @@
 name: Backend Health Check
 
 on:
-  workflow_dispatch:
-    # Može se pokrenuti ručno
   push:
-    branches: [ main ]
-    paths:
-      - 'server/**'
-      - '.github/workflows/backend-health-check.yml'
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   health-check:

@@ -2,7 +2,7 @@ name: CI - Integration Only
 
 on:
   push:
-    branches: [main, feature/**]
+  pull_request:
   workflow_dispatch:
 
 jobs:

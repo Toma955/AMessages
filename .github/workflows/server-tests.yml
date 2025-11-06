@@ -2,14 +2,7 @@ name: Server Tests
 
 on:
   push:
-    branches: [ main, develop ]
-    paths:
-      - 'server/**'
-      - '.github/workflows/server-tests.yml'
   pull_request:
-    branches: [ main ]
-    paths:
-      - 'server/**'
 
 jobs:
   test:

@@ -13,6 +13,7 @@ import client from "prom-client";
 import "./backup.js";
 import startupChecks from "./utils/startupChecks.js";
 import AdminRoutes from "./routes/AdminRoutes.js";
+import { connectMongo } from "./config/mongo.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -246,6 +247,14 @@ const PORT = process.env.PORT || 5000;
 async function startServer() {
     try {
         await startupChecks();
+        if (process.env.MONGODB_URI) {
+            try {
+                await connectMongo(process.env.MONGODB_URI);
+                console.log(" MongoDB connected");
+            } catch (e) {
+                console.warn(" MongoDB not connected:", e.message);
+            }
+        }
         server.listen(PORT, '0.0.0.0', () => {
             const now = new Date().toISOString().replace("T", " ").slice(0, 19);
             console.log(` Server started at ${now} on port ${PORT}`);
